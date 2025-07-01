@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ZimCom.Core/ZimCom.Core.csproj" />
+  <Project Path="ZimCom.Desktop/ZimCom.Desktop.csproj" />
+  <Project Path="ZimCom.Server/ZimCom.Server.csproj" />
+</Solution>
