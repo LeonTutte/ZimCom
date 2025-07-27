@@ -48,11 +48,26 @@ namespace ZimCom.Desktop.ViewModels {
             }
         }
         [RelayCommand]
-        public static void MuteInput() { }
+        public void MuteInput() {
+            if (User is not null) {
+                if (User.IsMuted) User.IsMuted = false;
+                if (User.IsMuted is false) User.IsMuted = true;
+            }
+        }
         [RelayCommand]
-        public static void MuteOutput() { }
+        public void MuteOutput() {
+            if (User is not null) {
+                if (User.HasOthersMuted) User.HasOthersMuted = false;
+                if (User.HasOthersMuted is false) User.HasOthersMuted = true;
+            }
+        }
         [RelayCommand]
-        public static void AwayUser() { }
+        public void AwayUser() {
+            if (User is not null) {
+                if (User.IsAway) User.IsAway = false;
+                if (User.IsAway is false) User.IsAway = true;
+            }
+        }
         [RelayCommand]
         public static void OpenSettings() {
             SettingsWindow settingsWindow = new SettingsWindow();

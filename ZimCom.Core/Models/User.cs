@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -6,12 +8,21 @@ using System.Text.Json.Serialization;
 using ZimCom.Core.Modules.Static;
 
 namespace ZimCom.Core.Models;
-public class User : IJsonModel<User> {
+public partial class User : ObservableObject, IJsonModel<User> {
     public required Guid Id { get; set; } = Guid.NewGuid();
     public required string Label { get; set; }
     public override string ToString() => JsonSerializer.Serialize<User>(this);
     [JsonIgnore]
     public IPAddress? Address { get; set; }
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial bool IsMuted { get; set; } = false;
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial bool IsAway { get; set; } = false;
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial bool HasOthersMuted { get; set; } = false;
 
     [SetsRequiredMembers]
     public User(string label) => (Id, Label) = (Guid.NewGuid(), label);

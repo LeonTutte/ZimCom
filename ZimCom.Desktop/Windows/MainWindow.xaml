@@ -32,9 +32,9 @@
                 <Button x:Name="SettingsButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE713;" Command="{Binding OpenSettingsCommand}"/>
                 <Button x:Name="HelpButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE946;"/>
                 <Separator Visibility="Hidden" Width="50"/>
-                <Button x:Name="DisableInputButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xEC54;"/>
-                <Button x:Name="DisableOutputButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE74F;"/>
-                <Button x:Name="AwayButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE769;"/>
+                <Button x:Name="DisableInputButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xEC54;" Command="{Binding MuteInputCommand}"/>
+                <Button x:Name="DisableOutputButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE74F;" Command="{Binding MuteOutputCommand}"/>
+                <Button x:Name="AwayButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE769;" Command="{Binding AwayUserCommand}"/>
             </StackPanel>
             <TextBlock x:Name="UsernameText" Grid.Column="1" Margin="10,0,10,0" d:Text="Username" Text="{Binding User.Label}" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
         </Grid>
@@ -71,7 +71,26 @@
                             </HierarchicalDataTemplate.Triggers>
                             <HierarchicalDataTemplate.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type core:User}">
-                                    <TextBlock Text="{Binding Label}"/>
+                                    <TextBlock Text="{Binding Label}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <!--<Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="TextDecorations" Value="{x:Null}"/>
+                                                <Setter Property="FontStyle" Value="Normal"/>-->
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMuted}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsAway}" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding HasOthersMuted}" Value="True">
+                                                        <Setter Property="FontStyle" Value="Oblique"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </HierarchicalDataTemplate>
                             </HierarchicalDataTemplate.ItemTemplate>
                         </HierarchicalDataTemplate>
@@ -123,9 +142,9 @@
                                         <DataTrigger Binding="{Binding ChatEnabled}" Value="False">
                                             <Setter Property="Visibility" Value="Hidden"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding ChatEnabled}" Value="True">
+                                        <!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
                                             <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
+                                        </DataTrigger>-->
                                     </Style.Triggers>
                                 </Style>
                             </TextBox.Style>
@@ -140,9 +159,9 @@
                                         <DataTrigger Binding="{Binding ChatEnabled}" Value="False">
                                             <Setter Property="Visibility" Value="Hidden"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding ChatEnabled}" Value="True">
+                                        <!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
                                             <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
+                                        </DataTrigger>-->
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>

@@ -11,10 +11,10 @@ public class DynamicServerManagerModule {
     }
     private IPAddress? _address;
     public void SendChannelMessage(ChatMessage chatMessage, Channel channel) {
-        var matchedChannel = Server.Channels
+        Channel? matchedChannel = Server.Channels
                 .FirstOrDefault(c => c.Label == channel.Label);
 
-        if (matchedChannel != null) {
+        if (matchedChannel is not null) {
             matchedChannel.Chat.Add(chatMessage);
         }
     }
