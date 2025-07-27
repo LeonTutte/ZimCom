@@ -1,13 +1,13 @@
 [
   {
-    "Name": "Server and Client",
+    "Name": "Server and Client WIN",
     "Projects": [
       {
         "Path": "ZimCom.ServerConsole\\ZimCom.ServerConsole.csproj",
         "Action": "Start"
       },
       {
-        "Path": "ZimCom.ClientConsole\\ZimCom.ClientConsole.csproj",
+        "Path": "ZimCom.Desktop\\ZimCom.Desktop.csproj",
         "Action": "Start"
       }
     ]

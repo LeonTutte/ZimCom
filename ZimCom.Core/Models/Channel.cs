@@ -12,6 +12,7 @@ public class Channel {
     public bool TitleChannel { get; set; } = false;
     public bool SpacerChannel { get; set; } = false;
     public bool LocalChannel { get; set; } = false;
+    public Dictionary<Strength, Int64> Strengths { get; set; } = new Dictionary<Strength, Int64>();
     public static byte Slots { get; set; } = 64;
     [JsonIgnore]
     public static bool CustomSlotAmount {

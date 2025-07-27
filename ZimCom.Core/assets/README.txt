@@ -6,6 +6,7 @@ Ports:
 
 Voice - UDP - 44111
 Server - TCP - 44112
+Chat - TCP - 44113
 
 Channels:
 Default is 64 Slots per Channel in Memory

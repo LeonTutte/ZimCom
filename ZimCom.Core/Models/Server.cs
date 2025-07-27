@@ -41,10 +41,20 @@ public class Server {
     public static string GetFilePath() => Path.Combine(StaticLocalPathModule.GetLocalApplicationFolder(), "server.json");
 
     public static string GetHostName() {
-        return Dns.GetHostName();
+        try {
+            return Dns.GetHostName();
+        } catch (Exception ex) {
+            StaticLogModule.LogError("Could not retrieve hostname", ex);
+        }
+        return "127.0.0.1";
     }
 
     public static IPAddress GetIPAddress() {
-        return Dns.GetHostAddresses(GetHostName()).First();
+        try {
+            return IPAddress.Any; //Dns.GetHostAddresses(GetHostName()).First(); gives address for all services and not TCP / UDP
+        } catch (Exception ex) {
+            StaticLogModule.LogError("Could not retrieve local ip address", ex);
+        }
+        return IPAddress.Any;
     }
 }

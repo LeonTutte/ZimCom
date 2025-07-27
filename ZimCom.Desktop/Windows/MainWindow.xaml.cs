@@ -35,7 +35,7 @@ public partial class MainWindow : Window {
     private void ChatSubmitButton_Click(object sender, RoutedEventArgs e) {
         if (_viewModel.Server is not null && _viewModel.User is not null && _viewModel.CurrentChannel is not null && !String.IsNullOrWhiteSpace(_viewModel.CurrentChatMessage)) {
             var tempMessage = new ChatMessage(_viewModel.User, _viewModel.CurrentChatMessage);
-            _viewModel.DynamicServerManagerModule.SendChannelMessage(tempMessage, _viewModel.CurrentChannel);
+            _viewModel.DynamicManagerModule.SendChannelMessage(tempMessage, _viewModel.CurrentChannel);
             _viewModel.CurrentChatMessage = String.Empty;
         }
     }

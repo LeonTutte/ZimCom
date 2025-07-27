@@ -7,7 +7,7 @@ using ZimCom.Desktop.Windows;
 
 namespace ZimCom.Desktop.ViewModels {
     public partial class MainViewModel : ObservableObject {
-        public DynamicServerManagerModule DynamicServerManagerModule { get; set; }
+        public DynamicManagerModuleClientExtras DynamicManagerModule { get; set; }
         [ObservableProperty]
         public partial Server? Server { get; set; }
         [ObservableProperty]
@@ -24,9 +24,9 @@ namespace ZimCom.Desktop.ViewModels {
         public partial bool ChatEnabled { get; set; } = false;
 
         public MainViewModel() {
-            DynamicServerManagerModule = new DynamicServerManagerModule();
+            DynamicManagerModule = new DynamicManagerModuleClientExtras();
             // Testdata
-            Server = DynamicServerManagerModule.Server;
+            Server = DynamicManagerModule.Server;
             User = User.Load();
             if (Server is not null && User is not null) {
                 Channel DefaultChannel = GetDefaultChannel();
@@ -74,10 +74,10 @@ namespace ZimCom.Desktop.ViewModels {
             settingsWindow.ShowDialog();
         }
         [RelayCommand]
-        public static void OpenConnect() {
+        public void OpenConnect() {
             ConnectWindow connectWindow = new ConnectWindow();
             connectWindow.ViewModel.ConnectToAddress += (sender, e) => {
-                Console.WriteLine($"{sender}: Lol hast verbunden zu {e}");
+                DynamicManagerModule!.ConnectToServer(e);
             };
             connectWindow.ViewModel.CloseWindow += (sender, e) => {
                 connectWindow.Close();
