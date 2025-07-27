@@ -1,0 +1,30 @@
+﻿<Window x:Class="ZimCom.Desktop.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ZimCom.Desktop.Windows"
+        xmlns:viewmodels="clr-namespace:ZimCom.Desktop.ViewModels"
+        xmlns:core="clr-namespace:ZimCom.Core.Models;assembly=ZimComCore"
+        d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
+        mc:Ignorable="d"
+        Title="ZimCom Settings"
+        MinHeight="1024"
+        MinWidth="768"
+        Height="1024"
+        Width="768"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow">
+    <Grid Margin="10">
+        <VirtualizingStackPanel Orientation="Vertical">
+            <Grid x:Name="UserSettings" d:Background="AliceBlue">
+                <TextBlock Text="User Settings" Style="{StaticResource TitleTextBlockStyle}"/>
+            </Grid>
+            <Grid x:Name="InputSettings" d:Background="Aqua">
+                <TextBlock Text="Input Settings" Style="{StaticResource TitleTextBlockStyle}"/>
+            </Grid>
+            <Grid x:Name="OutputSettings" d:Background="Aquamarine">
+                <TextBlock Text="Output Settings" Style="{StaticResource TitleTextBlockStyle}"/>
+            </Grid>
+        </VirtualizingStackPanel>
+    </Grid>
+</Window>

@@ -1,1 +1,10 @@
-<Solution />
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="ZimCom.ClientConsole/ZimCom.ClientConsole.csproj" Id="f0354ee4-2fbe-40c8-a40e-07a6cc7731b5" />
+  <Project Path="ZimCom.ClientRecorder/ZimCom.ClientRecorder.csproj" Id="7c38f0d9-a750-469c-b955-4ebf80011662" />
+  <Project Path="ZimCom.Core/ZimCom.Core.csproj" Id="d5d3f587-181a-4582-84de-0b5fc69769a7" />
+  <Project Path="ZimCom.Desktop/ZimCom.Desktop.csproj" Id="4293909a-e386-4720-8404-61cf691039a6" />
+  <Project Path="ZimCom.ServerConsole/ZimCom.ServerConsole.csproj" Id="4effe683-3529-49c4-b01e-7e73ff5d73af" />
+</Solution>

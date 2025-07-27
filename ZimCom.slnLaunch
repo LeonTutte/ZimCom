@@ -1,0 +1,33 @@
+[
+  {
+    "Name": "Server and Client",
+    "Projects": [
+      {
+        "Path": "ZimCom.ServerConsole\\ZimCom.ServerConsole.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ZimCom.ClientConsole\\ZimCom.ClientConsole.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Client",
+    "Projects": [
+      {
+        "Path": "ZimCom.ClientConsole\\ZimCom.ClientConsole.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Server",
+    "Projects": [
+      {
+        "Path": "ZimCom.ServerConsole\\ZimCom.ServerConsole.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
