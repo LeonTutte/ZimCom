@@ -1,5 +1,6 @@
 ﻿using System.Net;
 
+using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Static;
 using ZimCom.Core.Modules.Static.Net;
 
@@ -16,12 +17,38 @@ public class DynamicManagerModuleClientExtras : DynamicManagerModule {
             if (_tcpClient.Connected is false) {
                 try {
                     _tcpClient.Connect(_address, _serverPort);
-                    if (_tcpClient.Connected is true) StaticNetClientEvents.ConnectedToServer?.Invoke(this, new EventArgs());
                 } catch (Exception ex) {
                     StaticLogModule.LogError("Error during server connect", ex);
                     StaticNetClientEvents.ConnectedToServerFail?.Invoke(this, ex);
                 }
+                if (_tcpClient.Connected is true) {
+                    StaticNetClientEvents.ConnectedToServer?.Invoke(this, new EventArgs());
+                    _clientPacketReader = new IO.DynamicIoClientPacketReader(_tcpClient.GetStream());
+                    HandleIncomingServerPackets();
+                }
             }
+        }
+    }
+
+    private void HandleIncomingServerPackets() {
+        Task.Run(() => {
+            while (_tcpClient.Connected is true && _clientPacketReader is not null) {
+                byte opCode = _clientPacketReader.ReadByte();
+                switch (opCode) {
+                    case (byte)StaticNetOpCodes.ServerCode:
+                        StaticNetClientEvents.ReceivedServerData?.Invoke(this, Server.SetFromPacket(_clientPacketReader!.ReadMessage()) ?? throw new Exception("Failed to read server data"));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            //StaticNetClientEvents.DisconnectedFromServer?.Invoke(this, new EventArgs());
+        });
+    }
+
+    public void SendUserInfo(User user) {
+        if (_tcpClient.Connected is true) {
+            _tcpClient.Client.Send(user.GetPacket());
         }
     }
 }

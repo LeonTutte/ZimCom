@@ -13,6 +13,7 @@ namespace ZimCom.Desktop.Windows {
             InitializeComponent();
             _viewModel = new ConnectWindowViewModel();
             this.DataContext = _viewModel;
+            this.AddressBox.Focus();
         }
     }
 }

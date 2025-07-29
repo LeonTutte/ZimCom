@@ -18,6 +18,8 @@ internal class Program {
             _dynamicManagerModule.Server.Save();
         }
         AnsiConsole.MarkupLine($"Counting {_dynamicManagerModule.Server.Channels.Count} Channels");
+        AnsiConsole.MarkupLine($"Counting {_dynamicManagerModule.Server.Groups.Count} Groups");
+        AnsiConsole.MarkupLine($"Counting {_dynamicManagerModule.Server.UserToGroup!.Count} user to group combinations");
         StaticLogWrapper.WriteAnsiMarkupDebug($"Starting server on [blue]{_dynamicManagerModule.Server.HostName}[/] and [blue]{_dynamicManagerModule.Server.IpAddress.MapToIPv4().ToString()}[/] | [blue]{_dynamicManagerModule.Server.IpAddress.ToString()}[/]");
 
         _dynamicManagerModule.StartServerListener();

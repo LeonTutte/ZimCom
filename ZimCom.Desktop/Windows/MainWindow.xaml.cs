@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 
 using ZimCom.Core.Models;
+using ZimCom.Core.Modules.Static.Net;
 using ZimCom.Desktop.ViewModels;
 
 namespace ZimCom.Desktop.Windows;
@@ -36,6 +37,7 @@ public partial class MainWindow : Window {
         if (_viewModel.Server is not null && _viewModel.User is not null && _viewModel.CurrentChannel is not null && !String.IsNullOrWhiteSpace(_viewModel.CurrentChatMessage)) {
             var tempMessage = new ChatMessage(_viewModel.User, _viewModel.CurrentChatMessage);
             _viewModel.DynamicManagerModule.SendChannelMessage(tempMessage, _viewModel.CurrentChannel);
+            StaticNetClientEvents.SendMessageToServer?.Invoke(this, tempMessage);
             _viewModel.CurrentChatMessage = String.Empty;
         }
     }

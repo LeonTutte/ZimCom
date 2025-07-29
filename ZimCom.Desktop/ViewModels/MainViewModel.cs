@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic;
+using ZimCom.Core.Modules.Static.Net;
 using ZimCom.Desktop.Windows;
 
 namespace ZimCom.Desktop.ViewModels {
@@ -33,6 +34,7 @@ namespace ZimCom.Desktop.ViewModels {
                 DefaultChannel.Participents.Add(User);
                 CurrentChannel = DefaultChannel;
             }
+            AttachToClientEvents();
         }
         [RelayCommand]
         public void JoinChannel() {
@@ -78,6 +80,7 @@ namespace ZimCom.Desktop.ViewModels {
             ConnectWindow connectWindow = new ConnectWindow();
             connectWindow.ViewModel.ConnectToAddress += (sender, e) => {
                 DynamicManagerModule!.ConnectToServer(e);
+                if (User is not null) DynamicManagerModule!.SendUserInfo(User);
             };
             connectWindow.ViewModel.CloseWindow += (sender, e) => {
                 connectWindow.Close();
@@ -85,6 +88,14 @@ namespace ZimCom.Desktop.ViewModels {
             connectWindow.ShowDialog();
         }
         public Channel GetDefaultChannel() => Server!.Channels.FindAll(x => x.DefaultChannel.Equals(true)).First();
-
+        public void AttachToClientEvents() {
+            StaticNetClientEvents.ReceivedServerData += (sender, e) => {
+                this.Server = e;
+            };
+            StaticNetClientEvents.DisconnectedFromServer += (sender, e) => {
+                MessageWindow messageWindow = new MessageWindow("Disconnect", "Disconnected from Server!");
+                messageWindow.ShowDialog();
+            };
+        }
     }
 }

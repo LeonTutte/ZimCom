@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 
 using ZimCom.Core.Models;
+using ZimCom.Core.Modules.Dynamic.IO;
 
 namespace ZimCom.Core.Modules.Dynamic;
 public class DynamicManagerModule {
@@ -10,12 +11,15 @@ public class DynamicManagerModule {
         get { return _server; }
         set { _server = value; }
     }
+
     internal bool _asClient = false;
     internal TcpClient _tcpClient;
     internal IPAddress? _address;
     internal int _serverPort = 46112;
     internal int _voicePort = 46111;
     internal int _chatPort = 46113;
+
+    internal DynamicIoClientPacketReader? _clientPacketReader;
     public void SendChannelMessage(ChatMessage chatMessage, Channel channel) {
         Channel? matchedChannel = Server.Channels
                 .FirstOrDefault(c => c.Label == channel.Label);
@@ -35,7 +39,26 @@ public class DynamicManagerModule {
                 Description = "You are not connected",
                 DefaultChannel = true,
                 LocalChannel = true,
-                Strengths = new Dictionary<Strength, long>() {
+                Strengths = GetDefaultStrengthSet()
+                },
+            },
+            Groups = new List<Group> {
+                new Group {
+                    Label = "Default Group",
+                    IsDefault = true,
+                    Strengths = GetDefaultStrengthSet()
+                },
+            },
+            UserToGroup = new Dictionary<string, string>(),
+            BannedUsers = new List<User>(),
+            KnownUsers = new List<User>(),
+        };
+        _asClient = asClient;
+        _tcpClient = new TcpClient();
+    }
+
+    public Dictionary<Strength, long> GetDefaultStrengthSet() {
+        return new Dictionary<Strength, long>() {
                     { Strength.UserMove, 0 },
                     { Strength.UserRemove, 0 },
                     { Strength.UserRemovePermanently, 0 },
@@ -46,11 +69,6 @@ public class DynamicManagerModule {
                     { Strength.FileUpload, 0 },
                     { Strength.FileDownload, 0 },
                     { Strength.FileDelete, 0 },
-                }
-                },
-            },
-        };
-        _asClient = asClient;
-        _tcpClient = new TcpClient();
+                };
     }
 }

@@ -2,7 +2,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static;
+using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.Core.Models;
 public class Server {
@@ -14,6 +16,10 @@ public class Server {
     public string HostName { get; set; } = GetHostName();
 
     public List<Channel> Channels { get; set; } = new List<Channel>();
+    public List<Group> Groups { get; set; } = new List<Group>();
+    public List<User> BannedUsers { get; set; } = new List<User>();
+    public List<User> KnownUsers { get; set; } = new List<User>();
+    public Dictionary<string, String> UserToGroup { get; set; } = new Dictionary<string, String>();
 
     public override string ToString() => JsonSerializer.Serialize<Server>(this, options: new JsonSerializerOptions { WriteIndented = true });
 
@@ -56,5 +62,23 @@ public class Server {
             StaticLogModule.LogError("Could not retrieve local ip address", ex);
         }
         return IPAddress.Any;
+    }
+
+    public byte[] GetPacket() {
+        DynamicIoClientPacket packet = new DynamicIoClientPacket();
+        packet.WriteOpCode((byte)StaticNetOpCodes.ServerCode);
+        packet.WriteMessage(JsonSerializer.Serialize<Server>(this));
+        return packet.GetPacketBytes();
+    }
+
+    public static Server? SetFromPacket(string data) {
+        Server? tempServer = null;
+        try {
+            tempServer = JsonSerializer.Deserialize<Server>(data);
+        } catch (Exception ex) {
+            StaticLogModule.LogError("Error during server conversion", ex);
+            return null;
+        }
+        return tempServer ?? null;
     }
 }
