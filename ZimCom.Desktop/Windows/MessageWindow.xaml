@@ -18,7 +18,7 @@
         </Grid>
         <Grid Grid.Row="1" d:Background="Aqua">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button x:Name="ConnectButton" Margin="4" Content="Connect" Click="ConnectButton_Click" IsDefault="True"/>
+                <Button x:Name="ConnectButton" Margin="4" Content="OK" Click="ConnectButton_Click" IsDefault="True"/>
             </StackPanel>
         </Grid>
     </Grid>

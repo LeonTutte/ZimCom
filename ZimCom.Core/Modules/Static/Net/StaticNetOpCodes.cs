@@ -2,5 +2,6 @@
 public enum StaticNetOpCodes : byte {
     UserCode = 0,
     ServerCode = 1,
-    ChatMessage = 2,
+    ChatMessageCode = 2,
+    ChangeChannel = 3,
 }

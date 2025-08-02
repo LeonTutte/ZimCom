@@ -7,4 +7,7 @@ public static class StaticNetClientEvents {
     public static EventHandler<Server>? ReceivedServerData { get; set; }
     public static EventHandler? DisconnectedFromServer { get; set; }
     public static EventHandler<ChatMessage>? SendMessageToServer { get; set; }
+    public static EventHandler<ChatMessage>? ReceivedMessageFromServer { get; set; }
+    public static EventHandler<(User, Channel)>? UserChangeChannel { get; set; }
+    public static EventHandler<(User, Channel)>? OtherUserChangeChannel { get; set; }
 }

@@ -23,10 +23,12 @@ namespace ZimCom.Desktop.ViewModels {
         public partial string? CurrentChatMessage { get; set; }
         [ObservableProperty]
         public partial bool ChatEnabled { get; set; } = false;
+        public User ServerUser;
 
         public MainViewModel() {
             DynamicManagerModule = new DynamicManagerModuleClientExtras();
             // Testdata
+            ServerUser = new User("Server");
             Server = DynamicManagerModule.Server;
             User = User.Load();
             if (Server is not null && User is not null) {
@@ -40,12 +42,18 @@ namespace ZimCom.Desktop.ViewModels {
         public void JoinChannel() {
             if (SelectedChannel is not null) {
                 if (SelectedChannel.TitleChannel is false && SelectedChannel.SpacerChannel is false && User is not null) {
-                    PreviousChannel = CurrentChannel;
-                    PreviousChannel!.Participents.Remove(User);
-                    PreviousChannel.CurrentChannel = false;
-                    SelectedChannel.CurrentChannel = true;
-                    SelectedChannel.Participents.Add(User);
-                    CurrentChannel = SelectedChannel;
+                    if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelAccess, User, SelectedChannel)) {
+                        PreviousChannel = CurrentChannel;
+                        PreviousChannel!.Participents.Remove(User);
+                        PreviousChannel.CurrentChannel = false;
+                        SelectedChannel.CurrentChannel = true;
+                        SelectedChannel.Participents.Add(User);
+                        CurrentChannel = SelectedChannel;
+                        StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel));
+                    } else {
+                        MessageWindow messageWindow = new MessageWindow("Access denied", $"You are not permitted to access {SelectedChannel.Label}");
+                        messageWindow.ShowDialog();
+                    }
                 }
             }
         }
@@ -90,11 +98,34 @@ namespace ZimCom.Desktop.ViewModels {
         public Channel GetDefaultChannel() => Server!.Channels.FindAll(x => x.DefaultChannel.Equals(true)).First();
         public void AttachToClientEvents() {
             StaticNetClientEvents.ReceivedServerData += (sender, e) => {
-                this.Server = e;
+                if (User is not null) {
+                    this.Server = e;
+                    PreviousChannel = null;
+                    CurrentChannel = GetDefaultChannel();
+                    CurrentChannel.Participents.Add(User);
+                    ChatEnabled = true;
+                }
             };
             StaticNetClientEvents.DisconnectedFromServer += (sender, e) => {
                 MessageWindow messageWindow = new MessageWindow("Disconnect", "Disconnected from Server!");
                 messageWindow.ShowDialog();
+            };
+            StaticNetClientEvents.SendMessageToServer += (sender, e) => {
+                CurrentChannel!.Chat.Add(e);
+            };
+            StaticNetClientEvents.ReceivedMessageFromServer += (sender, e) => {
+                CurrentChannel!.Chat.Add(e);
+            };
+            StaticNetClientEvents.OtherUserChangeChannel += (sender, e) => {
+                Channel? temp = DynamicManagerModule.FindUserInChannel(e.Item1);
+                if (temp != null) {
+                    if (temp.Label != e.Item2.Label) {
+                        temp.Participents.Remove(temp.Participents.Where(x => x.Id.Equals(e.Item1.Id)).First());
+                    }
+                    var serverTemp = Server!.Channels.Where(x => x.Label.Equals(e.Item2.Label)).First();
+                    serverTemp.Participents.Add(e.Item1);
+                    CurrentChannel?.Chat.Add(new ChatMessage(ServerUser, $"{e.Item1.Label} joined Channel"));
+                }
             };
         }
     }

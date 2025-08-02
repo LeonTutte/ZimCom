@@ -135,36 +135,36 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackPanel Orientation="Horizontal" Grid.Row="1" d:Background="Aquamarine">
-                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CurrentChatMessage}" IsEnabled="{Binding ChatEnabled}">
-                            <TextBox.Style>
+                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" MinWidth="400" Text="{Binding CurrentChatMessage}" IsEnabled="{Binding ChatEnabled}">
+                            <!--<TextBox.Style>
                                 <Style TargetType="TextBox">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding ChatEnabled}" Value="False">
                                             <Setter Property="Visibility" Value="Hidden"/>
                                         </DataTrigger>
-                                        <!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
+                                        --><!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
                                             <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>-->
+                                        </DataTrigger>--><!--
                                     </Style.Triggers>
                                 </Style>
-                            </TextBox.Style>
+                            </TextBox.Style>-->
                         </TextBox>
                         <Button x:Name="ChatSubmitButton" Margin="4,0,0,0" Click="ChatSubmitButton_Click" IsEnabled="{Binding ChatEnabled}">
                             <Button.Content>
                                 <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE8BD;"/>
                             </Button.Content>
-                            <Button.Style>
+                            <!--<Button.Style>
                                 <Style TargetType="Button">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding ChatEnabled}" Value="False">
                                             <Setter Property="Visibility" Value="Hidden"/>
                                         </DataTrigger>
-                                        <!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
+                                        --><!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
                                             <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>-->
+                                        </DataTrigger>--><!--
                                     </Style.Triggers>
                                 </Style>
-                            </Button.Style>
+                            </Button.Style>-->
                         </Button>
                     </StackPanel>
                 </Grid>

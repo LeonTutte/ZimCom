@@ -3,6 +3,8 @@
 using System.Data;
 using System.Net.Sockets;
 
+using ZimCom.Core.Models;
+using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Dynamic.Net;
 using ZimCom.Core.Modules.Static;
 using ZimCom.Core.Modules.Static.Net;
@@ -60,6 +62,37 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule {
                             throw;
                         }
                         AnsiConsole.MarkupLine($"[blue]{tempClient.UID}[/] was given the server information");
+                    }
+                }
+            }
+        };
+        StaticNetServerEvents.RecievedChatMessage += (sender, e) => {
+            if (Server is not null && _clients.Count > 0) {
+                Channel? temp = FindUserInChannel(e.User);
+                if (temp != null) {
+                    SendChannelMessage(e, temp);
+                    foreach (var user in temp.Participents.Where(x => x.Id != e.User.Id)) {
+                        _clients.First(x => (x.User is null) ? false : x.User.Equals(user)).TcpClient.Client.Send(e.GetPacket());
+                    }
+                }
+            }
+        };
+        StaticNetServerEvents.UserChannelChange += (sender, e) => {
+            if (Server is not null && _clients.Count > 0) {
+                Channel? temp = FindUserInChannel(e.Item1);
+                if (temp != null) {
+                    if (temp.Label != e.Item2.Label) {
+                        temp.Participents.Remove(temp.Participents.Where(x => x.Id.Equals(e.Item1.Id)).First());
+                    }
+                    var serverTemp = Server.Channels.Where(x => x.Label.Equals(e.Item2.Label)).First();
+                    serverTemp.Participents.Add(e.Item1);
+                    //StaticNetClientEvents.UserChangeChannel?.Invoke(this, (e.Item1, serverTemp));
+                    DynamicIoClientPacket packet = new DynamicIoClientPacket();
+                    packet.WriteOpCode((byte)StaticNetOpCodes.ChangeChannel);
+                    packet.WriteMessage(e.Item1.ToString());
+                    packet.WriteMessage(e.Item2.ToString());
+                    foreach (var user in temp.Participents.Where(x => x.Id != e.Item1.Id)) {
+                        _clients.First(x => (x.User is null) ? false : x.User.Equals(user)).TcpClient.Client.Send(packet.GetPacketBytes());
                     }
                 }
             }

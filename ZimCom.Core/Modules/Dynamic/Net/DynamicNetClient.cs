@@ -29,13 +29,25 @@ public class DynamicNetClient {
                     case (byte)StaticNetOpCodes.UserCode:
                         SetUser(_packetReader.ReadMessage());
                         break;
+                    case (byte)StaticNetOpCodes.ChatMessageCode:
+                        SetChatMessage(_packetReader.ReadMessage());
+                        break;
+                    case (byte)StaticNetOpCodes.ChangeChannel:
+                        ChangeChannel(_packetReader.ReadMessage(), _packetReader.ReadMessage());
+                        break;
                     default:
                         break;
                 }
             }
         });
     }
-
+    private void ChangeChannel(string data, string data2) {
+        var user = User.SetFromPacket(data);
+        var channel = Channel.SetFromPacket(data2);
+        if (user is not null && channel is not null) {
+            StaticNetServerEvents.UserChannelChange?.Invoke(this, (user, channel));
+        }
+    }
     private void SetUser(string data) {
         User = User.SetFromPacket(data);
         if (User is not null) AnsiConsole.MarkupLine($"[green]new user[/] with [blue]{UID.ToString()}[/] identified as [green]{User.Label}[/]");
@@ -43,7 +55,14 @@ public class DynamicNetClient {
         if (User is not null) StaticNetServerEvents.ReceivedUserInformation?.Invoke(this, User);
     }
 
+    public void SetChatMessage(string data) {
+        var temp = ChatMessage.SetFromPacket(data);
+        if (User is not null && temp is not null) AnsiConsole.MarkupLine($"[blue]{User.Label}[/] send Message with size {data.Length}");
+        if (temp is not null) StaticNetServerEvents.RecievedChatMessage?.Invoke(this, temp);
+    }
+
     ~DynamicNetClient() {
+        TcpClient.Close();
         TcpClient.Dispose();
         AnsiConsole.MarkupLine($"[blue]{UID.ToString()}[/] disconnected");
     }
