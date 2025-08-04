@@ -6,7 +6,7 @@ ZimCom stands out thanks to its simple configuration and setup. Both the server 
 
 All that is required for the server is port forwarding, and both the server and client can be run without installation. (Either with .NET 9 installed or via the self-contained package, where everything is included).
 All settings are stored uniformly in the user's roaming folder.
-All logs are store directly in the executable folder under the subfolder logs.
+All logs are store directly in the executable folder under the subfolder "logs".
 
 ## Currently work in progress / done
 
