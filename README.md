@@ -8,7 +8,7 @@ All that is required for the server is port forwarding, and both the server and 
 All settings are stored uniformly in the user's roaming folder.
 All logs are store directly in the executable folder under the subfolder logs.
 
-## Currently work in progress /done
+## Currently work in progress / done
 
 - [x] Basic Client
 - [x] Basic Server
