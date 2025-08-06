@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Reflection;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.Misc;
@@ -32,14 +33,14 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private partial Channel? PreviousChannel { get; set; }
     [ObservableProperty] public partial string? CurrentChatMessage { get; set; }
     [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
+    [ObservableProperty] public partial bool ChannelExtrasEnabled { get; set; } = false;
     private User ServerUser { get; } = new("Server");
 
     [RelayCommand]
     public void JoinChannel()
     {
         if (SelectedChannel?.TitleChannel is not false || SelectedChannel.SpacerChannel) return;
-        if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelAccess, User,
-                SelectedChannel))
+        if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelAccess, User, SelectedChannel))
         {
             PreviousChannel = CurrentChannel;
             PreviousChannel!.Participents.Remove(User);
@@ -47,6 +48,7 @@ public partial class MainViewModel : ObservableObject
             SelectedChannel.CurrentChannel = true;
             SelectedChannel.Participents.Add(User);
             CurrentChannel = SelectedChannel;
+            ChannelExtrasEnabled = !CurrentChannel.LocalChannel;
             StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel));
         }
         else
@@ -65,6 +67,14 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void AwayUser() => User.IsAway = !User.IsAway;
+
+    [RelayCommand]
+    private static void OpenHelp()
+    {
+        MessageWindow messageWindow = new MessageWindow("Help", $"ZimCom Version {Assembly.GetExecutingAssembly().GetName().Version?.ToString()}{Environment.NewLine}" +
+                                                                $"Build by L. Zimmermann");
+        messageWindow.ShowDialog();
+    }
 
     [RelayCommand]
     private static void OpenSettings()

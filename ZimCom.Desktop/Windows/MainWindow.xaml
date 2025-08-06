@@ -31,7 +31,7 @@
                 <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
                         Content="&#xE713;" Command="{Binding OpenSettingsCommand}" />
                 <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
-                        Content="&#xE946;" />
+                        Content="&#xE946;" Command="{Binding OpenHelpCommand}"/>
                 <Separator Visibility="Hidden" Width="50" />
                 <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
                         Content="&#xEC54;" Command="{Binding MuteInputCommand}" />
@@ -116,11 +116,11 @@
                                    Style="{StaticResource TitleTextBlockStyle}" />
                         <TextBlock d:Text="Channel Description" Text="{Binding CurrentChannel.Description}"
                                    Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <ListView ItemsSource="{Binding CurrentChannel.Participents}">
+                        <ListView ItemsSource="{Binding CurrentChannel.Participents}" IsEnabled="{Binding ChannelExtrasEnabled}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock d:Text="User" Text="{Binding Label}"
-                                               Style="{StaticResource BodyTextBlockStyle}" />
+                                               Style="{StaticResource BodyTextBlockStyle}"/>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -146,39 +146,15 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <StackPanel Orientation="Horizontal" Grid.Row="1" d:Background="Aquamarine">
+                    <StackPanel Margin="4" Orientation="Horizontal" Grid.Row="1" d:Background="Aquamarine">
                         <TextBox TextWrapping="Wrap" AcceptsReturn="True" MinWidth="400"
                                  Text="{Binding CurrentChatMessage}" IsEnabled="{Binding ChatEnabled}">
-                            <!--<TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ChatEnabled}" Value="False">
-                                            <Setter Property="Visibility" Value="Hidden"/>
-                                        </DataTrigger>
-                                        --><!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>--><!--
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>-->
                         </TextBox>
                         <Button Margin="4,0,0,0" Click="ChatSubmitButton_Click"
                                 IsEnabled="{Binding ChatEnabled}">
                             <Button.Content>
                                 <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE8BD;" />
                             </Button.Content>
-                            <!--<Button.Style>
-                                <Style TargetType="Button">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ChatEnabled}" Value="False">
-                                            <Setter Property="Visibility" Value="Hidden"/>
-                                        </DataTrigger>
-                                        --><!--<DataTrigger Binding="{Binding ChatEnabled}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>--><!--
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>-->
                         </Button>
                     </StackPanel>
                 </Grid>
