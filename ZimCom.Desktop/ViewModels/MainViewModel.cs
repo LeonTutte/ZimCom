@@ -1,132 +1,142 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic;
 using ZimCom.Core.Modules.Static.Net;
 using ZimCom.Desktop.Windows;
 
-namespace ZimCom.Desktop.ViewModels {
-    public partial class MainViewModel : ObservableObject {
-        public DynamicManagerModuleClientExtras DynamicManagerModule { get; set; }
-        [ObservableProperty]
-        public partial Server? Server { get; set; }
-        [ObservableProperty]
-        public partial User? User { get; set; }
-        [ObservableProperty]
-        public virtual partial Channel? SelectedChannel { get; set; }
-        [ObservableProperty]
-        public virtual partial Channel? CurrentChannel { get; set; }
-        [ObservableProperty]
-        public virtual partial Channel? PreviousChannel { get; set; }
-        [ObservableProperty]
-        public partial string? CurrentChatMessage { get; set; }
-        [ObservableProperty]
-        public partial bool ChatEnabled { get; set; } = false;
-        public User ServerUser;
+namespace ZimCom.Desktop.ViewModels;
 
-        public MainViewModel() {
-            DynamicManagerModule = new DynamicManagerModuleClientExtras();
-            // Testdata
-            ServerUser = new User("Server");
-            Server = DynamicManagerModule.Server;
-            User = User.Load();
-            if (Server is not null && User is not null) {
-                Channel DefaultChannel = GetDefaultChannel();
-                DefaultChannel.Participents.Add(User);
-                CurrentChannel = DefaultChannel;
+public partial class MainViewModel : ObservableObject
+{
+    public MainViewModel()
+    {
+        // Testdata
+        Server = DynamicManagerModule.Server;
+        User = User.Load() ?? new User("Default User");
+        if (Server is not null)
+        {
+            var defaultChannel = GetDefaultChannel();
+            defaultChannel.Participents.Add(User);
+            CurrentChannel = defaultChannel;
+        }
+
+        AttachToClientEvents();
+    }
+
+    public DynamicManagerModuleClientExtras DynamicManagerModule { get; } = new();
+    [ObservableProperty] public partial Server? Server { get; set; }
+    [ObservableProperty] public partial User User { get; set; }
+    [ObservableProperty] public partial Channel? SelectedChannel { get; set; }
+    [ObservableProperty] public partial Channel? CurrentChannel { get; set; }
+    [ObservableProperty] private partial Channel? PreviousChannel { get; set; }
+    [ObservableProperty] public partial string? CurrentChatMessage { get; set; }
+    [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
+    private User ServerUser { get; } = new("Server");
+
+    [RelayCommand]
+    public void JoinChannel()
+    {
+        if (SelectedChannel?.TitleChannel is not false || SelectedChannel.SpacerChannel) return;
+        if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelAccess, User,
+                SelectedChannel))
+        {
+            PreviousChannel = CurrentChannel;
+            PreviousChannel!.Participents.Remove(User);
+            PreviousChannel.CurrentChannel = false;
+            SelectedChannel.CurrentChannel = true;
+            SelectedChannel.Participents.Add(User);
+            CurrentChannel = SelectedChannel;
+            StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel));
+        }
+        else
+        {
+            var messageWindow = new MessageWindow("Access denied",
+                $"You are not permitted to access {SelectedChannel.Label}");
+            messageWindow.ShowDialog();
+        }
+    }
+
+    [RelayCommand]
+    private void MuteInput()
+    {
+        User.IsMuted = !User.IsMuted;
+    }
+
+    [RelayCommand]
+    private void MuteOutput()
+    {
+        User.HasOthersMuted = !User.HasOthersMuted;
+    }
+
+    [RelayCommand]
+    private void AwayUser()
+    {
+        User.IsAway = !User.IsAway;
+    }
+
+    [RelayCommand]
+    private static void OpenSettings()
+    {
+        var settingsWindow = new SettingsWindow();
+        settingsWindow.ShowDialog();
+    }
+
+    [RelayCommand]
+    private void OpenConnect()
+    {
+        var connectWindow = new ConnectWindow();
+        connectWindow.ViewModel.ConnectToAddress += (_, e) =>
+        {
+            try
+            {
+                DynamicManagerModule.ConnectToServer(e);
             }
-            AttachToClientEvents();
-        }
-        [RelayCommand]
-        public void JoinChannel() {
-            if (SelectedChannel is not null) {
-                if (SelectedChannel.TitleChannel is false && SelectedChannel.SpacerChannel is false && User is not null) {
-                    if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelAccess, User, SelectedChannel)) {
-                        PreviousChannel = CurrentChannel;
-                        PreviousChannel!.Participents.Remove(User);
-                        PreviousChannel.CurrentChannel = false;
-                        SelectedChannel.CurrentChannel = true;
-                        SelectedChannel.Participents.Add(User);
-                        CurrentChannel = SelectedChannel;
-                        StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel));
-                    } else {
-                        MessageWindow messageWindow = new MessageWindow("Access denied", $"You are not permitted to access {SelectedChannel.Label}");
-                        messageWindow.ShowDialog();
-                    }
-                }
-            }
-        }
-        [RelayCommand]
-        public void MuteInput() {
-            if (User is not null) {
-                if (User.IsMuted) User.IsMuted = false;
-                if (User.IsMuted is false) User.IsMuted = true;
-            }
-        }
-        [RelayCommand]
-        public void MuteOutput() {
-            if (User is not null) {
-                if (User.HasOthersMuted) User.HasOthersMuted = false;
-                if (User.HasOthersMuted is false) User.HasOthersMuted = true;
-            }
-        }
-        [RelayCommand]
-        public void AwayUser() {
-            if (User is not null) {
-                if (User.IsAway) User.IsAway = false;
-                if (User.IsAway is false) User.IsAway = true;
-            }
-        }
-        [RelayCommand]
-        public static void OpenSettings() {
-            SettingsWindow settingsWindow = new SettingsWindow();
-            settingsWindow.ShowDialog();
-        }
-        [RelayCommand]
-        public void OpenConnect() {
-            ConnectWindow connectWindow = new ConnectWindow();
-            connectWindow.ViewModel.ConnectToAddress += (sender, e) => {
-                DynamicManagerModule!.ConnectToServer(e);
-                if (User is not null) DynamicManagerModule!.SendUserInfo(User);
-            };
-            connectWindow.ViewModel.CloseWindow += (sender, e) => {
-                connectWindow.Close();
-            };
-            connectWindow.ShowDialog();
-        }
-        public Channel GetDefaultChannel() => Server!.Channels.FindAll(x => x.DefaultChannel.Equals(true)).First();
-        public void AttachToClientEvents() {
-            StaticNetClientEvents.ReceivedServerData += (sender, e) => {
-                if (User is not null) {
-                    this.Server = e;
-                    PreviousChannel = null;
-                    CurrentChannel = GetDefaultChannel();
-                    CurrentChannel.Participents.Add(User);
-                    ChatEnabled = true;
-                }
-            };
-            StaticNetClientEvents.DisconnectedFromServer += (sender, e) => {
-                MessageWindow messageWindow = new MessageWindow("Disconnect", "Disconnected from Server!");
+            catch (Exception ex)
+            {
+                var messageWindow = new MessageWindow("Connect", ex.Message);
                 messageWindow.ShowDialog();
-            };
-            StaticNetClientEvents.SendMessageToServer += (sender, e) => {
-                CurrentChannel!.Chat.Add(e);
-            };
-            StaticNetClientEvents.ReceivedMessageFromServer += (sender, e) => {
-                CurrentChannel!.Chat.Add(e);
-            };
-            StaticNetClientEvents.OtherUserChangeChannel += (sender, e) => {
-                Channel? temp = DynamicManagerModule.FindUserInChannel(e.Item1);
-                if (temp != null) {
-                    if (temp.Label != e.Item2.Label) {
-                        temp.Participents.Remove(temp.Participents.Where(x => x.Id.Equals(e.Item1.Id)).First());
-                    }
-                    var serverTemp = Server!.Channels.Where(x => x.Label.Equals(e.Item2.Label)).First();
-                    serverTemp.Participents.Add(e.Item1);
-                    CurrentChannel?.Chat.Add(new ChatMessage(ServerUser, $"{e.Item1.Label} joined Channel"));
-                }
-            };
-        }
+            }
+
+            DynamicManagerModule.SendUserInfo(User);
+        };
+        connectWindow.ViewModel.CloseWindow += (_, _) => { connectWindow.Close(); };
+        connectWindow.ShowDialog();
+    }
+
+    private Channel GetDefaultChannel()
+    {
+        return Server!.Channels.FindAll(x => x.DefaultChannel.Equals(true)).First();
+    }
+
+    private void AttachToClientEvents()
+    {
+        StaticNetClientEvents.ReceivedServerData += (_, e) =>
+        {
+            Server = e;
+            PreviousChannel = null;
+            CurrentChannel = GetDefaultChannel();
+            CurrentChannel.Participents.Add(User);
+            ChatEnabled = true;
+        };
+        StaticNetClientEvents.DisconnectedFromServer += (_, _) =>
+        {
+            var messageWindow = new MessageWindow("Disconnect", "Disconnected from Server!");
+            messageWindow.ShowDialog();
+        };
+        StaticNetClientEvents.SendMessageToServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
+        StaticNetClientEvents.ReceivedMessageFromServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
+        StaticNetClientEvents.OtherUserChangeChannel += (_, e) =>
+        {
+            var temp = DynamicManagerModule.FindUserInChannel(e.Item1);
+            if (temp == null) return;
+            if (temp.Label != e.Item2.Label)
+                temp.Participents.Remove(temp.Participents.First(x => x.Id.Equals(e.Item1.Id)));
+
+            var serverTemp =
+                Server!.Channels.First(x => x.Label.Equals(e.Item2.Label, StringComparison.Ordinal));
+            serverTemp.Participents.Add(e.Item1);
+            CurrentChannel?.Chat.Add(new ChatMessage(ServerUser, $"{e.Item1.Label} joined Channel"));
+        };
     }
 }

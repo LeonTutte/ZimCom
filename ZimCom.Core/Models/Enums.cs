@@ -1,6 +1,7 @@
 ﻿namespace ZimCom.Core.Models;
 
-public enum Strength : byte {
+public enum Strength : byte
+{
     UserMove,
     UserRemove,
     UserRemovePermanently,
@@ -10,5 +11,5 @@ public enum Strength : byte {
     FileAccess,
     FileUpload,
     FileDownload,
-    FileDelete,
+    FileDelete
 }

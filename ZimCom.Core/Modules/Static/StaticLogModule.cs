@@ -2,44 +2,35 @@
 using Serilog.Events;
 
 namespace ZimCom.Core.Modules.Static;
-public class StaticLogModule {
-    static StaticLogModule() {
+
+public static class StaticLogModule
+{
+    static StaticLogModule()
+    {
         Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.Debug()
-                    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
-                    .WriteTo.File("logs/log_.txt", rollingInterval: RollingInterval.Day, buffered: false, restrictedToMinimumLevel: LogEventLevel.Verbose)
-                    .CreateLogger();
+            .MinimumLevel.Debug()
+            .WriteTo.Console(LogEventLevel.Information)
+            .WriteTo.File("logs/log_.txt", rollingInterval: RollingInterval.Day, buffered: false,
+                restrictedToMinimumLevel: LogEventLevel.Verbose)
+            .CreateLogger();
     }
 
-    public static void LogInformation(string message) {
-        if (message is null) {
-            Log.Error("Loginput was null");
-            return;
-        }
-        Log.Information(message);
-    }
+    public static void LogInformation(string message) => Log.Information(message);
 
-    public static void LogDebug(string message) {
-        if (message is null) {
-            Log.Error("Loginput was null");
-            return;
-        }
-        Log.Debug(message);
-    }
+    public static void LogDebug(string message) => Log.Debug(message);
 
-    public static void LogAppStart() {
-        Log.Information("-- Application was started on " + DateTime.Now + " ---");
-    }
+    public static void LogAppStart() => Log.Information("-- Application was started on " + DateTime.Now + " ---");
 
-    public static void LogError(string message, Exception? ex) {
-        if (ex is null) {
-            Log.Error(message);
-        } else {
-            if (message is null) {
-                Log.Error("Loginput was null");
-                return;
-            }
-            Log.Error(message + " with exception: " + ex.Message);
+    public static void LogError(string message, Exception? ex)
+    {
+        switch (ex)
+        {
+            case null:
+                Log.Error(message);
+                break;
+            default:
+                Log.Error(message + " with exception: " + ex.Message);
+                break;
         }
     }
 }

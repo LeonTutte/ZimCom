@@ -1,79 +1,88 @@
 ﻿using System.Net;
-
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static;
 using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.Core.Modules.Dynamic;
-public class DynamicManagerModuleClientExtras : DynamicManagerModule {
-    public DynamicManagerModuleClientExtras() : base(true) {
 
-    }
-    public void ConnectToServer(string address) {
-        if (!String.IsNullOrWhiteSpace(address)) {
-            IPAddress.TryParse(address.AsSpan(), out _address);
+public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
+{
+    public void ConnectToServer(string? address)
+    {
+        if (!string.IsNullOrWhiteSpace(address)) IPAddress.TryParse(address.AsSpan(), out Address);
+        if (Address is null) return;
+        if (TcpClient.Connected) return;
+        try
+        {
+            TcpClient.Connect(Address, ServerPort);
         }
-        if (_address is not null) {
-            if (_tcpClient.Connected is false) {
-                try {
-                    _tcpClient.Connect(_address, _serverPort);
-                } catch (Exception ex) {
-                    StaticLogModule.LogError("Error during server connect", ex);
-                    StaticNetClientEvents.ConnectedToServerFail?.Invoke(this, ex);
-                }
-                if (_tcpClient.Connected is true) {
-                    StaticNetClientEvents.ConnectedToServer?.Invoke(this, new EventArgs());
-                    _clientPacketReader = new IO.DynamicIoClientPacketReader(_tcpClient.GetStream());
-                    HandleIncomingServerPackets();
-                    AttachToClientEvents();
-                }
-            }
+        catch (Exception ex)
+        {
+            StaticLogModule.LogError("Error during server connect", ex);
+            StaticNetClientEvents.ConnectedToServerFail?.Invoke(this, ex);
         }
+
+        if (TcpClient.Connected is false) return;
+        StaticNetClientEvents.ConnectedToServer?.Invoke(this, EventArgs.Empty);
+        ClientPacketReader = new DynamicIoClientPacketReader(TcpClient.GetStream());
+        HandleIncomingServerPackets();
+        AttachToClientEvents();
     }
 
-    private void AttachToClientEvents() {
-        StaticNetClientEvents.SendMessageToServer += (sender, e) => {
-            if (_tcpClient.Connected is true) {
-                _tcpClient.Client.Send(e.GetPacket());
-            }
+    private void AttachToClientEvents()
+    {
+        StaticNetClientEvents.SendMessageToServer += (_, e) =>
+        {
+            if (TcpClient.Connected is false) return;
+            TcpClient.Client.Send(e.GetPacket());
         };
-        StaticNetClientEvents.UserChangeChannel += (sender, e) => {
-            if (_tcpClient.Connected is true) {
-                DynamicIoClientPacket packet = new DynamicIoClientPacket();
-                packet.WriteOpCode((byte)StaticNetOpCodes.ChangeChannel);
-                packet.WriteMessage(e.Item1.ToString());
-                packet.WriteMessage(e.Item2.ToString());
-                _tcpClient.Client.Send(packet.GetPacketBytes());
-            }
+        StaticNetClientEvents.UserChangeChannel += (_, e) =>
+        {
+            if (TcpClient.Connected is false) return;
+            if (e.Item1 is null || e.Item2 is null) return;
+            var packet = new DynamicIoClientPacket();
+            packet.WriteOpCode((byte)StaticNetOpCodes.ChangeChannel);
+            packet.WriteMessage(e.Item1.ToString());
+            packet.WriteMessage(e.Item2.ToString());
+            TcpClient.Client.Send(packet.GetPacketBytes());
         };
     }
 
-    private void HandleIncomingServerPackets() {
-        Task.Run(() => {
-            while (_tcpClient.Connected is true && _clientPacketReader is not null) {
-                byte opCode = _clientPacketReader.ReadByte();
-                switch (opCode) {
+    private void HandleIncomingServerPackets()
+    {
+        Task.Run(() =>
+        {
+            while (TcpClient.Connected && ClientPacketReader is not null)
+            {
+                var opCode = ClientPacketReader.ReadByte();
+                switch (opCode)
+                {
                     case (byte)StaticNetOpCodes.ServerCode:
-                        StaticNetClientEvents.ReceivedServerData?.Invoke(this, Server.SetFromPacket(_clientPacketReader!.ReadMessage()) ?? throw new Exception("Failed to read data"));
+                        StaticNetClientEvents.ReceivedServerData?.Invoke(this,
+                            Server.SetFromPacket(ClientPacketReader!.ReadMessage()) ??
+                            throw new Exception("Failed to read data"));
                         break;
                     case (byte)StaticNetOpCodes.ChatMessageCode:
-                        StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this, ChatMessage.SetFromPacket(_clientPacketReader!.ReadMessage()) ?? throw new Exception("Failed to read data"));
+                        StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this,
+                            ChatMessage.SetFromPacket(ClientPacketReader!.ReadMessage()) ??
+                            throw new Exception("Failed to read data"));
                         break;
                     case (byte)StaticNetOpCodes.ChangeChannel:
-                        StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this, (User.SetFromPacket(_clientPacketReader!.ReadMessage()), Channel.SetFromPacket(_clientPacketReader!.ReadMessage())));
-                        break;
-                    default:
+                        StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this,
+                            (User.SetFromPacket(ClientPacketReader!.ReadMessage()),
+                                Channel.SetFromPacket(ClientPacketReader!.ReadMessage())));
                         break;
                 }
             }
-            StaticNetClientEvents.DisconnectedFromServer?.Invoke(this, new EventArgs());
+
+            StaticNetClientEvents.DisconnectedFromServer?.Invoke(this, EventArgs.Empty);
         });
     }
 
-    public void SendUserInfo(User user) {
-        if (_tcpClient.Connected is true) {
-            _tcpClient.Client.Send(user.GetPacket());
-        }
+    public void SendUserInfo(User user)
+    {
+        if (TcpClient.Connected is false) return;
+        TcpClient.Client.Send(user.GetPacket());
     }
 }

@@ -3,22 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ZimCom.Desktop.Windows"
         mc:Ignorable="d"
         Title="Message"
         Height="164" Width="300"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow">
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" d:Background="AliceBlue">
-            <TextBlock x:Name="AddressBox" Margin="4" TextWrapping="Wrap" Style="{StaticResource BodyTextBlockStyle}"/>
+            <TextBlock x:Name="AddressBox" Margin="4" TextWrapping="Wrap" Style="{StaticResource BodyTextBlockStyle}" />
         </Grid>
         <Grid Grid.Row="1" d:Background="Aqua">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button x:Name="ConnectButton" Margin="4" Content="OK" Click="ConnectButton_Click" IsDefault="True"/>
+                <Button Margin="4" Content="OK" Click="ConnectButton_Click" IsDefault="True" />
             </StackPanel>
         </Grid>
     </Grid>

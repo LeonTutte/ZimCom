@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ZimCom.Desktop.Windows"
         xmlns:viewmodels="clr-namespace:ZimCom.Desktop.ViewModels"
         xmlns:core="clr-namespace:ZimCom.Core.Models;assembly=ZimComCore"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
@@ -15,37 +14,46 @@
         Width="768"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
-        <viewmodels:MainViewModel x:Key="ViewModel"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="TopRow" Height="Auto"/>
-            <RowDefinition x:Name="ContentRow" Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Column="0">
-                <Button x:Name="ConnectButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE71B;" Command="{Binding OpenConnectCommand}"/>
-                <Button x:Name="SettingsButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE713;" Command="{Binding OpenSettingsCommand}"/>
-                <Button x:Name="HelpButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE946;"/>
-                <Separator Visibility="Hidden" Width="50"/>
-                <Button x:Name="DisableInputButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xEC54;" Command="{Binding MuteInputCommand}"/>
-                <Button x:Name="DisableOutputButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE74F;" Command="{Binding MuteOutputCommand}"/>
-                <Button x:Name="AwayButton" Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}" Content="&#xE769;" Command="{Binding AwayUserCommand}"/>
+                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                        Content="&#xE71B;" Command="{Binding OpenConnectCommand}" />
+                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                        Content="&#xE713;" Command="{Binding OpenSettingsCommand}" />
+                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                        Content="&#xE946;" />
+                <Separator Visibility="Hidden" Width="50" />
+                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                        Content="&#xEC54;" Command="{Binding MuteInputCommand}" />
+                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                        Content="&#xE74F;" Command="{Binding MuteOutputCommand}" />
+                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                        Content="&#xE769;" Command="{Binding AwayUserCommand}" />
             </StackPanel>
-            <TextBlock x:Name="UsernameText" Grid.Column="1" Margin="10,0,10,0" d:Text="Username" Text="{Binding User.Label}" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="1" Margin="10,0,10,0" d:Text="Username"
+                       Text="{Binding User.Label}" Style="{StaticResource BodyStrongTextBlockStyle}"
+                       VerticalAlignment="Center" HorizontalAlignment="Right" />
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Grid x:Name="ChannelView" Grid.Column="0"  d:Background="PowderBlue">
-                <d:TextBlock Text="Channel View" Style="{StaticResource TitleTextBlockStyle}"/>
-                <TreeView x:Name="ChannelTree" Margin="10" ItemsSource="{Binding Server.Channels}" AlternationCount="1" SelectedItemChanged="ChannelTree_SelectedItemChanged" MouseDoubleClick="ChannelTree_MouseDoubleClick">
+            <Grid Grid.Column="0" d:Background="PowderBlue">
+                <d:TextBlock Text="Channel View" Style="{StaticResource TitleTextBlockStyle}" />
+                <TreeView Margin="10" ItemsSource="{Binding Server.Channels}" AlternationCount="1"
+                          SelectedItemChanged="ChannelTree_SelectedItemChanged"
+                          MouseDoubleClick="ChannelTree_MouseDoubleClick">
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate DataType="{x:Type core:Channel}" ItemsSource="{Binding Participents}">
                             <StackPanel Orientation="Horizontal">
@@ -54,10 +62,10 @@
                                         <Style TargetType="TextBlock">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding TitleChannel}" Value="True">
-                                                    <Setter Property="FontWeight" Value="ExtraBold"/>
+                                                    <Setter Property="FontWeight" Value="ExtraBold" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding SpacerChannel}" Value="True">
-                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                    <Setter Property="Visibility" Value="Hidden" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -66,7 +74,7 @@
                             </StackPanel>
                             <HierarchicalDataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding SpacerChannel}" Value="True">
-                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Setter Property="IsEnabled" Value="False" />
                                 </DataTrigger>
                             </HierarchicalDataTemplate.Triggers>
                             <HierarchicalDataTemplate.ItemTemplate>
@@ -79,13 +87,13 @@
                                                 <Setter Property="FontStyle" Value="Normal"/>-->
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsMuted}" Value="True">
-                                                        <Setter Property="Foreground" Value="Red"/>
+                                                        <Setter Property="Foreground" Value="Red" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsAway}" Value="True">
-                                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                        <Setter Property="TextDecorations" Value="Strikethrough" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding HasOthersMuted}" Value="True">
-                                                        <Setter Property="FontStyle" Value="Oblique"/>
+                                                        <Setter Property="FontStyle" Value="Oblique" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -97,45 +105,50 @@
                     </TreeView.ItemTemplate>
                 </TreeView>
             </Grid>
-            <Grid Grid.Column="1"  d:Background="CadetBlue">
+            <Grid Grid.Column="1" d:Background="CadetBlue">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid x:Name="ChannelHeader" Grid.Row="0">
+                <Grid Grid.Row="0">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock d:Text="Channel Header"  Text="{Binding CurrentChannel.Label}" Style="{StaticResource TitleTextBlockStyle}"/>
-                        <TextBlock d:Text="Channel Description"  Text="{Binding CurrentChannel.Description}" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                        <ListView x:Name="ChannelMemberList" ItemsSource="{Binding CurrentChannel.Participents}">
+                        <TextBlock d:Text="Channel Header" Text="{Binding CurrentChannel.Label}"
+                                   Style="{StaticResource TitleTextBlockStyle}" />
+                        <TextBlock d:Text="Channel Description" Text="{Binding CurrentChannel.Description}"
+                                   Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <ListView ItemsSource="{Binding CurrentChannel.Participents}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock d:Text="User" Text="{Binding Label}" Style="{StaticResource BodyTextBlockStyle}"/>
+                                    <TextBlock d:Text="User" Text="{Binding Label}"
+                                               Style="{StaticResource BodyTextBlockStyle}" />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
                     </StackPanel>
                 </Grid>
-                <Grid x:Name="ChannelChat" Grid.Row="1"  d:Background="AliceBlue">
+                <Grid Grid.Row="1" d:Background="AliceBlue">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <ListView x:Name="ChatView" Grid.Row="0" ItemsSource="{Binding CurrentChannel.Chat}" d:Background="CornflowerBlue">
+                    <ListView Grid.Row="0" ItemsSource="{Binding CurrentChannel.Chat}"
+                              d:Background="CornflowerBlue">
                         <ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type core:ChatMessage}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding DateTime}"/>
-                                    <TextBlock Text=" | "/>
-                                    <TextBlock Text="{Binding User.Label}"/>
-                                    <TextBlock Text=":"/>
-                                    <TextBlock Text=" "/>
-                                    <TextBlock Text="{Binding Message}"/>
+                                    <TextBlock Text="{Binding DateTime}" />
+                                    <TextBlock Text=" | " />
+                                    <TextBlock Text="{Binding User.Label}" />
+                                    <TextBlock Text=":" />
+                                    <TextBlock Text=" " />
+                                    <TextBlock Text="{Binding Message}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackPanel Orientation="Horizontal" Grid.Row="1" d:Background="Aquamarine">
-                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" MinWidth="400" Text="{Binding CurrentChatMessage}" IsEnabled="{Binding ChatEnabled}">
+                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" MinWidth="400"
+                                 Text="{Binding CurrentChatMessage}" IsEnabled="{Binding ChatEnabled}">
                             <!--<TextBox.Style>
                                 <Style TargetType="TextBox">
                                     <Style.Triggers>
@@ -149,9 +162,10 @@
                                 </Style>
                             </TextBox.Style>-->
                         </TextBox>
-                        <Button x:Name="ChatSubmitButton" Margin="4,0,0,0" Click="ChatSubmitButton_Click" IsEnabled="{Binding ChatEnabled}">
+                        <Button Margin="4,0,0,0" Click="ChatSubmitButton_Click"
+                                IsEnabled="{Binding ChatEnabled}">
                             <Button.Content>
-                                <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE8BD;"/>
+                                <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE8BD;" />
                             </Button.Content>
                             <!--<Button.Style>
                                 <Style TargetType="Button">

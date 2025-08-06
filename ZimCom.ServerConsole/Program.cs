@@ -60,10 +60,10 @@ internal class Program {
         //    StaticLogWrapper.WriteAnsiMarkupDebug("Closed [blue]UDP and TCP listeners[/]");
         //}
     }
-    static void WaveIn_DataAvailable(byte[] e, IPAddress ipAddress) {
-        byte[] values = new byte[e.Length];
-        Buffer.BlockCopy(e, 0, values, 0, e.Length);
-        // Get Channel where IP is included
-        // Send copy to all participents
-    }
+    // static void WaveIn_DataAvailable(byte[] e, IPAddress ipAddress) {
+    //     byte[] values = new byte[e.Length];
+    //     Buffer.BlockCopy(e, 0, values, 0, e.Length);
+    //     // Get Channel where IP is included
+    //     // Send copy to all participents
+    // }
 }
