@@ -6,39 +6,62 @@ using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.Core.Modules.Dynamic.Net;
 
+/// <summary>
+/// Represents a client for handling network communication.
+/// </summary>
 public class DynamicNetClient
 {
-    private readonly DynamicIoClientPacketReader _packetReader;
+    /// <summary>
+    /// Represents the packet reader module responsible for reading data from the network stream of a TCP client.
+    /// </summary>
+    private readonly DynamicPacketReaderModule _packetReaderModule;
+
+    /// <summary>
+    /// Represents a TCP client connection used for network communication.
+    /// </summary>
     public readonly TcpClient TcpClient;
 
+    /// <summary>
+    /// Represents a network client.
+    /// </summary>
     public DynamicNetClient(TcpClient tcpClient)
     {
         TcpClient = tcpClient;
-        _packetReader = new DynamicIoClientPacketReader(TcpClient.GetStream());
+        _packetReaderModule = new DynamicPacketReaderModule(TcpClient.GetStream());
         AnsiConsole.MarkupLine($"Accepted [green]new user[/] session with [blue]{Uid}[/]");
         HandleIncomingServerPackets();
     }
 
+    /// <summary>
+    /// Gets or sets the User object associated with this client.
+    /// </summary>
     public User? User { get; set; }
-    public Guid Uid { get; set; } = Guid.NewGuid();
 
+    /// <summary>
+    /// Gets the unique identifier for the client.
+    /// </summary>
+    public Guid Uid { get; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Handles incoming server packets asynchronously.
+    /// </summary>
     private void HandleIncomingServerPackets()
     {
         Task.Run(() =>
         {
             while (TcpClient.Connected)
             {
-                var opCode = _packetReader.ReadByte();
+                var opCode = _packetReaderModule.ReadByte();
                 switch (opCode)
                 {
                     case (byte)StaticNetOpCodes.UserCode:
-                        SetUser(_packetReader.ReadMessage());
+                        SetUser(_packetReaderModule.Read32Message());
                         break;
                     case (byte)StaticNetOpCodes.ChatMessageCode:
-                        SetChatMessage(_packetReader.ReadMessage());
+                        SetChatMessage(_packetReaderModule.Read32Message());
                         break;
                     case (byte)StaticNetOpCodes.ChangeChannel:
-                        ChangeChannel(_packetReader.ReadMessage(), _packetReader.ReadMessage());
+                        ChangeChannel(_packetReaderModule.Read32Message(), _packetReaderModule.Read32Message());
                         break;
                 }
             }
@@ -46,6 +69,11 @@ public class DynamicNetClient
         });
     }
 
+    /// <summary>
+    /// Handles the change of channel for a user.
+    /// </summary>
+    /// <param name="data">The serialized data representing the user.</param>
+    /// <param name="data2">The serialized data representing the channel.</param>
     private void ChangeChannel(string data, string data2)
     {
         var user = User.SetFromPacket(data);
@@ -54,6 +82,10 @@ public class DynamicNetClient
             StaticNetServerEvents.UserChannelChange?.Invoke(this, (user, channel));
     }
 
+    /// <summary>
+    /// Sets the user based on the provided packet data.
+    /// </summary>
+    /// <param name="data">The packet data containing user information.</param>
     private void SetUser(string data)
     {
         User = User.SetFromPacket(data);
@@ -64,6 +96,10 @@ public class DynamicNetClient
         if (User is not null) StaticNetServerEvents.ReceivedUserInformation?.Invoke(this, User);
     }
 
+    /// <summary>
+    /// Sets the chat message for the user.
+    /// </summary>
+    /// <param name="data">The data string containing the chat message.</param>
     private void SetChatMessage(string data)
     {
         var temp = ChatMessage.SetFromPacket(data);
@@ -71,7 +107,7 @@ public class DynamicNetClient
             AnsiConsole.MarkupLine($"[blue]{User.Label}[/] send Message with size {data.Length}");
         if (temp is not null) StaticNetServerEvents.ReceivedChatMessage?.Invoke(this, temp);
     }
-
+    
     ~DynamicNetClient()
     {
         TcpClient.Close();

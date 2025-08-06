@@ -25,8 +25,8 @@ public class ChatMessage
 
     public byte[] GetPacket()
     {
-        var packet = new DynamicIoClientPacket();
-        packet.WriteOpCode((byte)StaticNetOpCodes.ChatMessageCode);
+        var packet = new DynamicPacketBuilderModule();
+        packet.WriteOperationCode((byte)StaticNetOpCodes.ChatMessageCode);
         packet.WriteMessage(JsonSerializer.Serialize<ChatMessage>(this));
         return packet.GetPacketBytes();
     }

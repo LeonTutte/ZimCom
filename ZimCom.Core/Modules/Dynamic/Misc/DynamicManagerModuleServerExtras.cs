@@ -102,8 +102,8 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             var serverTemp = Server.Channels.First(x => x.Label.Equals(e.Item2.Label));
             serverTemp.Participents.Add(e.Item1);
             //StaticNetClientEvents.UserChangeChannel?.Invoke(this, (e.Item1, serverTemp));
-            var packet = new DynamicIoClientPacket();
-            packet.WriteOpCode((byte)StaticNetOpCodes.ChangeChannel);
+            var packet = new DynamicPacketBuilderModule();
+            packet.WriteOperationCode((byte)StaticNetOpCodes.ChangeChannel);
             packet.WriteMessage(e.Item1.ToString());
             packet.WriteMessage(e.Item2.ToString());
             foreach (var user in temp.Participents.Where(x => x.Id != e.Item1.Id))

@@ -96,8 +96,8 @@ public class Server
 
     public byte[] GetPacket()
     {
-        var packet = new DynamicIoClientPacket();
-        packet.WriteOpCode((byte)StaticNetOpCodes.ServerCode);
+        var packet = new DynamicPacketBuilderModule();
+        packet.WriteOperationCode((byte)StaticNetOpCodes.ServerCode);
         packet.WriteMessage(JsonSerializer.Serialize(this));
         return packet.GetPacketBytes();
     }

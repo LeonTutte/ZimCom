@@ -29,7 +29,7 @@ public class DynamicManagerModule
     /// <summary>
     /// Represents an instance of the client packet reader used to handle incoming data from the server.
     /// </summary>
-    internal DynamicIoClientPacketReader? ClientPacketReader;
+    internal DynamicPacketReaderModule? ClientPacketReader;
 
     /// <summary>
     /// Represents the port number used for server communications within the dynamic manager module.

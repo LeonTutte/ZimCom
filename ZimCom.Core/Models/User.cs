@@ -73,8 +73,8 @@ public partial class User : ObservableObject, IJsonModel<User>
 
     public byte[] GetPacket()
     {
-        var packet = new DynamicIoClientPacket();
-        packet.WriteOpCode((byte)StaticNetOpCodes.UserCode);
+        var packet = new DynamicPacketBuilderModule();
+        packet.WriteOperationCode((byte)StaticNetOpCodes.UserCode);
         packet.WriteMessage(JsonSerializer.Serialize<User>(this));
         return packet.GetPacketBytes();
     }

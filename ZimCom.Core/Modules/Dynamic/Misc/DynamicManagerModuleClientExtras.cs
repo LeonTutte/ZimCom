@@ -33,7 +33,7 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
 
         if (TcpClient.Connected is false) return;
         StaticNetClientEvents.ConnectedToServer?.Invoke(this, EventArgs.Empty);
-        ClientPacketReader = new DynamicIoClientPacketReader(TcpClient.GetStream());
+        ClientPacketReader = new DynamicPacketReaderModule(TcpClient.GetStream());
         HandleIncomingServerPackets();
         AttachToClientEvents();
     }
@@ -49,8 +49,8 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
         {
             if (TcpClient.Connected is false) return;
             if (e.Item1 is null || e.Item2 is null) return;
-            var packet = new DynamicIoClientPacket();
-            packet.WriteOpCode((byte)StaticNetOpCodes.ChangeChannel);
+            var packet = new DynamicPacketBuilderModule();
+            packet.WriteOperationCode((byte)StaticNetOpCodes.ChangeChannel);
             packet.WriteMessage(e.Item1.ToString());
             packet.WriteMessage(e.Item2.ToString());
             TcpClient.Client.Send(packet.GetPacketBytes());
@@ -68,18 +68,18 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
                 {
                     case (byte)StaticNetOpCodes.ServerCode:
                         StaticNetClientEvents.ReceivedServerData?.Invoke(this,
-                            Server.SetFromPacket(ClientPacketReader!.ReadMessage()) ??
+                            Server.SetFromPacket(ClientPacketReader!.Read32Message()) ??
                             throw new Exception("Failed to read data"));
                         break;
                     case (byte)StaticNetOpCodes.ChatMessageCode:
                         StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this,
-                            ChatMessage.SetFromPacket(ClientPacketReader!.ReadMessage()) ??
+                            ChatMessage.SetFromPacket(ClientPacketReader!.Read32Message()) ??
                             throw new Exception("Failed to read data"));
                         break;
                     case (byte)StaticNetOpCodes.ChangeChannel:
                         StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this,
-                            (User.SetFromPacket(ClientPacketReader!.ReadMessage()),
-                                Channel.SetFromPacket(ClientPacketReader!.ReadMessage())));
+                            (User.SetFromPacket(ClientPacketReader!.Read32Message()),
+                                Channel.SetFromPacket(ClientPacketReader!.Read32Message())));
                         break;
                 }
             }
