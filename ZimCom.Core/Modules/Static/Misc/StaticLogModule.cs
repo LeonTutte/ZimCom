@@ -1,7 +1,7 @@
 ﻿using Serilog;
 using Serilog.Events;
 
-namespace ZimCom.Core.Modules.Static;
+namespace ZimCom.Core.Modules.Static.Misc;
 
 public static class StaticLogModule
 {

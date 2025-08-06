@@ -3,10 +3,10 @@ using System.Net.Sockets;
 using Spectre.Console;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Dynamic.Net;
-using ZimCom.Core.Modules.Static;
+using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
 
-namespace ZimCom.Core.Modules.Dynamic;
+namespace ZimCom.Core.Modules.Dynamic.Misc;
 
 public class DynamicManagerModuleServerExtras : DynamicManagerModule
 {

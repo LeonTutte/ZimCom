@@ -1,4 +1,4 @@
-﻿namespace ZimCom.Core.Modules.Static;
+﻿namespace ZimCom.Core.Modules.Static.Misc;
 
 internal static class StaticLocalPathModule
 {

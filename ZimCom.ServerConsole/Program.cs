@@ -3,6 +3,7 @@
 using System.Net;
 
 using ZimCom.Core.Modules.Dynamic;
+using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.ServerConsole.Modules.Static;
 
 namespace ZimCom.ServerConsole;

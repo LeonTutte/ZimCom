@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
-using ZimCom.Core.Modules.Static;
+using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
 
-namespace ZimCom.Core.Modules.Dynamic;
+namespace ZimCom.Core.Modules.Dynamic.Misc;
 
 public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
 {

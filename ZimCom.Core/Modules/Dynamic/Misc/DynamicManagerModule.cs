@@ -2,9 +2,9 @@
 using System.Net.Sockets;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
-using ZimCom.Core.Modules.Static;
+using ZimCom.Core.Modules.Static.Misc;
 
-namespace ZimCom.Core.Modules.Dynamic;
+namespace ZimCom.Core.Modules.Dynamic.Misc;
 
 public class DynamicManagerModule
 {

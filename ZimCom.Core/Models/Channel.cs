@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ZimCom.Core.Modules.Static;
+using ZimCom.Core.Modules.Static.Misc;
 
 namespace ZimCom.Core.Models;
 
