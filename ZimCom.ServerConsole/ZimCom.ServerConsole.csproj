@@ -38,8 +38,4 @@
     <ProjectReference Include="..\ZimCom.Core\ZimCom.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Modules\Dynamic\" />
-  </ItemGroup>
-
 </Project>

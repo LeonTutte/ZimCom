@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
-using ZimCom.Core.Modules.Dynamic;
 using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Net;
 using ZimCom.Desktop.Windows;
@@ -59,22 +58,13 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void MuteInput()
-    {
-        User.IsMuted = !User.IsMuted;
-    }
+    private void MuteInput() => User.IsMuted = !User.IsMuted;
 
     [RelayCommand]
-    private void MuteOutput()
-    {
-        User.HasOthersMuted = !User.HasOthersMuted;
-    }
+    private void MuteOutput() => User.HasOthersMuted = !User.HasOthersMuted;
 
     [RelayCommand]
-    private void AwayUser()
-    {
-        User.IsAway = !User.IsAway;
-    }
+    private void AwayUser() => User.IsAway = !User.IsAway;
 
     [RelayCommand]
     private static void OpenSettings()
@@ -129,9 +119,10 @@ public partial class MainViewModel : ObservableObject
         StaticNetClientEvents.ReceivedMessageFromServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
         StaticNetClientEvents.OtherUserChangeChannel += (_, e) =>
         {
-            var temp = DynamicManagerModule.FindUserInChannel(e.Item1);
-            if (temp == null) return;
-            if (temp.Label != e.Item2.Label)
+            if (e.Item1 is null || e.Item2 is null) return;
+            var temp = DynamicManagerModule.FindUserInChannel(e!.Item1);
+            if (temp is null) return;
+            if (temp.Label != e!.Item2.Label)
                 temp.Participents.Remove(temp.Participents.First(x => x.Id.Equals(e.Item1.Id)));
 
             var serverTemp =

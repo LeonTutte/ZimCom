@@ -25,7 +25,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
 
     private List<DynamicNetClient> Clients { get; } = new();
     private TcpListener TcpListener { get; }
-
+    // ReSharper disable FunctionNeverReturns
     public void StartServerListener()
     {
         TcpListener.Start();
@@ -35,6 +35,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             Clients.Add(tempClient);
         }
     }
+    // ReSharper restore FunctionNeverReturns
 
     private void AttachToServerEvents()
     {

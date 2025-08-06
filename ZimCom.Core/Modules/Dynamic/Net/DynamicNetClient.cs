@@ -2,6 +2,7 @@
 using Spectre.Console;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
+using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.Core.Modules.Dynamic.Net;
@@ -89,11 +90,11 @@ public class DynamicNetClient
     private void SetUser(string data)
     {
         User = User.SetFromPacket(data);
-        if (User is not null)
-            AnsiConsole.MarkupLine(
-                $"[green]new user[/] with [blue]{Uid.ToString()}[/] identified as [green]{User.Label}[/]");
+        if (User is null) return;
+        AnsiConsole.MarkupLine($"[green]new user[/] with [blue]{Uid.ToString()}[/] identified as [green]{User.Label}[/]");
+        StaticLogModule.LogInformation($"{User.Label} connected to server with {User.Id}");
         StaticNetServerEvents.NewClientConnected?.Invoke(this, this);
-        if (User is not null) StaticNetServerEvents.ReceivedUserInformation?.Invoke(this, User);
+        StaticNetServerEvents.ReceivedUserInformation?.Invoke(this, User);
     }
 
     /// <summary>
