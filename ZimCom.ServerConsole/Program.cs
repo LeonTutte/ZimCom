@@ -6,7 +6,7 @@ namespace ZimCom.ServerConsole;
 
 internal class Program {
     private static DynamicManagerModuleServerExtras? _dynamicManagerModule;
-    static void Main() {
+    static void Main(string[] args) {
         StaticLogModule.LogAppStart();
         AnsiConsole.MarkupLine("Starting [green]ZimCom Server[/]!");
         AnsiConsole.MarkupLine("Loaded [blue]configuration[/] files ");
@@ -18,6 +18,14 @@ internal class Program {
         AnsiConsole.MarkupLine($"Counting {_dynamicManagerModule.Server.Channels.Count} Channels");
         AnsiConsole.MarkupLine($"Counting {_dynamicManagerModule.Server.Groups.Count} Groups");
         AnsiConsole.MarkupLine($"Counting {_dynamicManagerModule.Server.UserToGroup!.Count} user to group combinations");
+        if (bool.Parse(args[0]) is false)
+        {
+            _dynamicManagerModule.DoBasicServerConfigChecks();
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[yellow]Skipping configuration checks![/]");
+        }
         AnsiConsole.MarkupLine($"Starting server on [blue]{_dynamicManagerModule.Server.HostName}[/]" +
                                $" and [blue]{_dynamicManagerModule.Server.IpAddress.MapToIPv4()}[/]" +
                                $" | [blue]{_dynamicManagerModule.Server.IpAddress}[/]" +

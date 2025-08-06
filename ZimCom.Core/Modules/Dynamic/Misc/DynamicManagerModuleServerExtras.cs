@@ -37,6 +37,51 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     }
     // ReSharper restore FunctionNeverReturns
 
+    public void DoBasicServerConfigChecks()
+    {
+        bool fail = false;
+        if (Server.Channels.FindAll(x => x.DefaultChannel.Equals(true)).Count > 1)
+        {
+            AnsiConsole.MarkupLine("[red]You have more than one default channel configured for this server.[/]");
+            fail = true;
+        }
+        if (Server.Channels.FindAll(x => x.DefaultChannel).Count < 1)
+        {
+            AnsiConsole.MarkupLine("[red]You have no default channel configured for this server.[/]");
+            fail = true;
+        }
+        if (Server.Channels.FindAll(x => x.LocalChannel.Equals(true)).Count > 0)
+        {
+            AnsiConsole.MarkupLine("[red]You have at least one local channel configured for this server.[/]");
+            fail = true;
+        }
+        if (Server.Channels.Distinct().Count() != Server.Channels.Count)
+        {
+            AnsiConsole.MarkupLine("[red]Your channel labels are not unique.[/]");
+            fail = true;
+        }
+        if (Server.Groups.Distinct().Count() != Server.Groups.Count)
+        {
+            AnsiConsole.MarkupLine("[red]Your group labels are not unique.[/]");
+            fail = true;
+        }
+        if (Server.UserToGroup.Keys.Distinct().Count() != Server.UserToGroup.Keys.Count)
+        {
+            AnsiConsole.MarkupLine("[red]At least one user has multiple groups.[/]");
+            fail = true;
+        }
+
+        if (fail)
+        { 
+            AnsiConsole.MarkupLine("[red]The server configuration has failed at least one test.[/]");
+            AnsiConsole.MarkupLine("[red]Terminating server...[/]");
+            AnsiConsole.MarkupLine("[yellow]Press any key to exit.[/]");
+            Console.ReadKey();
+            Environment.Exit(-1);
+        }
+        AnsiConsole.MarkupLine("[green]The server configuration is valid.[/]");
+    }
+
     private void AttachToServerEvents()
     {
         StaticNetServerEvents.ReceivedUserInformation += (_, e) =>
