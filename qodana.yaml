@@ -1,0 +1,42 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version: "1.0"
+#Specify IDE code to run analysis without container (Applied in CI/CD pipeline)
+ide: QDNET
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.starter
+exclude:
+  - name: All
+    paths:
+      - ZimCom.ClientRecorder
+      - ZimCom.ClientConsole
+include:
+  - name: ConvertIfStatementToReturnStatement
+  - name: AutoPropertyCanBeMadeGetOnly.Global
+  - name: HeapView.BoxingAllocation
+  - name: ClassNeverInstantiated.Global
+  - name: HeapView.ClosureAllocation
+  - name: ConvertToPrimaryConstructor
+  - name: HeapView.DelegateAllocation
+  - name: MemberCanBePrivate.Global
+  - name: MemberCanBeMadeStatic.Local
+  - name: NotAccessedField.Global
+  - name: HeapView.ObjectAllocation
+  - name: HeapView.ObjectAllocation.Evident
+  - name: HeapView.ObjectAllocation.Possible
+  - name: Xaml.PossibleNullReferenceException
+  - name: PropertyCanBeMadeInitOnly.Global
+  - name: RedundantTypeDeclarationBody
+  - name: CA1869
+  - name: CA1822
+  - name: CA1806
+  - name: CSharpWarnings__CA2254
+  - name: UnusedMemberInSuper.Global
+  - name: UnusedMember.Global
+  - name: TypeParameterCanBeVariant
+  - name: UseCollectionExpression
+  - name: ArrangeTypeMemberModifiers
+  - name: ArrangeObjectCreationWhenTypeEvident
