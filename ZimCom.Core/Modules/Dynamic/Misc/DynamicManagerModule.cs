@@ -6,16 +6,44 @@ using ZimCom.Core.Modules.Static.Misc;
 
 namespace ZimCom.Core.Modules.Dynamic.Misc;
 
+/// <summary>
+/// Represents a dynamic manager module responsible for handling server and client operations.
+/// </summary>
 public class DynamicManagerModule
 {
+    /// <summary>
+    /// The IP address associated with the dynamic manager module.
+    /// </summary>
     internal IPAddress? Address;
 
+    /// <summary>
+    /// Indicates whether the instance is operating as a client.
+    /// </summary>
     internal bool AsClient;
+
+    /// <summary>
+    /// Represents the default port number used for chat communications in the application.
+    /// </summary>
     internal const int ChatPort = 46113;
 
+    /// <summary>
+    /// Represents an instance of the client packet reader used to handle incoming data from the server.
+    /// </summary>
     internal DynamicIoClientPacketReader? ClientPacketReader;
+
+    /// <summary>
+    /// Represents the port number used for server communications within the dynamic manager module.
+    /// </summary>
     internal const int ServerPort = 46112;
+
+    /// <summary>
+    /// Represents the TCP client used for network communication.
+    /// </summary>
     internal readonly TcpClient TcpClient = new();
+
+    /// <summary>
+    /// Represents the port number used for voice communication.
+    /// </summary>
     internal const int VoicePort = 46111;
 
     protected DynamicManagerModule(bool asClient = false)
@@ -54,16 +82,16 @@ public class DynamicManagerModule
     public Server Server { get; }
 
     /// <summary>
-    ///     Checks if the user strength is enough for an action on a channel
+    /// Determines if a user has sufficient strength to perform an action on a specified channel.
     /// </summary>
-    /// <param name="strength"></param>
-    /// <param name="user"></param>
-    /// <param name="channel"></param>
-    /// <returns>A bool if the user is strong enough to perform the action</returns>
+    /// <param name="strength">The type of strength being checked.</param>
+    /// <param name="user">The user whose strength is being evaluated.</param>
+    /// <param name="channel">The channel on which the action is to be performed.</param>
+    /// <returns>True if the user's strength is sufficient for the specified action on the channel; otherwise, false.</returns>
     public bool CheckUserAgainstChannelStrength(Strength strength, User user, Channel channel)
     {
         StaticLogModule.LogDebug($"Checking {user.Label} against {channel.Label} for {strength}");
-        if (channel.TitleChannel|| channel.SpacerChannel)
+        if (channel.TitleChannel || channel.SpacerChannel)
             return false;
         long channelStrength, userStrength = 0;
         if (channel.Strengths.Any(x => x.Key.Equals(strength)))
@@ -118,6 +146,11 @@ public class DynamicManagerModule
 
     }
 
+    /// <summary>
+    /// Sends a chat message to a specified channel.
+    /// </summary>
+    /// <param name="chatMessage">The chat message to be sent.</param>
+    /// <param name="channel">The channel to which the message is being sent.</param>
     public void SendChannelMessage(ChatMessage chatMessage, Channel channel)
     {
         var matchedChannel = Server.Channels
@@ -128,6 +161,11 @@ public class DynamicManagerModule
             matchedChannel.Chat.Add(chatMessage);
     }
 
+    /// <summary>
+    /// Searches for a user within the channels and returns the channel if found.
+    /// </summary>
+    /// <param name="user">The user to search for within the channels.</param>
+    /// <returns>The channel in which the user is found, or null if the user is not found in any channel.</returns>
     public Channel? FindUserInChannel(User user)
     {
         try

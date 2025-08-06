@@ -6,8 +6,16 @@ using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.Core.Modules.Dynamic.Misc;
 
+/// <summary>
+/// Represents a specialized client extras module for the DynamicManagerModule.
+/// Inherits from <see cref="DynamicManagerModule"/> to provide additional functionality specific to client-side operations.
+/// </summary>
 public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
 {
+    /// <summary>
+    /// Attempts to connect the client to a server using the specified address.
+    /// </summary>
+    /// <param name="address">The IP address of the server as a string. If null or whitespace, the connection will not be established.</param>
     public void ConnectToServer(string? address)
     {
         if (!string.IsNullOrWhiteSpace(address)) IPAddress.TryParse(address.AsSpan(), out Address);
@@ -80,6 +88,10 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
         });
     }
 
+    /// <summary>
+    /// Sends information about the specified user to the connected server.
+    /// </summary>
+    /// <param name="user">The user whose information is to be sent. Cannot be null.</param>
     public void SendUserInfo(User user)
     {
         if (TcpClient.Connected is false) return;
