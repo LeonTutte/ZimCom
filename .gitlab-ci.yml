@@ -1,0 +1,11 @@
+﻿qodana:
+  only:
+    - main
+    - merge_requests
+  image:
+    name: jetbrains/qodana-dotnet
+    entrypoint: [""]
+  variables:
+    QODANA_TOKEN: $qodana_token
+  script:
+    - qodana --save-report --baseline=qodana.sarif.json --results-dir=$CI_PROJECT_DIR/.qodana
