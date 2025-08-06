@@ -29,7 +29,7 @@ public class DynamicNetClient
     {
         TcpClient = tcpClient;
         _packetReaderModule = new DynamicPacketReaderModule(TcpClient.GetStream());
-        AnsiConsole.MarkupLine($"Accepted [green]new user[/] session with [blue]{Uid}[/]");
+        AnsiConsole.MarkupLine($"Accepted [yellow]new user[/] session with [blue]{Uid}[/]");
         HandleIncomingServerPackets();
     }
 
@@ -66,7 +66,7 @@ public class DynamicNetClient
                         break;
                 }
             }
-            if (User is not null) AnsiConsole.MarkupLine($"[blue]{User.Label}[/] disconnected from server");
+            if (User is not null) AnsiConsole.MarkupLine($"[green]{User.Label}[/] disconnected from server");
         });
     }
 
@@ -80,7 +80,10 @@ public class DynamicNetClient
         var user = User.SetFromPacket(data);
         var channel = Channel.SetFromPacket(data2);
         if (user is not null && channel is not null)
+        {
             StaticNetServerEvents.UserChannelChange?.Invoke(this, (user, channel));
+            AnsiConsole.MarkupLine($"[green]{User!.Label}[/] changed channel to [blue]{channel.Label}[/]");
+        }
     }
 
     /// <summary>
@@ -91,8 +94,8 @@ public class DynamicNetClient
     {
         User = User.SetFromPacket(data);
         if (User is null) return;
-        AnsiConsole.MarkupLine($"[green]new user[/] with [blue]{Uid.ToString()}[/] identified as [green]{User.Label}[/]");
-        StaticLogModule.LogInformation($"{User.Label} connected to server with {User.Id}");
+        AnsiConsole.MarkupLine($"Session [blue]{Uid.ToString()}[/] identified as [green]{User.Label}[/]");
+        AnsiConsole.MarkupLine($"[green]{User.Label}[/] identifies with [blue]{User.Id}[/]");
         StaticNetServerEvents.NewClientConnected?.Invoke(this, this);
         StaticNetServerEvents.ReceivedUserInformation?.Invoke(this, User);
     }
@@ -105,7 +108,7 @@ public class DynamicNetClient
     {
         var temp = ChatMessage.SetFromPacket(data);
         if (User is not null && temp is not null)
-            AnsiConsole.MarkupLine($"[blue]{User.Label}[/] send Message with size {data.Length}");
+            AnsiConsole.MarkupLine($"[green]{User.Label}[/] send Message with size [blue]{data.Length}[/]");
         if (temp is not null) StaticNetServerEvents.ReceivedChatMessage?.Invoke(this, temp);
     }
     

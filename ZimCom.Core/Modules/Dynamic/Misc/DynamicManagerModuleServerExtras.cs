@@ -16,7 +16,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         if (Address is null)
         {
             StaticLogModule.LogError("Error during server initialize, the net address is empty", null);
-            throw new NoNullAllowedException();
+            Environment.Exit(-1);
         }
 
         TcpListener = new TcpListener(Address!, ServerPort);
@@ -55,10 +55,10 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             }
             else
             {
-                AnsiConsole.MarkupLine($"[yellow]{e.Label}[/] is an known user");
+                AnsiConsole.MarkupLine($"[green]{e.Label}[/] is an known user");
                 if (Server.BannedUsers.Any(x => x.Id.Equals(e.Id)))
                 {
-                    AnsiConsole.MarkupLine($"[yellow]{e.Label}[/] is a [red]banned[/] user -> sending client reject");
+                    AnsiConsole.MarkupLine($"[green]{e.Label}[/] is a [red]banned[/] user -> sending client reject");
                     StaticNetServerEvents.RejectClientUser?.Invoke(this, e);
                     var tempUser = Clients.FirstOrDefault(x => x.User!.Equals(e));
                     if (tempUser is null) return;
@@ -79,7 +79,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
                         throw;
                     }
 
-                    AnsiConsole.MarkupLine($"[blue]{tempClient.Uid}[/] was given the server information");
+                    AnsiConsole.MarkupLine($"Session [blue]{tempClient.Uid}[/] was given the server information");
                 }
             }
         };
@@ -102,7 +102,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
                 temp.Participents.Remove(temp.Participents.First(x => x.Id.Equals(e.Item1.Id)));
             var serverTemp = Server.Channels.First(x => x.Label.Equals(e.Item2.Label));
             serverTemp.Participents.Add(e.Item1);
-            //StaticNetClientEvents.UserChangeChannel?.Invoke(this, (e.Item1, serverTemp));
+            StaticNetClientEvents.UserChangeChannel?.Invoke(this, (e.Item1, serverTemp));
             var packet = new DynamicPacketBuilderModule();
             packet.WriteOperationCode((byte)StaticNetOpCodes.ChangeChannel);
             packet.WriteMessage(e.Item1.ToString());
