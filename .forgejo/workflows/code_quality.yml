@@ -3,10 +3,6 @@ jobs:
   qodana:
     runs-on: docker
     steps:
-      - uses: actions/checkout
-        with:
-          ref: ${{ forge.sha }}
-          fetch-depth: 0 
       - name: 'Qodana Scan'
         uses: https://github.com/JetBrains/qodana-action@v2025.1
         env:
