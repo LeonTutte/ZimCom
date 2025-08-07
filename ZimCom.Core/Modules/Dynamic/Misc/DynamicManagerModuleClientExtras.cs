@@ -7,13 +7,13 @@ using ZimCom.Core.Modules.Static.Net;
 namespace ZimCom.Core.Modules.Dynamic.Misc;
 
 /// <summary>
-/// Represents a specialized client extras module for the DynamicManagerModule.
+/// Represents a specialized client extension module for the DynamicManagerModule. It's where all the communication is happening to the server.
 /// Inherits from <see cref="DynamicManagerModule"/> to provide additional functionality specific to client-side operations.
 /// </summary>
 public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
 {
     /// <summary>
-    /// Attempts to connect the client to a server using the specified address.
+    /// Attempts to connect the client to a server using the specified address. It's the main function where the communication starts.
     /// </summary>
     /// <param name="address">The IP address of the server as a string. If null or whitespace, the connection will not be established.</param>
     public void ConnectToServer(string? address)
@@ -38,6 +38,9 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
         AttachToClientEvents();
     }
 
+    /// <summary>
+    /// This function sends packets to the server based on events.
+    /// </summary>
     private void AttachToClientEvents()
     {
         StaticNetClientEvents.SendMessageToServer += (_, e) =>
@@ -57,6 +60,10 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
         };
     }
 
+    /// <summary>
+    /// Responses from the server will be handled here and should always fire an event after decoding.
+    /// </summary>
+    /// <exception cref="Exception"></exception>
     private void HandleIncomingServerPackets()
     {
         Task.Run(() =>

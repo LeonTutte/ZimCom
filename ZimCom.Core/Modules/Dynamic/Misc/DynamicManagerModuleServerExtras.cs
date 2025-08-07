@@ -8,6 +8,10 @@ using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.Core.Modules.Dynamic.Misc;
 
+/// <summary>
+/// Represents a specialized server extension for the DynamicManagerModule. It's where all the communication is happening from or on the server.
+/// Inherits from <see cref="DynamicManagerModule"/> to provide additional functionality specific to server-side operations.
+/// </summary>
 public class DynamicManagerModuleServerExtras : DynamicManagerModule
 {
     public DynamicManagerModuleServerExtras()

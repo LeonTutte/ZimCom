@@ -81,17 +81,17 @@ public partial class User : ObservableObject, IJsonModel<User>
 
     public static User? SetFromPacket(string data)
     {
-        User? tempUser = null;
+        User? temp = null;
         try
         {
-            tempUser = JsonSerializer.Deserialize<User>(data);
+            temp = JsonSerializer.Deserialize<User>(data);
         }
         catch (Exception ex)
         {
-            StaticLogModule.LogError("Error during user conversion", ex);
+            StaticLogModule.LogError($"Error during {nameof(temp)} conversion", ex);
             return null;
         }
 
-        return tempUser ?? null;
+        return temp ?? null;
     }
 }

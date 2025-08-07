@@ -40,7 +40,7 @@ public class ChatMessage
         }
         catch (Exception ex)
         {
-            StaticLogModule.LogError("Error during chat message conversion", ex);
+            StaticLogModule.LogError($"Error during {nameof(temp)} conversion", ex);
             return null;
         }
 

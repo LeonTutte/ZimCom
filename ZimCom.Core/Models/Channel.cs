@@ -48,7 +48,7 @@ public class Channel
         }
         catch (Exception ex)
         {
-            StaticLogModule.LogError("Error during channel conversion", ex);
+            StaticLogModule.LogError($"Error during {nameof(temp)} conversion", ex);
             return null;
         }
 

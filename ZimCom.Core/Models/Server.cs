@@ -104,17 +104,17 @@ public class Server
 
     public static Server? SetFromPacket(string data)
     {
-        Server? tempServer = null;
+        Server? temp = null;
         try
         {
-            tempServer = JsonSerializer.Deserialize<Server>(data);
+            temp = JsonSerializer.Deserialize<Server>(data);
         }
         catch (Exception ex)
         {
-            StaticLogModule.LogError("Error during server conversion", ex);
+            StaticLogModule.LogError($"Error during {nameof(temp)} conversion", ex);
             return null;
         }
 
-        return tempServer ?? null;
+        return temp ?? null;
     }
 }
