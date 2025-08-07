@@ -1,0 +1,14 @@
+name: Qodana
+on: [push]
+jobs:
+  qodana:
+    runs-on: docker
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2025.1
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
