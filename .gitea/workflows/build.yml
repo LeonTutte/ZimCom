@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         dotnet-version: [ '9.0.x','10.0.x' ]
@@ -18,10 +18,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-        with:
-          msbuild-architecture: x64
       - name: Install dependencies
         run: dotnet restore
       - name: Test with dotnet
