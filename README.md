@@ -1,3 +1,6 @@
+!(Qodana)[https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/qodana_code_quality.yml?branch=main&event=push]
+!(build)[https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/build.yml?branch=main&event=push]
+
 # ZimCom
 
 ZimCom is primarily a voice software like Teamspeak or Discord. It is designed for small communities and can be self-hosted.
