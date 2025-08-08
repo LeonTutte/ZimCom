@@ -1,4 +1,4 @@
-﻿name: dotnet
+﻿name: dotnet lib build
 on:
   workflow_dispatch:
   pull_request:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         dotnet-version: [ '9.0.x','10.0.x' ]
@@ -18,13 +18,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-        with:
-          msbuild-architecture: x64
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore ZimCom.Core
       - name: Test with dotnet
-        run: dotnet test --no-restore
+        run: dotnet test ZimCom.Core --no-restore
       - name: build with dotnet
-        run: dotnet build --no-restore
+        run: dotnet build ZimCom.Core --no-restore

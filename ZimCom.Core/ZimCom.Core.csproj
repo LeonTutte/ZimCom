@@ -10,7 +10,6 @@
         <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
         <AssemblyName>ZimComCore</AssemblyName>
-        <SupportedOSPlatformVersion>10.0.26100.0</SupportedOSPlatformVersion>
         <LangVersion>preview</LangVersion>
     </PropertyGroup>
 
