@@ -12,19 +12,19 @@ jobs:
     strategy:
       matrix:
         dotnet-version: [ '9.0.x','10.0.x' ]
-      steps:
-        - uses: actions/checkout@v4
-        - name: Setup dotnet
-          uses: actions/setup-dotnet@v4
-          with:
-            dotnet-version: ${{ matrix.dotnet-version }}
-        - name: Add msbuild to PATH
-          uses: microsoft/setup-msbuild@v2
-          with:
-            msbuild-architecture: x64
-        - name: Install dependencies
-          run: dotnet restore
-        - name: Test with dotnet
-          run: dotnet test --no-restore
-        - name: build with dotnet
-          run: dotnet build --no-restore
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Test with dotnet
+        run: dotnet test --no-restore
+      - name: build with dotnet
+        run: dotnet build --no-restore
