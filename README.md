@@ -1,6 +1,5 @@
-![Qodana](https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/qodana_code_quality.yml?branch=main&event=push)
-
-![build](https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/build.yml?branch=main&event=push)
+![Qodana main](https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/qodana_code_quality.yml/badge.svg?branch=main&event=push)
+![build main](https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/build.yml/badge.svg?branch=main&event=push)
 
 # ZimCom
 
