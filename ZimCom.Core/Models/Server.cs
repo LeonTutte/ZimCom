@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ZimCom.Core.Modules.Dynamic.IO;
@@ -10,13 +11,16 @@ namespace ZimCom.Core.Models;
 
 public class Server
 {
+    private IPAddress? _v6Address, _v4Address;
     public required Guid Id { get; set; }
     public required string Label { get; set; }
 
-    [JsonIgnore] public IPAddress IpAddress { get; set; } = GetIpAddress();
+    public IPAddress GetV4Address() => _v4Address ?? GetHostAddress(ServerUrl ?? HostName, AddressFamily.InterNetwork);
+    public IPAddress GetV6Address() => _v6Address ?? GetHostAddress(ServerUrl ?? HostName, AddressFamily.InterNetworkV6);
+    public static IPAddress GetLocalAnyAddress() => IPAddress.Any;
 
-    [JsonIgnore] public string HostName { get; set; } = GetHostName();
-
+    [JsonIgnore] public static string HostName { get; set; } = GetHostName();
+    public static string? ServerUrl { get; set; }
     public List<Channel> Channels { get; set; } = new();
     public List<Group> Groups { get; set; } = new();
     public List<User> BannedUsers { get; set; } = new();
@@ -78,6 +82,8 @@ public class Server
 
         return "127.0.0.1";
     }
+    
+    public static IPAddress GetHostAddress(string hostname, AddressFamily addressFamily) => Dns.GetHostAddresses(hostname, addressFamily).First();
 
     public static IPAddress GetIpAddress()
     {

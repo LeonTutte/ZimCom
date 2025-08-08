@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Net.Sockets;
 using Spectre.Console;
+using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Dynamic.Net;
 using ZimCom.Core.Modules.Static.Misc;
@@ -16,7 +17,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
 {
     public DynamicManagerModuleServerExtras()
     {
-        Address = Server.IpAddress;
+        Address = Server.GetLocalAnyAddress();
         if (Address is null)
         {
             StaticLogModule.LogError("Error during server initialize, the net address is empty", null);
@@ -33,6 +34,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     public void StartServerListener()
     {
         TcpListener.Start();
+        AnsiConsole.MarkupLine("[green]Server listening ...[/]");
         while (true)
         {
             var tempClient = new DynamicNetClient(TcpListener.AcceptTcpClient());

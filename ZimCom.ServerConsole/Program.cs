@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Misc;
 
@@ -26,18 +27,17 @@ internal class Program {
         {
             AnsiConsole.MarkupLine("[yellow]Skipping configuration checks![/]");
         }
-        AnsiConsole.MarkupLine($"Starting server on [blue]{_dynamicManagerModule.Server.HostName}[/]" +
-                               $" and [blue]{_dynamicManagerModule.Server.IpAddress.MapToIPv4()}[/]" +
-                               $" | [blue]{_dynamicManagerModule.Server.IpAddress}[/]" +
-                               $" as [blue]{_dynamicManagerModule.Server.IpAddress.AddressFamily}[/]");
+        AnsiConsole.MarkupLine($"Starting server on [blue]{Server.HostName}[/] and {Server.ServerUrl ?? "[red]null domain[/]"}" +
+                               $" and [blue]{_dynamicManagerModule.Server.GetV4Address()}[/]" +
+                               $" | [blue]{_dynamicManagerModule.Server.GetV6Address()}[/]");
         AnsiConsole.MarkupLine($"[green]IPv4 Status[/] is:{Environment.NewLine}" +
-                               $"   Mapped to IPv6: [blue]{_dynamicManagerModule.Server.IpAddress.IsIPv4MappedToIPv6}[/]");
+                               $"   Mapped to IPv6: [blue]{_dynamicManagerModule.Server.GetV4Address().IsIPv4MappedToIPv6}[/]");
         AnsiConsole.MarkupLine($"[green]IPv6 Status[/] is:{Environment.NewLine}" +
-                               $"   Link Local: [blue]{_dynamicManagerModule.Server.IpAddress.IsIPv6LinkLocal}{Environment.NewLine}[/]" +
-                               $"   Multicast: [blue]{_dynamicManagerModule.Server.IpAddress.IsIPv6Multicast}{Environment.NewLine}[/]" +
-                               $"   Site Local: [blue]{_dynamicManagerModule.Server.IpAddress.IsIPv6SiteLocal}{Environment.NewLine}[/]" +
-                               $"   Teredo: [blue]{_dynamicManagerModule.Server.IpAddress.IsIPv6Teredo}{Environment.NewLine}[/]" +
-                               $"   Unique Local: [blue]{_dynamicManagerModule.Server.IpAddress.IsIPv6UniqueLocal}[/]");
+                               $"   Link Local: [blue]{_dynamicManagerModule.Server.GetV6Address().IsIPv6LinkLocal}{Environment.NewLine}[/]" +
+                               $"   Multicast: [blue]{_dynamicManagerModule.Server.GetV6Address().IsIPv6Multicast}{Environment.NewLine}[/]" +
+                               $"   Site Local: [blue]{_dynamicManagerModule.Server.GetV6Address().IsIPv6SiteLocal}{Environment.NewLine}[/]" +
+                               $"   Teredo: [blue]{_dynamicManagerModule.Server.GetV6Address().IsIPv6Teredo}{Environment.NewLine}[/]" +
+                               $"   Unique Local: [blue]{_dynamicManagerModule.Server.GetV6Address().IsIPv6UniqueLocal}[/]");
         
         _dynamicManagerModule.StartServerListener();
     }
