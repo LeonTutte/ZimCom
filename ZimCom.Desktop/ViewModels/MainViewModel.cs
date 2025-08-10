@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.Quic;
+using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
@@ -20,6 +21,16 @@ public partial class MainViewModel : ObservableObject
             var defaultChannel = GetDefaultChannel();
             defaultChannel.Participants.Add(User);
             CurrentChannel = defaultChannel;
+        }
+
+        // Check QUIC on client
+        if (QuicListener.IsSupported is false || QuicConnection.IsSupported is false)
+        {
+            var messageWindow = new MessageWindow("Missing Support",
+                $"Your system dosen't seem to support QUIC.{Environment.NewLine}" +
+                $"check for presence of libmsquic and support of TLS 1.3.");
+            messageWindow.ShowDialog();
+            Environment.Exit(-1);
         }
 
         AttachToClientEvents();

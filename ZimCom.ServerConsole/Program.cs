@@ -54,7 +54,9 @@ internal class Program
             Environment.Exit(-1);
         }
 
-        AnsiConsole.MarkupLine($"[green]QUIC Status[/] is: [blue]{QuicConnection.IsSupported}[/]");
+        AnsiConsole.MarkupLine($"[green]QUIC Status[/] is:{Environment.NewLine}" +
+                               $" Connection: [blue]{QuicConnection.IsSupported}{Environment.NewLine}[/]" +
+                               $" Listener: [blue]{QuicListener.IsSupported}{Environment.NewLine}[/]");
         _dynamicManagerModule.StartServerListener();
     }
 }
