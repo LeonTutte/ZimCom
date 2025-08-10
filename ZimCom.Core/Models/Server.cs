@@ -13,9 +13,6 @@ namespace ZimCom.Core.Models;
 /// </summary>
 public class Server
 {
-    private readonly IPAddress? _v6Address;
-    private readonly IPAddress? _v4Address;
-
     /// <summary>
     /// Gets or initializes the unique identifier for the server.
     /// This property is read-only after initialization and serves as a unique key for identifying the server instance.
@@ -29,17 +26,10 @@ public class Server
     public required string Label { get; init; }
 
     /// <summary>
-    /// Retrieves the IPv4 address of the server.
-    /// </summary>
-    /// <returns>An IPAddress object representing the IPv4 address of the server.</returns>
-    public IPAddress GetV4Address() => _v4Address ?? GetHostAddress(ServerUrl ?? HostName, AddressFamily.InterNetwork);
-
-    /// <summary>
     /// Retrieves the IPv6 address associated with this server.
     /// </summary>
     /// <returns>An IPAddress object representing the server's IPv6 address. If no IPv6 address is found, it resolves the address from the server's hostname using DNS.</returns>
-    public IPAddress GetV6Address() =>
-        _v6Address ?? GetHostAddress(ServerUrl ?? HostName, AddressFamily.InterNetworkV6);
+    public static IPAddress GetV6Address() => GetHostAddress(ServerUrl ?? HostName, AddressFamily.InterNetworkV6);
 
     internal static IPAddress GetLocalAnyAddress() => IPAddress.Any;
 
@@ -72,7 +62,7 @@ public class Server
 
     /// <summary>
     /// Gets a list of users who are banned from the server.
-    /// This property is read-only and its value can be initialized during server creation or modified through dedicated methods.
+    /// This property is read-only, and its value can be initialized during server creation or modified through dedicated methods.
     /// </summary>
     public List<User> BannedUsers { get; init; } = [];
 

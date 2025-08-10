@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static.Misc;
@@ -11,11 +10,6 @@ namespace ZimCom.Core.Modules.Dynamic.Misc;
 /// </summary>
 public class DynamicManagerModule
 {
-    /// <summary>
-    /// The IP address associated with the dynamic manager module.
-    /// </summary>
-    internal IPAddress? Address;
-
     /// <summary>
     /// Indicates whether the instance is operating as a client.
     /// </summary>
@@ -56,12 +50,12 @@ public class DynamicManagerModule
     public Server Server { get; }
 
     /// <summary>
-    /// Determines if a user has sufficient strength to perform an action on a specified channel.
+    /// Determines if a user has enough strength to perform an action on a specified channel.
     /// </summary>
     /// <param name="strength">The type of strength being checked.</param>
     /// <param name="user">The user whose strength is being evaluated.</param>
     /// <param name="channel">The channel on which the action is to be performed.</param>
-    /// <returns>True if the user's strength is sufficient for the specified action on the channel; otherwise, false.</returns>
+    /// <returns>True if the user's strength is enough for the specified action on the channel; otherwise, false.</returns>
     public bool CheckUserAgainstChannelStrength(Strength strength, User user, Channel channel)
     {
         StaticLogModule.LogDebug($"Checking {user.Label} against {channel.Label} for {strength}");
@@ -100,7 +94,7 @@ public class DynamicManagerModule
             else
             {
                 userStrength = 0;
-                StaticLogModule.LogDebug($"Could not find {groupName} in grouplist of Server");
+                StaticLogModule.LogDebug($"Could not find {groupName} in group list of Server");
             }
         }
         else
@@ -178,9 +172,9 @@ public class DynamicManagerModule
     {
         Id = Guid.NewGuid(),
         Label = "Default Server",
-        Channels = new List<Channel>
-        {
-            new()
+        Channels =
+        [
+            new Channel
             {
                 Label = "Local Computer",
                 Description = "You are not connected",
@@ -188,18 +182,18 @@ public class DynamicManagerModule
                 LocalChannel = true,
                 Strengths = GetDefaultStrengthSet()
             }
-        },
-        Groups = new List<Group>
-        {
-            new()
+        ],
+        Groups =
+        [
+            new Group
             {
                 Label = "Default Group",
                 IsDefault = true,
                 Strengths = GetDefaultStrengthSet()
             }
-        },
-        UserToGroup = new Dictionary<string, string>(),
-        BannedUsers = new List<User>(),
-        KnownUsers = new List<User>()
+        ],
+        UserToGroup = [],
+        BannedUsers = [],
+        KnownUsers = []
     };
 }

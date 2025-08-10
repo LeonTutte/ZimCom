@@ -16,14 +16,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
 {
     public DynamicManagerModuleServerExtras()
     {
-        Address = Server.GetLocalAnyAddress();
-        if (Address is null)
-        {
-            StaticLogModule.LogError("Error during server initialize, the net address is empty", null);
-            Environment.Exit(-1);
-        }
-
-        TcpListener = new TcpListener(Address!, ServerPort);
+        TcpListener = new TcpListener(Server.GetV6Address()!, ServerPort);
         AttachToServerEvents();
     }
 

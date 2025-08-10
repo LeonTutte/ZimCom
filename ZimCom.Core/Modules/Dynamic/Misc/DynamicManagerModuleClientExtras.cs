@@ -12,18 +12,20 @@ namespace ZimCom.Core.Modules.Dynamic.Misc;
 /// </summary>
 public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
 {
+    private IPAddress? _address;
+
     /// <summary>
     /// Attempts to connect the client to a server using the specified address. It's the main function where the communication starts.
     /// </summary>
     /// <param name="address">The IP address of the server as a string. If null or whitespace, the connection will not be established.</param>
     public void ConnectToServer(string? address)
     {
-        if (!string.IsNullOrWhiteSpace(address)) IPAddress.TryParse(address.AsSpan(), out Address);
-        if (Address is null) return;
+        if (!string.IsNullOrWhiteSpace(address)) IPAddress.TryParse(address.AsSpan(), out _address);
+        if (_address is null) return;
         if (TcpClient.Connected) return;
         try
         {
-            TcpClient.Connect(Address, ServerPort);
+            TcpClient.Connect(_address, ServerPort);
         }
         catch (Exception ex)
         {
