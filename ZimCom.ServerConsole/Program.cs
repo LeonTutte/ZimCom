@@ -1,11 +1,15 @@
 ﻿using System.Net.Quic;
+using System.Runtime.Versioning;
 using Spectre.Console;
 using ZimCom.Core.Models;
-using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Misc;
+using ZimCom.ServerConsole.Modules.Dynamic;
 
 namespace ZimCom.ServerConsole;
 
+[SupportedOSPlatform("linux")]
+[SupportedOSPlatform("windows")]
+[SupportedOSPlatform("macOS")]
 internal class Program
 {
     private static DynamicManagerModuleServerExtras? _dynamicManagerModule;
@@ -32,7 +36,7 @@ internal class Program
         }
         else
         {
-            AnsiConsole.MarkupLine("[yellow]Skipping configuration checks![/]");
+            AnsiConsole.MarkupLine("[yellow]Developer Mode -> Skipping configuration checks![/]");
         }
 
         AnsiConsole.MarkupLine(
@@ -57,6 +61,20 @@ internal class Program
         AnsiConsole.MarkupLine($"[green]QUIC Status[/] is:{Environment.NewLine}" +
                                $" Connection: [blue]{QuicConnection.IsSupported}{Environment.NewLine}[/]" +
                                $" Listener: [blue]{QuicListener.IsSupported}{Environment.NewLine}[/]");
-        _dynamicManagerModule.StartServerListener();
+        AnsiConsole.MarkupLine("Starting listener threads");
+        // Listener Threads
+        Task.Run(() =>
+        {
+            _dynamicManagerModule.StartTcpListener();
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
+        Task.Run(() =>
+        {
+            _dynamicManagerModule.StartQuicListener();
+            return Task.CompletedTask;
+        }).ConfigureAwait(false);
+
+        AnsiConsole.MarkupLine("[yellow]Press any key to exit.[/]");
+        Console.ReadKey();
     }
 }

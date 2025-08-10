@@ -33,7 +33,13 @@
       <DocumentationFile>bin\Debug\ZimCom.ServerConsole.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
+        <SupportedPlatform Include="linux"/>
+        <SupportedPlatform Include="macOS"/>
+        <SupportedPlatform Include="windows"/>
+    </ItemGroup>
+
+    <ItemGroup>
     <Content Include="assets\headset.ico" />
   </ItemGroup>
 
@@ -46,5 +52,9 @@
   <ItemGroup>
     <ProjectReference Include="..\ZimCom.Core\ZimCom.Core.csproj" />
   </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Modules\Static\"/>
+    </ItemGroup>
 
 </Project>

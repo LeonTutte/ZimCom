@@ -37,6 +37,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <SupportedPlatform Include="linux"/>
+        <SupportedPlatform Include="macOS"/>
+        <SupportedPlatform Include="windows"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <None Remove="Assets\anruf.png"/>
     </ItemGroup>
 

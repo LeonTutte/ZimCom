@@ -18,7 +18,7 @@ public class DynamicManagerModule
     /// <summary>
     /// Represents the default port number used for chat communications in the application.
     /// </summary>
-    internal const int ChatPort = 46113;
+    public const int QuicPort = 46113;
 
     /// <summary>
     /// Represents an instance of the client packet reader used to handle incoming data from the server.
@@ -28,7 +28,7 @@ public class DynamicManagerModule
     /// <summary>
     /// Represents the port number used for server communications within the dynamic manager module.
     /// </summary>
-    internal const int ServerPort = 46112;
+    public const int ServerPort = 46112;
 
     /// <summary>
     /// Represents the TCP client used for network communication.

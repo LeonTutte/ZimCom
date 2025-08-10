@@ -31,6 +31,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <SupportedPlatform Include="linux"/>
+        <SupportedPlatform Include="macOS"/>
+        <SupportedPlatform Include="windows"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="assets\text.ico"/>
     </ItemGroup>
 

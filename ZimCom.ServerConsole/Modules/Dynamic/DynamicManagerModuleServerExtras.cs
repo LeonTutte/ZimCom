@@ -1,17 +1,26 @@
-﻿using System.Net.Sockets;
+﻿using System.Collections.ObjectModel;
+using System.Net;
+using System.Net.Quic;
+using System.Net.Security;
+using System.Net.Sockets;
+using System.Runtime.Versioning;
 using Spectre.Console;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
+using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Dynamic.Net;
 using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
 
-namespace ZimCom.Core.Modules.Dynamic.Misc;
+namespace ZimCom.ServerConsole.Modules.Dynamic;
 
 /// <summary>
 /// Represents a specialized server extension for the DynamicManagerModule. It's where all the communication is happening from or on the server.
 /// Inherits from <see cref="DynamicManagerModule"/> to provide additional functionality specific to server-side operations.
 /// </summary>
+[SupportedOSPlatform("linux")]
+[SupportedOSPlatform("windows")]
+[SupportedOSPlatform("macOS")]
 public class DynamicManagerModuleServerExtras : DynamicManagerModule
 {
     public DynamicManagerModuleServerExtras()
@@ -20,19 +29,103 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         AttachToServerEvents();
     }
 
-    private List<DynamicNetClient> Clients { get; } = new();
+    private QuicServerConnectionOptions _serverConnectionOptions = new()
+    {
+        DefaultStreamErrorCode = StaticNetLCodes.GetDefaultStreamErrorCode,
+        DefaultCloseErrorCode = StaticNetLCodes.GetDefaultCloseErrorCode,
+        // TODO: Should be set to sum of all channel slots
+        MaxInboundUnidirectionalStreams = 100,
+        MaxInboundBidirectionalStreams = 100,
+        // Same options as for server side SslStream.
+        ServerAuthenticationOptions = new SslServerAuthenticationOptions
+        {
+            // Specify the application protocols that the server supports. This list must be a subset of the protocols specified in QuicListenerOptions.ApplicationProtocols.
+            ApplicationProtocols = [new SslApplicationProtocol("zimcom-server")],
+        }
+    };
+
+    /// <summary>
+    /// Gets a collection of active network clients managed by this instance.
+    /// </summary>
+    private List<DynamicNetClient> Clients { get; } = [];
+
+    /// <summary>
+    /// Gets a collection of active QUIC connections managed by this instance.
+    /// </summary>
+    private ObservableCollection<QuicConnection> QuicConnections { get; } = [];
+
+    private QuicListener? QuicListener { get; set; }
     private TcpListener TcpListener { get; }
 
     // ReSharper disable FunctionNeverReturns
-    public void StartServerListener()
+    /// <summary>
+    /// Starts the TCP listener on the server.
+    /// </summary>
+    /// <remarks>
+    /// This method initializes and starts a TCP listener to accept incoming connections from clients.
+    /// It continuously listens for new client connections, accepting them as they arrive,
+    /// and adds each connected client to the list of managed clients. The server will display
+    /// a status message indicating that it is listening via TCP.
+    /// </remarks>
+    public void StartTcpListener()
     {
         TcpListener.Start();
-        AnsiConsole.MarkupLine("[green]Server listening ...[/]");
+        AnsiConsole.MarkupLine("[green]Server listening via TCP ...[/]");
         while (true)
         {
-            var tempClient = new DynamicNetClient(TcpListener.AcceptTcpClient());
+            var tempClient = new DynamicNetClient(TcpListener.AcceptTcpClientAsync().GetAwaiter().GetResult());
             Clients.Add(tempClient);
         }
+    }
+
+    /// <summary>
+    /// Starts the QUIC listener on the server.
+    /// </summary>
+    /// <remarks>
+    /// This method initializes and starts a QUIC listener to accept incoming connections from clients.
+    /// It sets up the listener with specified options, including the endpoint, supported application protocols, and connection options callback.
+    /// The server will display a status message indicating that it is listening via QUIC.
+    /// </remarks>
+    public async void StartQuicListener()
+    {
+        try
+        {
+            QuicListener = await QuicListener.ListenAsync(new QuicListenerOptions
+            {
+                // Define the endpoint on which the server will listen for incoming connections. The port number 0 can be replaced with any valid port number as needed.
+                ListenEndPoint = new IPEndPoint(Server.GetV6Address(), QuicPort),
+                // List of all supported application protocols by this listener.
+                ApplicationProtocols = [new SslApplicationProtocol("zimcom-server")],
+                // Callback to provide options for the incoming connections, it gets called once per each connection.
+                ConnectionOptionsCallback = (_, _, _) => ValueTask.FromResult(_serverConnectionOptions)
+            }).ConfigureAwait(false);
+            AnsiConsole.MarkupLine("[green]Server listening via QUIC...[/]");
+        }
+        catch (Exception e)
+        {
+            AnsiConsole.WriteException(e);
+        }
+
+        bool quicListenerActive = true;
+        // Accept and process the connections.
+        while (quicListenerActive)
+        {
+            // Accept will propagate any exceptions that occurred during the connection establishment,
+            // including exceptions thrown from ConnectionOptionsCallback, caused by invalid QuicServerConnectionOptions or TLS handshake failures.
+            try
+            {
+                var tempClient = await QuicListener!.AcceptConnectionAsync().ConfigureAwait(false);
+                QuicConnections.Add(tempClient);
+            }
+            catch (Exception e)
+            {
+                AnsiConsole.WriteException(e);
+                quicListenerActive = false;
+            }
+        }
+
+        // When finished, dispose the listener.
+        await QuicListener!.DisposeAsync().ConfigureAwait(true);
     }
     // ReSharper restore FunctionNeverReturns
 
