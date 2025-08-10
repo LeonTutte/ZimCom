@@ -151,7 +151,7 @@ public class Server
     public byte[] GetPacket()
     {
         var packet = new DynamicPacketBuilderModule();
-        packet.WriteOperationCode((byte)StaticNetOpCodes.ServerCode);
+        packet.WriteOperationCode((byte)StaticNetCodes.ServerCode);
         packet.WriteMessage(JsonSerializer.Serialize(this));
         return packet.GetPacketBytes();
     }

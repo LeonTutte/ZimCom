@@ -103,7 +103,7 @@ public partial class User : ObservableObject
     public byte[] GetPacket()
     {
         var packet = new DynamicPacketBuilderModule();
-        packet.WriteOperationCode((byte)StaticNetOpCodes.UserCode);
+        packet.WriteOperationCode((byte)StaticNetCodes.UserCode);
         packet.WriteMessage(JsonSerializer.Serialize<User>(this));
         return packet.GetPacketBytes();
     }

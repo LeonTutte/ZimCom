@@ -41,7 +41,7 @@ public class ChatMessage(User user, string message)
     public byte[] GetPacket()
     {
         var packet = new DynamicPacketBuilderModule();
-        packet.WriteOperationCode((byte)StaticNetOpCodes.ChatMessageCode);
+        packet.WriteOperationCode((byte)StaticNetCodes.ChatMessageCode);
         packet.WriteMessage(JsonSerializer.Serialize<ChatMessage>(this));
         return packet.GetPacketBytes();
     }

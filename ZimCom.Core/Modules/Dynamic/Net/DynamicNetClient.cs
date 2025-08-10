@@ -2,7 +2,6 @@
 using Spectre.Console;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
-using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.Core.Modules.Dynamic.Net;
@@ -55,17 +54,18 @@ public class DynamicNetClient
                 var opCode = _packetReaderModule.ReadByte();
                 switch (opCode)
                 {
-                    case (byte)StaticNetOpCodes.UserCode:
+                    case (byte)StaticNetCodes.UserCode:
                         SetUser(_packetReaderModule.Read32Message());
                         break;
-                    case (byte)StaticNetOpCodes.ChatMessageCode:
+                    case (byte)StaticNetCodes.ChatMessageCode:
                         SetChatMessage(_packetReaderModule.Read32Message());
                         break;
-                    case (byte)StaticNetOpCodes.ChangeChannel:
+                    case (byte)StaticNetCodes.ChangeChannel:
                         ChangeChannel(_packetReaderModule.Read32Message(), _packetReaderModule.Read32Message());
                         break;
                 }
             }
+
             if (User is not null) AnsiConsole.MarkupLine($"[green]{User.Label}[/] disconnected from server");
         });
     }
@@ -111,7 +111,7 @@ public class DynamicNetClient
             AnsiConsole.MarkupLine($"[green]{User.Label}[/] send Message with size [blue]{data.Length}[/]");
         if (temp is not null) StaticNetServerEvents.ReceivedChatMessage?.Invoke(this, temp);
     }
-    
+
     ~DynamicNetClient()
     {
         TcpClient.Close();
