@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using System.Net.Quic;
+using Spectre.Console;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Misc;
@@ -43,7 +44,17 @@ internal class Program
                                $"   Site Local: [blue]{Server.GetV6Address().IsIPv6SiteLocal}{Environment.NewLine}[/]" +
                                $"   Teredo: [blue]{Server.GetV6Address().IsIPv6Teredo}{Environment.NewLine}[/]" +
                                $"   Unique Local: [blue]{Server.GetV6Address().IsIPv6UniqueLocal}[/]");
+        if (QuicConnection.IsSupported is false)
+        {
+            AnsiConsole.MarkupLine(
+                "[red]QUIC is not supported[/], check for presence of [blue]libmsquic[/] and support of [blue]TLS 1.3[/].");
+            AnsiConsole.MarkupLine("[red]Terminating server...[/]");
+            AnsiConsole.MarkupLine("[yellow]Press any key to exit.[/]");
+            Console.ReadKey();
+            Environment.Exit(-1);
+        }
 
+        AnsiConsole.MarkupLine($"[green]QUIC Status[/] is: [blue]{QuicConnection.IsSupported}[/]");
         _dynamicManagerModule.StartServerListener();
     }
 }
