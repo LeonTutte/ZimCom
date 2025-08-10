@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using Spectre.Console;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
@@ -30,6 +29,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
 
     private List<DynamicNetClient> Clients { get; } = new();
     private TcpListener TcpListener { get; }
+
     // ReSharper disable FunctionNeverReturns
     public void StartServerListener()
     {
@@ -51,26 +51,31 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             AnsiConsole.MarkupLine("[red]You have more than one default channel configured for this server.[/]");
             fail = true;
         }
+
         if (Server.Channels.FindAll(x => x.DefaultChannel).Count < 1)
         {
             AnsiConsole.MarkupLine("[red]You have no default channel configured for this server.[/]");
             fail = true;
         }
+
         if (Server.Channels.FindAll(x => x.LocalChannel.Equals(true)).Count > 0)
         {
             AnsiConsole.MarkupLine("[red]You have at least one local channel configured for this server.[/]");
             fail = true;
         }
+
         if (Server.Channels.Distinct().Count() != Server.Channels.Count)
         {
             AnsiConsole.MarkupLine("[red]Your channel labels are not unique.[/]");
             fail = true;
         }
+
         if (Server.Groups.Distinct().Count() != Server.Groups.Count)
         {
             AnsiConsole.MarkupLine("[red]Your group labels are not unique.[/]");
             fail = true;
         }
+
         if (Server.UserToGroup.Keys.Distinct().Count() != Server.UserToGroup.Keys.Count)
         {
             AnsiConsole.MarkupLine("[red]At least one user has multiple groups.[/]");
@@ -78,13 +83,14 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         }
 
         if (fail)
-        { 
+        {
             AnsiConsole.MarkupLine("[red]The server configuration has failed at least one test.[/]");
             AnsiConsole.MarkupLine("[red]Terminating server...[/]");
             AnsiConsole.MarkupLine("[yellow]Press any key to exit.[/]");
             Console.ReadKey();
             Environment.Exit(-1);
         }
+
         AnsiConsole.MarkupLine("[green]The server configuration is valid.[/]");
     }
 
@@ -92,7 +98,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     {
         StaticNetServerEvents.ReceivedUserInformation += (_, e) =>
         {
-            Server.Channels.FindAll(x => x.DefaultChannel.Equals(true)).First().Participents.Add(e);
+            Server.Channels.FindAll(x => x.DefaultChannel.Equals(true)).First().Participants.Add(e);
             if (Server.KnownUsers.Any(x => x.Id.Equals(e.Id)) is false)
             {
                 AnsiConsole.MarkupLine($"[yellow]{e.Label}[/] is an previously unknown user");
@@ -140,7 +146,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             var temp = FindUserInChannel(e.User);
             if (temp == null) return;
             SendChannelMessage(e, temp);
-            foreach (var user in temp.Participents.Where(x => x.Id != e.User.Id))
+            foreach (var user in temp.Participants.Where(x => x.Id != e.User.Id))
                 Clients.First(x => x.User is not null && x.User.Equals(user)).TcpClient.Client
                     .Send(e.GetPacket());
         };
@@ -150,15 +156,15 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             var temp = FindUserInChannel(e.Item1);
             if (temp == null) return;
             if (temp.Label != e.Item2.Label)
-                temp.Participents.Remove(temp.Participents.First(x => x.Id.Equals(e.Item1.Id)));
+                temp.Participants.Remove(temp.Participants.First(x => x.Id.Equals(e.Item1.Id)));
             var serverTemp = Server.Channels.First(x => x.Label.Equals(e.Item2.Label));
-            serverTemp.Participents.Add(e.Item1);
+            serverTemp.Participants.Add(e.Item1);
             StaticNetClientEvents.UserChangeChannel?.Invoke(this, (e.Item1, serverTemp));
             var packet = new DynamicPacketBuilderModule();
             packet.WriteOperationCode((byte)StaticNetOpCodes.ChangeChannel);
             packet.WriteMessage(e.Item1.ToString());
             packet.WriteMessage(e.Item2.ToString());
-            foreach (var user in temp.Participents.Where(x => x.Id != e.Item1.Id))
+            foreach (var user in temp.Participants.Where(x => x.Id != e.Item1.Id))
                 Clients.First(x => x.User is not null && x.User.Equals(user)).TcpClient.Client
                     .Send(packet.GetPacketBytes());
         };

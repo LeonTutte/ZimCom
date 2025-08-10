@@ -1,47 +1,86 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ZimCom.Core.Modules.Static;
 using ZimCom.Core.Modules.Static.Misc;
 
 namespace ZimCom.Core.Models;
 
+/// <summary>
+/// Represents a communication channel with various properties and capabilities.
+/// </summary>
 public class Channel
 {
-    public required string Label { get; set; }
-    public string? Description { get; set; }
-    public bool DefaultChannel { get; set; }
+    /// <summary>
+    /// The name of the channel.
+    /// </summary>
+    public required string Label { get; init; }
 
-    [JsonIgnore] public bool CurrentChannel { get; set; }
+    /// <summary>
+    /// An optional description for the channel
+    /// </summary>
+    public string? Description { get; init; }
 
-    public bool TitleChannel { get; set; }
-    public bool SpacerChannel { get; set; }
-    public bool LocalChannel { get; set; }
-    public Dictionary<Strength, long> Strengths { get; set; } = new();
+    /// <summary>
+    /// Indicates whether the channel is the default aka the first one to put a client into.
+    /// </summary>
+    public bool DefaultChannel { get; init; }
+
+    /// <summary>
+    /// An internal bool for the context of the server, to indicate that this is the channel the client is currently active in.
+    /// </summary>
+    [JsonIgnore]
+    public bool CurrentChannel { get; set; }
+
+    /// <summary>
+    /// Indicates whether the channel acts as a title. Only for clientside formatting.
+    /// </summary>
+    public bool TitleChannel { get; init; }
+
+    /// <summary>
+    /// Indicates whether the channel acts as a spacer. Only for clientside formatting.
+    /// </summary>
+    public bool SpacerChannel { get; init; }
+
+    /// <summary>
+    /// Indicates whether the channel is local. Only important for the client.
+    /// </summary>
+    public bool LocalChannel { get; init; }
+
+    /// <summary>
+    /// A dictionary that maps different strengths to their corresponding values.
+    /// Strengths are defined by the <see cref="Strength"/> enum and represent various permissions or capabilities within a channel.
+    /// </summary>
+    public Dictionary<Strength, long> Strengths { get; init; } = [];
+
+    /// <summary>
+    /// The number of slots is used to determine the amount of pre-reserved ram for the channel.
+    /// </summary>
     public static byte Slots { get; set; } = 64;
 
+    /// <summary>
+    /// Indicates whether the number of slots in a channel is custom (not the default value).
+    /// </summary>
     [JsonIgnore]
-    public static bool CustomSlotAmount
-    {
-        get
-        {
-            if (Slots != 64) return true;
-            return false;
-        }
-    }
+    public static bool CustomSlotAmount => Slots != 64;
 
-    [JsonIgnore] public ObservableCollection<User> Participents { get; set; } = new();
+    /// <summary>
+    /// Gets or sets the collection of users who are participants in this channel.
+    /// </summary>
+    [JsonIgnore]
+    public ObservableCollection<User> Participants { get; set; } = [];
 
-    [JsonIgnore] public ObservableCollection<ChatMessage> Chat { get; set; } = new();
+    /// <summary>
+    /// The chat messages associated with the channel.
+    /// </summary>
+    [JsonIgnore]
+    public ObservableCollection<ChatMessage> Chat { get; set; } = [];
 
-    public override string ToString()
-    {
-        return JsonSerializer.Serialize<Channel>(this);
-    }
+    /// <inheritdoc />
+    public override string ToString() => JsonSerializer.Serialize<Channel>(this);
 
     internal static Channel? SetFromPacket(string data)
     {
-        Channel? temp = null;
+        Channel? temp;
         try
         {
             temp = JsonSerializer.Deserialize<Channel>(data);

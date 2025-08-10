@@ -117,7 +117,6 @@ public class DynamicManagerModule
 
         StaticLogModule.LogDebug($"{user.Label} was denied to {strength} for {channel.Label}");
         return false;
-
     }
 
     /// <summary>
@@ -144,10 +143,10 @@ public class DynamicManagerModule
     {
         try
         {
-            //return Server.Channels.First(x => x.Participents.Contains(user);
-            foreach (var channel in Server.Channels.Where(x => x.Participents.Count > 0))
-                //if (channel.Participents.Contains(user)) return channel;
-                if (channel.Participents.Any(x => x.Id.Equals(user.Id)))
+            //return Server.Channels.First(x => x.Participants.Contains(user);
+            foreach (var channel in Server.Channels.Where(x => x.Participants.Count > 0))
+                //if (channel.Participants.Contains(user)) return channel;
+                if (channel.Participants.Any(x => x.Id.Equals(user.Id)))
                     return channel;
         }
         catch (Exception ex)
@@ -174,7 +173,7 @@ public class DynamicManagerModule
             { Strength.FileDelete, 0 }
         };
     }
-    
+
     private Server GetNewServer() => new()
     {
         Id = Guid.NewGuid(),

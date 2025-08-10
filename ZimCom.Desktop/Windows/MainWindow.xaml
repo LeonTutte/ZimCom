@@ -31,7 +31,7 @@
                 <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
                         Content="&#xE713;" Command="{Binding OpenSettingsCommand}" />
                 <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
-                        Content="&#xE946;" Command="{Binding OpenHelpCommand}"/>
+                        Content="&#xE946;" Command="{Binding OpenHelpCommand}" />
                 <Separator Visibility="Hidden" Width="50" />
                 <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
                         Content="&#xEC54;" Command="{Binding MuteInputCommand}" />
@@ -49,13 +49,13 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" d:Background="PowderBlue">
+            <Grid Grid.Column="0" d:Background="PowderBlue" Margin="10" MinWidth="250">
                 <d:TextBlock Text="Channel View" Style="{StaticResource TitleTextBlockStyle}" />
                 <TreeView Margin="10" ItemsSource="{Binding Server.Channels}" AlternationCount="1"
                           SelectedItemChanged="ChannelTree_SelectedItemChanged"
                           MouseDoubleClick="ChannelTree_MouseDoubleClick">
                     <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type core:Channel}" ItemsSource="{Binding Participents}">
+                        <HierarchicalDataTemplate DataType="{x:Type core:Channel}" ItemsSource="{Binding Participants}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Label}">
                                     <TextBlock.Style>
@@ -105,7 +105,7 @@
                     </TreeView.ItemTemplate>
                 </TreeView>
             </Grid>
-            <Grid Grid.Column="1" d:Background="CadetBlue">
+            <Grid Grid.Column="1" Margin="10" d:Background="CadetBlue">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
@@ -116,11 +116,12 @@
                                    Style="{StaticResource TitleTextBlockStyle}" />
                         <TextBlock d:Text="Channel Description" Text="{Binding CurrentChannel.Description}"
                                    Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <ListView ItemsSource="{Binding CurrentChannel.Participents}" IsEnabled="{Binding ChannelExtrasEnabled}">
+                        <ListView ItemsSource="{Binding CurrentChannel.Participants}"
+                                  IsEnabled="{Binding ChannelExtrasEnabled}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock d:Text="User" Text="{Binding Label}"
-                                               Style="{StaticResource BodyTextBlockStyle}"/>
+                                               Style="{StaticResource BodyTextBlockStyle}" />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -147,8 +148,8 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <StackPanel Margin="4" Orientation="Horizontal" Grid.Row="1" d:Background="Aquamarine">
-                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" MinWidth="400"
-                                 Text="{Binding CurrentChatMessage}" IsEnabled="{Binding ChatEnabled}">
+                        <TextBox MinWidth="400" TextWrapping="Wrap" Text="{Binding CurrentChatMessage}"
+                                 IsEnabled="{Binding ChatEnabled}">
                         </TextBox>
                         <Button Margin="4,0,0,0" Click="ChatSubmitButton_Click"
                                 IsEnabled="{Binding ChatEnabled}">

@@ -18,7 +18,7 @@ public partial class MainViewModel : ObservableObject
         if (Server is not null)
         {
             var defaultChannel = GetDefaultChannel();
-            defaultChannel.Participents.Add(User);
+            defaultChannel.Participants.Add(User);
             CurrentChannel = defaultChannel;
         }
 
@@ -43,10 +43,10 @@ public partial class MainViewModel : ObservableObject
         if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelAccess, User, SelectedChannel))
         {
             PreviousChannel = CurrentChannel;
-            PreviousChannel!.Participents.Remove(User);
+            PreviousChannel!.Participants.Remove(User);
             PreviousChannel.CurrentChannel = false;
             SelectedChannel.CurrentChannel = true;
-            SelectedChannel.Participents.Add(User);
+            SelectedChannel.Participants.Add(User);
             CurrentChannel = SelectedChannel;
             ChannelExtrasEnabled = !CurrentChannel.LocalChannel;
             StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel));
@@ -71,8 +71,9 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private static void OpenHelp()
     {
-        MessageWindow messageWindow = new MessageWindow("Help", $"ZimCom Version {Assembly.GetExecutingAssembly().GetName().Version?.ToString()}{Environment.NewLine}" +
-                                                                $"Build by L. Zimmermann");
+        MessageWindow messageWindow = new MessageWindow("Help",
+            $"ZimCom Version {Assembly.GetExecutingAssembly().GetName().Version?.ToString()}{Environment.NewLine}" +
+            $"Build by L. Zimmermann");
         messageWindow.ShowDialog();
     }
 
@@ -117,7 +118,7 @@ public partial class MainViewModel : ObservableObject
             Server = e;
             PreviousChannel = null;
             CurrentChannel = GetDefaultChannel();
-            CurrentChannel.Participents.Add(User);
+            CurrentChannel.Participants.Add(User);
             ChatEnabled = true;
         };
         StaticNetClientEvents.DisconnectedFromServer += (_, _) =>
@@ -133,11 +134,11 @@ public partial class MainViewModel : ObservableObject
             var temp = DynamicManagerModule.FindUserInChannel(e!.Item1);
             if (temp is null) return;
             if (temp.Label != e!.Item2.Label)
-                temp.Participents.Remove(temp.Participents.First(x => x.Id.Equals(e.Item1.Id)));
+                temp.Participants.Remove(temp.Participants.First(x => x.Id.Equals(e.Item1.Id)));
 
             var serverTemp =
                 Server!.Channels.First(x => x.Label.Equals(e.Item2.Label, StringComparison.Ordinal));
-            serverTemp.Participents.Add(e.Item1);
+            serverTemp.Participants.Add(e.Item1);
             CurrentChannel?.Chat.Add(new ChatMessage(ServerUser, $"{e.Item1.Label} joined Channel"));
         };
     }

@@ -11,15 +11,23 @@
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
         <AssemblyName>ZimComCore</AssemblyName>
         <LangVersion>preview</LangVersion>
+        <Company>Leon Zimmermann</Company>
+        <Product>libzimcomcore</Product>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugType>none</DebugType>
         <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+        <DefineConstants/>
+        <DebugSymbols>true</DebugSymbols>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DebugType>full</DebugType>
+        <DocumentationFile>bin\Debug\ZimCom.Core.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
