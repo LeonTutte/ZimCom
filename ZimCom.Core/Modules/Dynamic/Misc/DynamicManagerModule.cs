@@ -48,34 +48,8 @@ public class DynamicManagerModule
 
     protected DynamicManagerModule(bool asClient = false)
     {
-        Server = Server.Load() ?? new Server
-        {
-            Id = Guid.NewGuid(),
-            Label = "Default Server",
-            Channels = new List<Channel>
-            {
-                new()
-                {
-                    Label = "Local Computer",
-                    Description = "You are not connected",
-                    DefaultChannel = true,
-                    LocalChannel = true,
-                    Strengths = GetDefaultStrengthSet()
-                }
-            },
-            Groups = new List<Group>
-            {
-                new()
-                {
-                    Label = "Default Group",
-                    IsDefault = true,
-                    Strengths = GetDefaultStrengthSet()
-                }
-            },
-            UserToGroup = new Dictionary<string, string>(),
-            BannedUsers = new List<User>(),
-            KnownUsers = new List<User>()
-        };
+        Server = GetNewServer();
+        if (asClient is false) Server = Server.Load() ?? GetNewServer();
         AsClient = asClient;
     }
 
@@ -200,4 +174,33 @@ public class DynamicManagerModule
             { Strength.FileDelete, 0 }
         };
     }
+    
+    private Server GetNewServer() => new()
+    {
+        Id = Guid.NewGuid(),
+        Label = "Default Server",
+        Channels = new List<Channel>
+        {
+            new()
+            {
+                Label = "Local Computer",
+                Description = "You are not connected",
+                DefaultChannel = true,
+                LocalChannel = true,
+                Strengths = GetDefaultStrengthSet()
+            }
+        },
+        Groups = new List<Group>
+        {
+            new()
+            {
+                Label = "Default Group",
+                IsDefault = true,
+                Strengths = GetDefaultStrengthSet()
+            }
+        },
+        UserToGroup = new Dictionary<string, string>(),
+        BannedUsers = new List<User>(),
+        KnownUsers = new List<User>()
+    };
 }
