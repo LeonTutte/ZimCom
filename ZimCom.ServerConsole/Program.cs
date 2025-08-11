@@ -10,7 +10,7 @@ namespace ZimCom.ServerConsole;
 [SupportedOSPlatform("linux")]
 [SupportedOSPlatform("windows")]
 [SupportedOSPlatform("macOS")]
-internal class Program
+internal static class Program
 {
     private static DynamicManagerModuleServerExtras? _dynamicManagerModule;
 
@@ -18,7 +18,7 @@ internal class Program
     {
         StaticLogModule.LogAppStart();
         AnsiConsole.MarkupLine("Starting [green]ZimCom Server[/]!");
-        AnsiConsole.MarkupLine("Loaded [blue]configuration[/] files ");
+        AnsiConsole.MarkupLine("Loaded [blue]configuration[/] files");
         _dynamicManagerModule = new DynamicManagerModuleServerExtras();
         if (_dynamicManagerModule.Server.Label == "Default Server")
         {
@@ -30,13 +30,13 @@ internal class Program
         AnsiConsole.MarkupLine($"Counting {_dynamicManagerModule.Server.Groups.Count} Groups");
         AnsiConsole.MarkupLine(
             $"Counting {_dynamicManagerModule.Server.UserToGroup!.Count} user to group combinations");
-        if (bool.Parse(args[0]) is false)
+        if (args.Length > 0 && bool.Parse(args[0]) is false)
         {
-            _dynamicManagerModule.DoBasicServerConfigChecks();
+            AnsiConsole.MarkupLine("[yellow]Developer Mode -> Skipping configuration checks![/]");
         }
         else
         {
-            AnsiConsole.MarkupLine("[yellow]Developer Mode -> Skipping configuration checks![/]");
+            _dynamicManagerModule.DoBasicServerConfigChecks();
         }
 
         AnsiConsole.MarkupLine(
@@ -63,11 +63,11 @@ internal class Program
                                $" Listener: [blue]{QuicListener.IsSupported}{Environment.NewLine}[/]");
         AnsiConsole.MarkupLine("Starting listener threads");
         // Listener Threads
-        Task.Run(() =>
-        {
-            _dynamicManagerModule.StartTcpListener();
-            return Task.CompletedTask;
-        }).ConfigureAwait(false);
+        // Task.Run(() =>
+        // {
+        //     _dynamicManagerModule.StartTcpListener();
+        //     return Task.CompletedTask;
+        // }).ConfigureAwait(false);
         Task.Run(() =>
         {
             _dynamicManagerModule.StartQuicListener();

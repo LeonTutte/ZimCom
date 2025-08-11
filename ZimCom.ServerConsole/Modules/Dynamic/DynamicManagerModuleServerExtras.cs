@@ -115,6 +115,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             try
             {
                 var tempClient = await QuicListener!.AcceptConnectionAsync().ConfigureAwait(false);
+                AnsiConsole.MarkupLine($"[green]Client connected[/] -> {tempClient.RemoteEndPoint}");
                 QuicConnections.Add(tempClient);
             }
             catch (Exception e)
@@ -129,6 +130,12 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     }
     // ReSharper restore FunctionNeverReturns
 
+    /// <summary>
+    /// Performs basic server configuration checks.
+    /// </summary>
+    /// <remarks>
+    /// This method validates the server's configuration. If any check fails, it outputs appropriate error messages and terminates the server.
+    /// </remarks>
     public void DoBasicServerConfigChecks()
     {
         bool fail = false;

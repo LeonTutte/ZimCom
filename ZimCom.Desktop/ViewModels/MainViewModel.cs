@@ -82,7 +82,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private static void OpenHelp()
     {
-        MessageWindow messageWindow = new MessageWindow("Help",
+        MessageWindow messageWindow = new("Help",
             $"ZimCom Version {Assembly.GetExecutingAssembly().GetName().Version?.ToString()}{Environment.NewLine}" +
             $"Build by L. Zimmermann");
         messageWindow.ShowDialog();
@@ -103,7 +103,8 @@ public partial class MainViewModel : ObservableObject
         {
             try
             {
-                DynamicManagerModule.ConnectToServer(e);
+                //Task.Run(() => DynamicManagerModule.ConnectToServer(e));
+                Task.Run(() => DynamicManagerModule.ConnectToServerViaQuic(e, User));
             }
             catch (Exception ex)
             {
