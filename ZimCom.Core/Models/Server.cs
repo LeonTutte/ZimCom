@@ -29,9 +29,9 @@ public class Server
     /// Retrieves the IPv6 address associated with this server.
     /// </summary>
     /// <returns>An IPAddress object representing the server's IPv6 address. If no IPv6 address is found, it resolves the address from the server's hostname using DNS.</returns>
-    public static IPAddress GetV6Address() => GetHostAddress(ServerUrl ?? HostName, AddressFamily.InterNetworkV6);
+    public static IPAddress GetV6Address() => GetHostAddress(ServerUrl, AddressFamily.InterNetworkV6);
 
-    internal static IPAddress GetLocalAnyAddress() => IPAddress.Any;
+    internal static IPAddress GetLocalAnyAddress() => IPAddress.IPv6Any;
 
     /// <summary>
     /// Gets the default hostname of the server.
@@ -141,8 +141,10 @@ public class Server
         return "127.0.0.1";
     }
 
-    private static IPAddress GetHostAddress(string hostname, AddressFamily addressFamily) =>
-        Dns.GetHostAddresses(hostname, addressFamily).First();
+    private static IPAddress GetHostAddress(string? hostname, AddressFamily addressFamily)
+    {
+        return hostname is null ? IPAddress.IPv6Any : Dns.GetHostAddresses(hostname, addressFamily).First();
+    }
 
     /// <summary>
     /// Creates a network packet containing the server's information.
