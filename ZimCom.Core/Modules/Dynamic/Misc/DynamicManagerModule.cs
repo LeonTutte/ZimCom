@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using ZimCom.Core.Models;
+﻿using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static.Misc;
 
@@ -16,24 +15,14 @@ public class DynamicManagerModule
     internal bool AsClient;
 
     /// <summary>
-    /// Represents the default port number used for chat communications in the application.
-    /// </summary>
-    protected const int QuicPort = 46113;
-
-    /// <summary>
     /// Represents an instance of the client packet reader used to handle incoming data from the server.
     /// </summary>
-    internal DynamicPacketReaderModule? ClientPacketReader;
+    protected internal DynamicPacketReaderModule? ClientPacketReader;
 
     /// <summary>
     /// Represents the port number used for server communications within the dynamic manager module.
     /// </summary>
     protected const int ServerPort = 46112;
-
-    /// <summary>
-    /// Represents the TCP client used for network communication.
-    /// </summary>
-    internal readonly TcpClient TcpClient = new();
 
     /// <summary>
     /// Represents the port number used for voice communication.

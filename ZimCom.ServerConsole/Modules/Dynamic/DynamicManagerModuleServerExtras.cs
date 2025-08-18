@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using Spectre.Console;
 using ZimCom.Core.Modules.Dynamic.Misc;
+using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.ServerConsole.Modules.Dynamic;
 
@@ -29,15 +30,30 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
 
         while (true)
         {
-            var result = await server.ReceiveAsync().ConfigureAwait(false);
+            var result = await server.ReceiveAsync().ConfigureAwait(true);
             if (!clients.Contains(result.RemoteEndPoint))
                 clients.Add(result.RemoteEndPoint);
+
+            CheckClientPacket(result);
 
             // Forward to all other clients
             foreach (var client in clients.Where(client => !client.Equals(result.RemoteEndPoint)))
             {
                 await server.SendAsync(result.Buffer, result.Buffer.Length, client).ConfigureAwait(false);
             }
+        }
+    }
+
+    private void CheckClientPacket(UdpReceiveResult receiveResult)
+    {
+        var opCode = receiveResult.Buffer[0];
+        switch (opCode)
+        {
+            case (byte)StaticNetCodes.RegisterCode:
+                AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} registered on server");
+                break;
+            default:
+                break;
         }
     }
     // ReSharper restore FunctionNeverReturns
