@@ -9,7 +9,6 @@ public static class StaticLogModule
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console(LogEventLevel.Information)
             .WriteTo.File("logs/log_.txt", rollingInterval: RollingInterval.Day, buffered: false,
                 restrictedToMinimumLevel: LogEventLevel.Verbose)
             .CreateLogger();

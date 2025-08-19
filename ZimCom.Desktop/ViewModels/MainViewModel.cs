@@ -1,5 +1,4 @@
-﻿using System.Net.Quic;
-using System.Reflection;
+﻿using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
@@ -14,23 +13,13 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         // Testdata
-        Server = DynamicManagerModule.Server;
+        Server = DynamicManagerModule.InternalServer;
         User = User.Load() ?? new User("Default User");
         if (Server is not null)
         {
             var defaultChannel = GetDefaultChannel();
             defaultChannel.Participants.Add(User);
             CurrentChannel = defaultChannel;
-        }
-
-        // Check QUIC on client
-        if (QuicListener.IsSupported is false || QuicConnection.IsSupported is false)
-        {
-            var messageWindow = new MessageWindow("Missing Support",
-                $"Your system dosen't seem to support QUIC.{Environment.NewLine}" +
-                $"check for presence of libmsquic and support of TLS 1.3.");
-            messageWindow.ShowDialog();
-            Environment.Exit(-1);
         }
 
         AttachToClientEvents();
@@ -44,6 +33,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private partial Channel? PreviousChannel { get; set; }
     [ObservableProperty] public partial string? CurrentChatMessage { get; set; }
     [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
+    [ObservableProperty] public partial bool ConnectEnabled { get; set; } = true;
+    [ObservableProperty] public partial bool DisconnectEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ChannelExtrasEnabled { get; set; } = false;
     private User ServerUser { get; } = new("Server");
 
@@ -80,6 +71,9 @@ public partial class MainViewModel : ObservableObject
     private void AwayUser() => User.IsAway = !User.IsAway;
 
     [RelayCommand]
+    private void DisconnectFromServer() => DynamicManagerModule.DisconnectFromServer();
+
+    [RelayCommand]
     private static void OpenHelp()
     {
         MessageWindow messageWindow = new("Help",
@@ -104,7 +98,8 @@ public partial class MainViewModel : ObservableObject
             try
             {
                 //Task.Run(() => DynamicManagerModule.ConnectToServer(e));
-                Task.Run(() => DynamicManagerModule.ConnectToServerViaQuic(e, User));
+                //Task.Run(() => DynamicManagerModule.ConnectToServerViaQuic(e, User));
+                DynamicManagerModule.ConnectToServer(e);
             }
             catch (Exception ex)
             {
@@ -112,7 +107,7 @@ public partial class MainViewModel : ObservableObject
                 messageWindow.ShowDialog();
             }
 
-            DynamicManagerModule.SendUserInfo(User);
+            //DynamicManagerModule.SendUserInfo(User);
         };
         connectWindow.ViewModel.CloseWindow += (_, _) => { connectWindow.Close(); };
         connectWindow.ShowDialog();
@@ -125,6 +120,11 @@ public partial class MainViewModel : ObservableObject
 
     private void AttachToClientEvents()
     {
+        StaticNetClientEvents.ConnectedToServer += (_, _) =>
+        {
+            ConnectEnabled = false;
+            DisconnectEnabled = true;
+        };
         StaticNetClientEvents.ReceivedServerData += (_, e) =>
         {
             Server = e;
@@ -137,6 +137,8 @@ public partial class MainViewModel : ObservableObject
         {
             var messageWindow = new MessageWindow("Disconnect", "Disconnected from Server!");
             messageWindow.ShowDialog();
+            ConnectEnabled = true;
+            DisconnectEnabled = false;
         };
         StaticNetClientEvents.SendMessageToServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
         StaticNetClientEvents.ReceivedMessageFromServer += (_, e) => { CurrentChannel!.Chat.Add(e); };

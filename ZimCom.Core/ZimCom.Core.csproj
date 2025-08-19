@@ -6,7 +6,6 @@
         <Nullable>enable</Nullable>
         <PublishAot>false</PublishAot>
         <InvariantGlobalization>true</InvariantGlobalization>
-        <ApplicationIcon>assets\text.ico</ApplicationIcon>
         <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
         <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
         <AssemblyName>ZimComCore</AssemblyName>
@@ -29,16 +28,6 @@
         <DebugType>full</DebugType>
         <DocumentationFile>bin\Debug\ZimCom.Core.xml</DocumentationFile>
     </PropertyGroup>
-
-    <ItemGroup>
-        <SupportedPlatform Include="linux"/>
-        <SupportedPlatform Include="macOS"/>
-        <SupportedPlatform Include="windows"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="assets\text.ico"/>
-    </ItemGroup>
 
     <ItemGroup>
         <None Update="assets\README.txt">

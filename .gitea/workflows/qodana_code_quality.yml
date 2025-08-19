@@ -1,0 +1,37 @@
+﻿name: Qodana
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - v2-dev
+
+jobs:
+  qodana:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: https://github.com/actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: 'Qodana Scan'
+        uses: https://github.com/JetBrains/qodana-action@v2025.2
+        with:
+          args: --linter,jetbrains/qodana-cdnet
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+        with:
+          # In pr-mode: 'true' Qodana checks only changed files
+          pr-mode: false
+          use-caches: true
+          post-pr-comment: true
+          use-annotations: true
+          # Upload Qodana results (SARIF, other artifacts, logs) as an artifact to the job
+          upload-result: true
+          # quick-fixes available in Ultimate and Ultimate Plus plans
+          push-fixes: 'none'

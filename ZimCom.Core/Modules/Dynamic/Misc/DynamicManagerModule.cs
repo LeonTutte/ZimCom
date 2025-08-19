@@ -1,6 +1,4 @@
-﻿using System.Net.Sockets;
-using ZimCom.Core.Models;
-using ZimCom.Core.Modules.Dynamic.IO;
+﻿using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Static.Misc;
 
 namespace ZimCom.Core.Modules.Dynamic.Misc;
@@ -16,38 +14,25 @@ public class DynamicManagerModule
     internal bool AsClient;
 
     /// <summary>
-    /// Represents the default port number used for chat communications in the application.
-    /// </summary>
-    public const int QuicPort = 46113;
-
-    /// <summary>
-    /// Represents an instance of the client packet reader used to handle incoming data from the server.
-    /// </summary>
-    internal DynamicPacketReaderModule? ClientPacketReader;
-
-    /// <summary>
     /// Represents the port number used for server communications within the dynamic manager module.
     /// </summary>
-    public const int ServerPort = 46112;
+    protected const int ServerPort = 46112;
 
     /// <summary>
-    /// Represents the TCP client used for network communication.
+    /// Represents a manager module responsible for handling server and client operations.
+    /// This class is the base for more specialized modules.
     /// </summary>
-    internal readonly TcpClient TcpClient = new();
-
-    /// <summary>
-    /// Represents the port number used for voice communication.
-    /// </summary>
-    internal const int VoicePort = 46111;
-
     protected DynamicManagerModule(bool asClient = false)
     {
-        Server = GetNewServer();
-        if (asClient is false) Server = Server.Load() ?? GetNewServer();
+        InternalServer = GetNewServer();
+        if (asClient is false) InternalServer = Server.Load() ?? GetNewServer();
         AsClient = asClient;
     }
 
-    public Server Server { get; }
+    /// <summary>
+    /// The local server instance
+    /// </summary>
+    public Server InternalServer { get; }
 
     /// <summary>
     /// Determines if a user has enough strength to perform an action on a specified channel.
@@ -73,13 +58,13 @@ public class DynamicManagerModule
             channelStrength = 0;
         }
 
-        if (Server.UserToGroup.Any(x => x.Key.Equals(user.Id)))
+        if (InternalServer.UserToGroup.Any(x => x.Key.Equals(user.Id)))
         {
-            var groupName = Server.UserToGroup.First(x => x.Key.Equals(user.Id)).Key;
+            var groupName = InternalServer.UserToGroup.First(x => x.Key.Equals(user.Id)).Key;
             StaticLogModule.LogDebug($"Found group {groupName} for {user.Label}");
-            if (Server.Groups.Any(x => x.Label.Equals(groupName)))
+            if (InternalServer.Groups.Any(x => x.Label.Equals(groupName)))
             {
-                var group = Server.Groups.First(x => x.Label.Equals(groupName));
+                var group = InternalServer.Groups.First(x => x.Label.Equals(groupName));
                 if (group.Strengths.Any(x => x.Key.Equals(strength)))
                 {
                     userStrength = group.Strengths.First(x => x.Key.Equals(strength)).Value;
@@ -120,7 +105,7 @@ public class DynamicManagerModule
     /// <param name="channel">The channel to which the message is being sent.</param>
     public void SendChannelMessage(ChatMessage chatMessage, Channel channel)
     {
-        var matchedChannel = Server.Channels
+        var matchedChannel = InternalServer.Channels
             .FirstOrDefault(c => c.Label == channel.Label);
 
         if (matchedChannel is null) return;
@@ -138,7 +123,7 @@ public class DynamicManagerModule
         try
         {
             //return Server.Channels.First(x => x.Participants.Contains(user);
-            foreach (var channel in Server.Channels.Where(x => x.Participants.Count > 0))
+            foreach (var channel in InternalServer.Channels.Where(x => x.Participants.Count > 0))
                 //if (channel.Participants.Contains(user)) return channel;
                 if (channel.Participants.Any(x => x.Id.Equals(user.Id)))
                     return channel;

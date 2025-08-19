@@ -45,4 +45,10 @@ public partial class MainWindow
         StaticNetClientEvents.SendMessageToServer?.Invoke(this, tempMessage);
         _viewModel.CurrentChatMessage = string.Empty;
     }
+
+    private void MainWindow_OnClosed(object? sender, EventArgs e)
+    {
+        if (_viewModel.DynamicManagerModule.Registered is false) return;
+        _viewModel.DynamicManagerModule.DisconnectFromServer();
+    }
 }

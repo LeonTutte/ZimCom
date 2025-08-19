@@ -12,9 +12,7 @@
         MinWidth="768"
         Height="1024"
         Width="768"
-        WindowStartupLocation="CenterOwner">
-    <Window.Resources>
-    </Window.Resources>
+        WindowStartupLocation="CenterOwner" Closed="MainWindow_OnClosed">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -26,23 +24,28 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Column="0">
-                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
-                        Content="&#xE71B;" Command="{Binding OpenConnectCommand}" />
-                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                        Content="&#xE71B;" Command="{Binding OpenConnectCommand}" IsEnabled="{Binding ConnectEnabled}" />
+                <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                        Content="&#xE711;" Command="{Binding DisconnectFromServerCommand}"
+                        IsEnabled="{Binding DisconnectEnabled}" />
+                <Separator Visibility="Hidden" Width="50" />
+                <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
                         Content="&#xE713;" Command="{Binding OpenSettingsCommand}" />
-                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
                         Content="&#xE946;" Command="{Binding OpenHelpCommand}" />
                 <Separator Visibility="Hidden" Width="50" />
-                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
                         Content="&#xEC54;" Command="{Binding MuteInputCommand}" />
-                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
                         Content="&#xE74F;" Command="{Binding MuteOutputCommand}" />
-                <Button Margin="4" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
                         Content="&#xE769;" Command="{Binding AwayUserCommand}" />
             </StackPanel>
             <TextBlock Grid.Column="1" Margin="10,0,10,0" d:Text="Username"
-                       Text="{Binding User.Label}" Style="{StaticResource BodyStrongTextBlockStyle}"
-                       VerticalAlignment="Center" HorizontalAlignment="Right" />
+                       Text="{Binding User.Label}"
+                       VerticalAlignment="Center" HorizontalAlignment="Right"
+                       Style="{DynamicResource BodyTextBlockStyle}" />
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -50,7 +53,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0" d:Background="PowderBlue" Margin="10" MinWidth="250">
-                <d:TextBlock Text="Channel View" Style="{StaticResource TitleTextBlockStyle}" />
+                <d:TextBlock Text="Channel View" Style="{DynamicResource TitleTextBlockStyle}" />
                 <TreeView Margin="10" ItemsSource="{Binding Server.Channels}" AlternationCount="1"
                           SelectedItemChanged="ChannelTree_SelectedItemChanged"
                           MouseDoubleClick="ChannelTree_MouseDoubleClick">
@@ -113,15 +116,15 @@
                 <Grid Grid.Row="0">
                     <StackPanel Orientation="Vertical">
                         <TextBlock d:Text="Channel Header" Text="{Binding CurrentChannel.Label}"
-                                   Style="{StaticResource TitleTextBlockStyle}" />
+                                   Style="{DynamicResource TitleTextBlockStyle}" />
                         <TextBlock d:Text="Channel Description" Text="{Binding CurrentChannel.Description}"
-                                   Style="{StaticResource SubtitleTextBlockStyle}" />
+                                   Style="{DynamicResource SubtitleTextBlockStyle}" />
                         <ListView ItemsSource="{Binding CurrentChannel.Participants}"
                                   IsEnabled="{Binding ChannelExtrasEnabled}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock d:Text="User" Text="{Binding Label}"
-                                               Style="{StaticResource BodyTextBlockStyle}" />
+                                               Style="{DynamicResource BodyTextBlockStyle}" />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -154,7 +157,7 @@
                         <Button Margin="4,0,0,0" Click="ChatSubmitButton_Click"
                                 IsEnabled="{Binding ChatEnabled}">
                             <Button.Content>
-                                <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" Text="&#xE8BD;" />
+                                <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" Text="&#xE8BD;" />
                             </Button.Content>
                         </Button>
                     </StackPanel>

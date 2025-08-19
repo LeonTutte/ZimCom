@@ -1,8 +1,5 @@
 ﻿using System.Net;
-using System.Net.Quic;
-using System.Net.Security;
-using System.Runtime.Versioning;
-using ZimCom.Core.Models;
+using System.Net.Sockets;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
@@ -16,7 +13,18 @@ namespace ZimCom.Core.Modules.Dynamic.Misc;
 public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
 {
     private IPAddress? _address;
-    private QuicClientConnectionOptions? _clientConnectionOptions;
+    private UdpClient? _client;
+    private IPEndPoint? _serverEndPoint;
+
+    /// <summary>
+    /// Indicates whether the client module is successfully registered with a server.
+    /// </summary>
+    /// <remarks>
+    /// When set to <c>true</c>, the client is actively registered and ready to exchange data with the server.
+    /// The value is updated during the execution of the <see cref="ConnectToServer"/> method, and is used to determine
+    /// whether the client can send or receive packets from the server.
+    /// </remarks>
+    public bool Registered = false;
 
     /// <summary>
     /// Attempts to connect the client to a server using the specified address. It's the main function where the communication starts.
@@ -25,149 +33,118 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
     public void ConnectToServer(string? address)
     {
         if (!string.IsNullOrWhiteSpace(address)) IPAddress.TryParse(address.AsSpan(), out _address);
-        if (_address is null) return;
-        if (TcpClient.Connected) return;
+        if (_address is null || string.IsNullOrWhiteSpace(_address.ToString())) return;
+        var packet = new DynamicPacketBuilderModule();
+        packet.WriteOperationCode((byte)StaticNetCodes.RegisterCode);
         try
         {
-            TcpClient.Connect(_address, ServerPort);
+            _client = new UdpClient(_address.AddressFamily);
+            _client.Send(packet.GetPacketBytes(), packet.GetPacketBytes().Length, new(_address, ServerPort));
+            Registered = true;
+            StaticNetClientEvents.ConnectedToServer?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
-            StaticLogModule.LogError("Error during server connect", ex);
+            StaticLogModule.LogError("Error during server registration", ex);
+            ResetServerNetwork();
             StaticNetClientEvents.ConnectedToServerFail?.Invoke(this, ex);
         }
-
-        if (TcpClient.Connected is false) return;
-        StaticNetClientEvents.ConnectedToServer?.Invoke(this, EventArgs.Empty);
-        ClientPacketReader = new DynamicPacketReaderModule(TcpClient.GetStream());
-        HandleIncomingServerPackets();
-        AttachToClientEvents();
-    }
-
-    [SupportedOSPlatform("linux")]
-    [SupportedOSPlatform("windows")]
-    [SupportedOSPlatform("macOS")]
-    public async Task ConnectToServerViaQuic(string? address, User user)
-    {
-        if (!string.IsNullOrWhiteSpace(address) && _address is null) IPAddress.TryParse(address.AsSpan(), out _address);
-        if (_address is null) return;
-        _clientConnectionOptions = new()
+        finally
         {
-            // End point of the server to connect to.
-            RemoteEndPoint = new IPEndPoint(_address, QuicPort),
-
-            // Used to abort stream if it's not properly closed by the user.
-            // See https://www.rfc-editor.org/rfc/rfc9000#section-20.2
-            DefaultStreamErrorCode = 0x0A, // Protocol-dependent error code.
-
-            // Used to close the connection if it's not done by the user.
-            // See https://www.rfc-editor.org/rfc/rfc9000#section-20.2
-            DefaultCloseErrorCode = 0x0B, // Protocol-dependent error code.
-
-            // Optionally set limits for inbound streams.
-            MaxInboundUnidirectionalStreams = 10,
-            MaxInboundBidirectionalStreams = 10,
-
-            // Same options as for client side SslStream.
-            ClientAuthenticationOptions = new SslClientAuthenticationOptions
-            {
-                // List of supported application protocols.
-                ApplicationProtocols = [new SslApplicationProtocol("zimcom-server")],
-            }
-        };
-        // Initialize, configure and connect to the server.
-        var connection = await QuicConnection.ConnectAsync(_clientConnectionOptions);
-
-        Console.WriteLine($"Connected {connection.LocalEndPoint} --> {connection.RemoteEndPoint}");
-
-        // Open a bidirectional (can both read and write) outbound stream.
-        // Opening a stream reserves it but does not notify the peer or send any data. If you don't send data, the peer
-        // won't be informed about the stream, which can cause AcceptInboundStreamAsync() to hang. To avoid this, ensure
-        // you send data on the stream to properly initiate communication.
-        var outgoingStream =
-            await connection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional).ConfigureAwait(false);
-
-        // Work with the outgoing stream ...
-        await outgoingStream.WriteAsync(user.GetPacket()).ConfigureAwait(true);
-        // To accept any stream on a client connection, at least one of MaxInboundBidirectionalStreams or MaxInboundUnidirectionalStreams of QuicConnectionOptions must be set.
-        while (outgoingStream.ReadsClosed.IsCompleted)
-        {
-            // Accept an inbound stream.
-            var incomingStream = await connection.AcceptInboundStreamAsync().ConfigureAwait(true);
-            // Work with the incoming stream ...
+            if (_client is not null) _serverEndPoint = new(_address, ServerPort);
         }
 
-        // Close the connection with the custom code.
-        await connection.CloseAsync(0x0C).ConfigureAwait(false);
-
-        // Dispose the connection.
-        await connection.DisposeAsync().ConfigureAwait(false);
+        HandleIncomingServerPackets().ConfigureAwait(false);
     }
 
     /// <summary>
-    /// This function sends packets to the server based on events.
+    /// Disconnects the client from the server by sending an unregister packet.
+    /// If the disconnection is successful, triggers the DisconnectedFromServer event.
     /// </summary>
-    private void AttachToClientEvents()
+    public void DisconnectFromServer()
     {
-        StaticNetClientEvents.SendMessageToServer += (_, e) =>
+        var packet = new DynamicPacketBuilderModule();
+        packet.WriteOperationCode((byte)StaticNetCodes.UnregisterCode);
+        if (SendPacketToServer(packet.GetPacketBytes()).Result)
+            StaticNetClientEvents.DisconnectedFromServer?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Sends a packet to the server asynchronously using the provided payload.
+    /// Handles any errors that might occur during the send operation and logs them accordingly.
+    /// </summary>
+    /// <param name="payload">The byte array containing the data to be sent to the server. Cannot be null or empty.</param>
+    /// <returns>A task representing the asynchronous operation. The result is <c>true</c> if the packet was sent successfully, otherwise <c>false</c>.</returns>
+    public async Task<bool> SendPacketToServer(byte[] payload)
+    {
+        if (_client is null || _serverEndPoint is null || _address is null) return false;
+        try
         {
-            if (TcpClient.Connected is false) return;
-            TcpClient.Client.Send(e.GetPacket());
-        };
-        StaticNetClientEvents.UserChangeChannel += (_, e) =>
+            await _client.SendAsync(payload, payload.Length, _serverEndPoint).ConfigureAwait(false);
+        }
+        catch (Exception ex)
         {
-            if (TcpClient.Connected is false) return;
-            if (e.Item1 is null || e.Item2 is null) return;
-            var packet = new DynamicPacketBuilderModule();
-            packet.WriteOperationCode((byte)StaticNetCodes.ChangeChannel);
-            packet.WriteMessage(e.Item1.ToString());
-            packet.WriteMessage(e.Item2.ToString());
-            TcpClient.Client.Send(packet.GetPacketBytes());
-        };
+            StaticLogModule.LogError("Error sending packet to server", ex);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void ResetServerNetwork()
+    {
+        _client = null;
+        _serverEndPoint = null;
+        _address = null;
     }
 
     /// <summary>
     /// Responses from the server will be handled here and should always fire an event after decoding.
     /// </summary>
     /// <exception cref="Exception"></exception>
-    private void HandleIncomingServerPackets()
+    private async Task HandleIncomingServerPackets()
     {
-        Task.Run(() =>
+        if (_client is null || !Registered) return;
+        while (true)
         {
-            while (TcpClient.Connected && ClientPacketReader is not null)
+            UdpReceiveResult result;
+            try
             {
-                var opCode = ClientPacketReader.ReadByte();
-                switch (opCode)
-                {
-                    case (byte)StaticNetCodes.ServerCode:
-                        StaticNetClientEvents.ReceivedServerData?.Invoke(this,
-                            Server.SetFromPacket(ClientPacketReader!.Read32Message()) ??
-                            throw new Exception("Failed to read data"));
-                        break;
-                    case (byte)StaticNetCodes.ChatMessageCode:
-                        StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this,
-                            ChatMessage.SetFromPacket(ClientPacketReader!.Read32Message()) ??
-                            throw new Exception("Failed to read data"));
-                        break;
-                    case (byte)StaticNetCodes.ChangeChannel:
-                        StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this,
-                            (User.SetFromPacket(ClientPacketReader!.Read32Message()),
-                                Channel.SetFromPacket(ClientPacketReader!.Read32Message())));
-                        break;
-                }
+                result = await _client.ReceiveAsync().ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                StaticLogModule.LogError("Error during packet receive", ex);
+                continue;
             }
 
-            StaticNetClientEvents.DisconnectedFromServer?.Invoke(this, EventArgs.Empty);
-        });
-    }
+            var opCode = result.Buffer[0];
+            switch (opCode)
+            {
+                default:
+                    StaticLogModule.LogDebug("Received unknown packet");
+                    break;
+            }
+        }
 
-    /// <summary>
-    /// Sends information about the specified user to the connected server.
-    /// </summary>
-    /// <param name="user">The user whose information is to be sent. Cannot be null.</param>
-    public void SendUserInfo(User user)
-    {
-        if (TcpClient.Connected is false) return;
-        TcpClient.Client.Send(user.GetPacket());
+        // var opCode = ClientPacketReader.ReadByte();
+        // switch (opCode)
+        // {
+        //     case (byte)StaticNetCodes.ServerCode:
+        //         StaticNetClientEvents.ReceivedServerData?.Invoke(this,
+        //             Server.SetFromPacket(ClientPacketReader!.Read32Message()) ??
+        //             throw new Exception("Failed to read data"));
+        //         break;
+        //     case (byte)StaticNetCodes.ChatMessageCode:
+        //         StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this,
+        //             ChatMessage.SetFromPacket(ClientPacketReader!.Read32Message()) ??
+        //             throw new Exception("Failed to read data"));
+        //         break;
+        //     case (byte)StaticNetCodes.ChangeChannel:
+        //         StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this,
+        //             (User.SetFromPacket(ClientPacketReader!.Read32Message()),
+        //                 Channel.SetFromPacket(ClientPacketReader!.Read32Message())));
+        //         break;
+        // }
     }
 }
