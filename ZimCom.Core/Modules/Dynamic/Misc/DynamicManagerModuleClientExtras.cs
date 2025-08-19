@@ -63,6 +63,7 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
     /// </summary>
     public void DisconnectFromServer()
     {
+        Registered = false;
         var packet = new DynamicPacketBuilderModule();
         packet.WriteOperationCode((byte)StaticNetCodes.UnregisterCode);
         if (SendPacketToServer(packet.GetPacketBytes()).Result)
