@@ -1,5 +1,4 @@
 ﻿using ZimCom.Core.Models;
-using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static.Misc;
 
 namespace ZimCom.Core.Modules.Dynamic.Misc;
@@ -15,19 +14,9 @@ public class DynamicManagerModule
     internal bool AsClient;
 
     /// <summary>
-    /// Represents an instance of the client packet reader used to handle incoming data from the server.
-    /// </summary>
-    protected internal DynamicPacketReaderModule? ClientPacketReader;
-
-    /// <summary>
     /// Represents the port number used for server communications within the dynamic manager module.
     /// </summary>
     protected const int ServerPort = 46112;
-
-    /// <summary>
-    /// Represents the port number used for voice communication.
-    /// </summary>
-    internal const int VoicePort = 46111;
 
     /// <summary>
     /// Represents a manager module responsible for handling server and client operations.

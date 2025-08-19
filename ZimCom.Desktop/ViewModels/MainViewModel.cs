@@ -33,6 +33,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private partial Channel? PreviousChannel { get; set; }
     [ObservableProperty] public partial string? CurrentChatMessage { get; set; }
     [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
+    [ObservableProperty] public partial bool ConnectEnabled { get; set; } = true;
+    [ObservableProperty] public partial bool DisconnectEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ChannelExtrasEnabled { get; set; } = false;
     private User ServerUser { get; } = new("Server");
 
@@ -67,6 +69,9 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void AwayUser() => User.IsAway = !User.IsAway;
+
+    [RelayCommand]
+    private void DisconnectFromServer() => DynamicManagerModule.DisconnectFromServer();
 
     [RelayCommand]
     private static void OpenHelp()
@@ -115,6 +120,11 @@ public partial class MainViewModel : ObservableObject
 
     private void AttachToClientEvents()
     {
+        StaticNetClientEvents.ConnectedToServer += (_, _) =>
+        {
+            ConnectEnabled = false;
+            DisconnectEnabled = true;
+        };
         StaticNetClientEvents.ReceivedServerData += (_, e) =>
         {
             Server = e;
@@ -127,6 +137,8 @@ public partial class MainViewModel : ObservableObject
         {
             var messageWindow = new MessageWindow("Disconnect", "Disconnected from Server!");
             messageWindow.ShowDialog();
+            ConnectEnabled = true;
+            DisconnectEnabled = false;
         };
         StaticNetClientEvents.SendMessageToServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
         StaticNetClientEvents.ReceivedMessageFromServer += (_, e) => { CurrentChannel!.Chat.Add(e); };

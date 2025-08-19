@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using Spectre.Console;
 using ZimCom.Core.Modules.Dynamic.Misc;
+using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
 
 namespace ZimCom.ServerConsole.Modules.Dynamic;
@@ -23,38 +24,65 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     /// A task that represents the asynchronous operation of the network listener.
     /// Note that this method does not return under normal operation as it operates in an infinite loop.
     /// </returns>
-    public async Task StartNetworkListener()
+    public static async Task StartNetworkListener()
     {
-        var server = new UdpClient(ServerPort);
-        var clients = new List<IPEndPoint>();
+        UdpClient? listener = null;
+        List<IPEndPoint>? clients = null;
+        try
+        {
+            listener = new UdpClient(ServerPort);
+            clients = new List<IPEndPoint>
+            {
+                Capacity = 64
+            };
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex);
+            StaticLogModule.LogError("Error during server initialization", ex);
+            Environment.Exit(1);
+        }
 
         while (true)
         {
-            var result = await server.ReceiveAsync().ConfigureAwait(true);
+            var result = await listener.ReceiveAsync().ConfigureAwait(true);
             if (!clients.Contains(result.RemoteEndPoint))
                 clients.Add(result.RemoteEndPoint);
 
-            CheckClientPacket(result);
-
+            if (!CheckClientPacket(result, ref listener, ref clients)) continue;
             // Forward to all other clients
-            foreach (var client in clients.Where(client => !client.Equals(result.RemoteEndPoint)))
+            for (var index = clients.Count - 1; index >= 0; index--)
             {
-                await server.SendAsync(result.Buffer, result.Buffer.Length, client).ConfigureAwait(false);
+                var client = clients[index];
+                if (!client.Equals(result.RemoteEndPoint))
+                {
+                    await listener.SendAsync(result.Buffer, result.Buffer.Length, client).ConfigureAwait(false);
+                }
             }
         }
     }
 
-    private void CheckClientPacket(UdpReceiveResult receiveResult)
+    private static bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client,
+        ref List<IPEndPoint> clients)
     {
         var opCode = receiveResult.Buffer[0];
         switch (opCode)
         {
             case (byte)StaticNetCodes.RegisterCode:
                 AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} registered on server");
+                //client.SendAsync(receiveResult.Buffer, receiveResult.Buffer.Length, receiveResult.RemoteEndPoint).ConfigureAwait(false);
+                break;
+            case (byte)StaticNetCodes.UnregisterCode:
+                AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} unregistered on server");
+                clients.RemoveAll(x => x.Equals(receiveResult.RemoteEndPoint));
                 break;
             default:
-                break;
+                AnsiConsole.MarkupLine(
+                    $"Error during packet check for {receiveResult.RemoteEndPoint.Address.MapToIPv6()}");
+                return false;
         }
+
+        return true;
     }
     // ReSharper restore FunctionNeverReturns
 

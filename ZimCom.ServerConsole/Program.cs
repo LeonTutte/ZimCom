@@ -35,7 +35,7 @@ internal static class Program
         AnsiConsole.MarkupLine(
             $"Starting server on [blue]{Server.GetV6Address()}[/]");
         AnsiConsole.MarkupLine("Starting listener threads");
-        _ = dynamicManagerModule.StartNetworkListener().ConfigureAwait(false);
+        _ = DynamicManagerModuleServerExtras.StartNetworkListener().ConfigureAwait(false);
         AnsiConsole.MarkupLine("[yellow]Press any key to exit.[/]");
         Console.ReadKey();
     }
