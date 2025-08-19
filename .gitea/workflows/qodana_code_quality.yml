@@ -25,13 +25,13 @@ jobs:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
           # Use community linter
-          args: --linter,jetbrains/qodana-cdnet
+          args: --linter,jetbrains/qodana-cdnet:2025.2
           # In pr-mode: 'true' Qodana checks only changed files
           pr-mode: false
           use-caches: true
           post-pr-comment: true
           use-annotations: true
           # Upload Qodana results (SARIF, other artifacts, logs) as an artifact to the job
-          upload-result: true
+          upload-result: false
           # quick-fixes available in Ultimate and Ultimate Plus plans
           push-fixes: 'none'
