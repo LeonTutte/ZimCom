@@ -1,4 +1,5 @@
-﻿using ZimCom.Core.Models;
+﻿using System.Text;
+using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Static.Misc;
 
 namespace ZimCom.Core.Modules.Dynamic.Misc;
@@ -181,4 +182,19 @@ public class DynamicManagerModule
         BannedUsers = [],
         KnownUsers = []
     };
+
+    /// <summary>
+    /// Reads a 32-bit length-prefixed message from the specified buffer starting at the given position.
+    /// The method extracts the length of the message, calculates the offset, and decodes the message using UTF-8 encoding.
+    /// </summary>
+    /// <param name="buffer">The byte array containing the message data.</param>
+    /// <param name="position">The starting position in the buffer from where the message should be read.</param>
+    /// <param name="offset">Outputs the calculated offset after reading the message length and content.</param>
+    /// <returns>A string representation of the decoded message.</returns>
+    protected string Read32Message(byte[] buffer, int position, out int offset)
+    {
+        var length = BitConverter.ToInt32(buffer, position);
+        offset = position + length;
+        return Encoding.UTF8.GetString(buffer, position + 4, length);
+    }
 }

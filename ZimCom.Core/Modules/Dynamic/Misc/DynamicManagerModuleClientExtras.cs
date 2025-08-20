@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
@@ -55,6 +56,19 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
         }
 
         HandleIncomingServerPackets().ConfigureAwait(false);
+        HandleClientEvents();
+    }
+
+    private void HandleClientEvents()
+    {
+        StaticNetClientEvents.UserChangeChannel += (_, e) =>
+        {
+            var packet = new DynamicPacketBuilderModule();
+            packet.WriteOperationCode((byte)StaticNetCodes.ChangeChannel);
+            packet.WriteMessage(e.Item1!.ToString());
+            packet.WriteMessage(e.Item2!.ToString());
+            SendPacketToServer(packet.GetPacketBytes()).ConfigureAwait(true);
+        };
     }
 
     /// <summary>
@@ -120,8 +134,24 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
             }
 
             var opCode = result.Buffer[0];
+            int offset = 1;
             switch (opCode)
             {
+                case (byte)StaticNetCodes.ServerCode:
+                    var server = Server.SetFromPacket(Read32Message(result.Buffer, offset, out _));
+                    if (server is null)
+                    {
+                        DisconnectFromServer();
+                        continue;
+                    }
+
+                    StaticNetClientEvents.ReceivedServerData?.Invoke(this, server);
+                    break;
+                case (byte)StaticNetCodes.ChangeChannel:
+                    StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this,
+                        (User.SetFromPacket(Read32Message(result.Buffer, offset, out offset)),
+                            Channel.SetFromPacket(Read32Message(result.Buffer, offset, out offset))));
+                    break;
                 default:
                     StaticLogModule.LogDebug("Received unknown packet");
                     break;

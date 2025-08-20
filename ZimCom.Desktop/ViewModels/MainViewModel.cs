@@ -1,10 +1,10 @@
-﻿using System.Reflection;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Net;
 using ZimCom.Desktop.Windows;
+using Assembly = System.Reflection.Assembly;
 
 namespace ZimCom.Desktop.ViewModels;
 
@@ -38,6 +38,20 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool ChannelExtrasEnabled { get; set; } = false;
     private User ServerUser { get; } = new("Server");
 
+    /// <summary>
+    /// Attempts to switch the current user to the selected channel. Ensures the user has sufficient access rights to join
+    /// the selected channel and updates the channel's participant list accordingly. If access is denied, a message dialog
+    /// is displayed to notify the user.
+    /// </summary>
+    /// <remarks>
+    /// This method first checks if the selected channel is not a title or spacer channel. Then, it verifies the user's
+    /// access rights against the selected channel using the dynamic manager module. If access is granted, the method
+    /// updates the current and previous channel states and manages the participants' lists. If access is denied,
+    /// a message window is displayed indicating the denial.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if no channel has been selected (i.e., SelectedChannel is null) when the method is invoked.
+    /// </exception>
     [RelayCommand]
     public void JoinChannel()
     {
@@ -107,7 +121,7 @@ public partial class MainViewModel : ObservableObject
                 messageWindow.ShowDialog();
             }
 
-            //DynamicManagerModule.SendUserInfo(User);
+            DynamicManagerModule.SendPacketToServer(User.GetPacket()).ConfigureAwait(true);
         };
         connectWindow.ViewModel.CloseWindow += (_, _) => { connectWindow.Close(); };
         connectWindow.ShowDialog();

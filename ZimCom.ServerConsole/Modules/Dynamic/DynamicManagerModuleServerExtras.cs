@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Spectre.Console;
+using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
@@ -24,7 +25,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     /// A task that represents the asynchronous operation of the network listener.
     /// Note that this method does not return under normal operation as it operates in an infinite loop.
     /// </returns>
-    public static async Task StartNetworkListener()
+    public async Task StartNetworkListener()
     {
         UdpClient? listener = null;
         List<IPEndPoint>? clients = null;
@@ -62,7 +63,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         }
     }
 
-    private static bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client,
+    private bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client,
         ref List<IPEndPoint> clients)
     {
         var opCode = receiveResult.Buffer[0];
@@ -70,11 +71,20 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         {
             case (byte)StaticNetCodes.RegisterCode:
                 AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} registered on server");
-                //client.SendAsync(receiveResult.Buffer, receiveResult.Buffer.Length, receiveResult.RemoteEndPoint).ConfigureAwait(false);
+                var serverPacket = InternalServer.GetPacket();
+                client.SendAsync(serverPacket, serverPacket.Length, receiveResult.RemoteEndPoint).ConfigureAwait(false);
                 break;
             case (byte)StaticNetCodes.UnregisterCode:
                 AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} unregistered on server");
                 clients.RemoveAll(x => x.Equals(receiveResult.RemoteEndPoint));
+                break;
+            case (byte)StaticNetCodes.ChangeChannel:
+                AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} joined a new channel");
+                break;
+            case (byte)StaticNetCodes.UserCode:
+                var user = User.SetFromPacket(Read32Message(receiveResult.Buffer, 1, out _)) ?? new User("Unknown");
+                AnsiConsole.MarkupLine(
+                    $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} identified as a {user.Label} with identifier {user.Id}");
                 break;
             default:
                 AnsiConsole.MarkupLine(
