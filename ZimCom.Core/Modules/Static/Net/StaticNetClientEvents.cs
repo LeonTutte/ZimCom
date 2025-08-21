@@ -12,4 +12,5 @@ public static class StaticNetClientEvents
     public static EventHandler<ChatMessage>? ReceivedMessageFromServer { get; set; }
     public static EventHandler<(User?, Channel?)>? UserChangeChannel { get; set; }
     public static EventHandler<(User?, Channel?)>? OtherUserChangeChannel { get; set; }
+    public static EventHandler<byte[]>? ReceivedAudio { get; set; }
 }

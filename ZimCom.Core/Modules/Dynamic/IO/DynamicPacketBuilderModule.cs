@@ -27,9 +27,14 @@ public class DynamicPacketBuilderModule
     /// <param name="data">The message or data to be written. Can be a max byte length of 32 bits</param>
     public void WriteMessage(string data)
     {
-        var dataLength = data.Length;
-        _memoryStream.Write(BitConverter.GetBytes(dataLength));
+        _memoryStream.Write(BitConverter.GetBytes(data.Length));
         _memoryStream.Write(Encoding.UTF8.GetBytes(data));
+    }
+
+    public void WriteCusomBytes(byte[] data)
+    {
+        _memoryStream.Write(BitConverter.GetBytes(data.Length));
+        _memoryStream.Write(data);
     }
 
     /// <summary>

@@ -10,5 +10,6 @@ public enum StaticNetCodes : byte
     UserCode,
     ServerCode,
     ChatMessageCode,
-    ChangeChannel
+    ChangeChannel,
+    VoiceCode
 }

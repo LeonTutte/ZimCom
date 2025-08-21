@@ -148,9 +148,10 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
                     StaticNetClientEvents.ReceivedServerData?.Invoke(this, server);
                     break;
                 case (byte)StaticNetCodes.ChangeChannel:
-                    StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this,
-                        (User.SetFromPacket(Read32Message(result.Buffer, offset, out offset)),
-                            Channel.SetFromPacket(Read32Message(result.Buffer, offset, out offset))));
+                    StaticNetClientEvents.ReceivedAudio?.Invoke(this, Read32Custom(result.Buffer, offset, out _));
+                    break;
+                case (byte)StaticNetCodes.VoiceCode:
+
                     break;
                 default:
                     StaticLogModule.LogDebug("Received unknown packet");

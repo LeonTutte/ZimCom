@@ -44,6 +44,8 @@ public partial class User : ObservableObject
     [ObservableProperty]
     public partial bool IsAway { get; set; } = false;
 
+    [ObservableProperty] public partial UserSettings UserSettings { get; set; } = new();
+
     /// <summary>
     /// Gets or sets a bool indicating whether other users are muted.
     /// </summary>

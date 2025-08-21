@@ -197,4 +197,11 @@ public class DynamicManagerModule
         offset = position + length;
         return Encoding.UTF8.GetString(buffer, position + 4, length);
     }
+
+    protected byte[] Read32Custom(byte[] buffer, int position, out int offset)
+    {
+        var length = BitConverter.ToInt32(buffer, position);
+        offset = position + length;
+        return buffer.Take(new Range(position + 4, length)).ToArray();
+    }
 }

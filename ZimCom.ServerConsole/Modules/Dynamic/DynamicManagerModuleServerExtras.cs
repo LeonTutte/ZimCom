@@ -81,6 +81,10 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             case (byte)StaticNetCodes.ChangeChannel:
                 AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} joined a new channel");
                 break;
+            case (byte)StaticNetCodes.VoiceCode:
+                AnsiConsole.MarkupLine(
+                    $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} send voice packet with {receiveResult.Buffer.Length} bytes");
+                break;
             case (byte)StaticNetCodes.UserCode:
                 var user = User.SetFromPacket(Read32Message(receiveResult.Buffer, 1, out _)) ?? new User("Unknown");
                 AnsiConsole.MarkupLine(
