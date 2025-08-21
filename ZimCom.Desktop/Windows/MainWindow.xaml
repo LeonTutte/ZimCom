@@ -41,13 +41,15 @@
                         Content="&#xE74F;" Command="{Binding MuteOutputCommand}" />
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
                         Content="&#xE769;" Command="{Binding AwayUserCommand}" />
-                <Separator Visibility="Hidden" Width="50" />
-                <ProgressBar Margin="4" Width="100" Height="10" Minimum="0" Maximum="1" Value="{Binding AudioLevel}" />
+                <Separator Visibility="Hidden" Width="10" />
+                <ProgressBar Width="50" Minimum="0" Maximum="1" Value="{Binding AudioLevel}" />
+                <TextBlock Margin="4" Text="{Binding AudioInformationText}"
+                           Style="{DynamicResource BodyTextBlockStyle}" VerticalAlignment="Center" />
             </StackPanel>
             <TextBlock Grid.Column="1" Margin="10,0,10,0" d:Text="Username"
                        Text="{Binding User.Label}"
                        VerticalAlignment="Center" HorizontalAlignment="Right"
-                       Style="{DynamicResource BodyTextBlockStyle}" />
+                       Style="{DynamicResource BodyStrongTextBlockStyle}" />
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

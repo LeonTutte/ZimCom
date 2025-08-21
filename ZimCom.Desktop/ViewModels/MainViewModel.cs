@@ -46,6 +46,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial Channel? CurrentChannel { get; set; }
     [ObservableProperty] private partial Channel? PreviousChannel { get; set; }
     [ObservableProperty] public partial string? CurrentChatMessage { get; set; }
+    [ObservableProperty] public partial string? AudioInformationText { get; set; }
     [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ConnectEnabled { get; set; } = true;
     [ObservableProperty] public partial bool DisconnectEnabled { get; set; } = false;
@@ -128,7 +129,20 @@ public partial class MainViewModel : ObservableObject
     private void MuteOutput() => User.HasOthersMuted = !User.HasOthersMuted;
 
     [RelayCommand]
-    private void AwayUser() => User.IsAway = !User.IsAway;
+    private void AwayUser()
+    {
+        User.IsAway = !User.IsAway;
+        if (User.IsAway)
+        {
+            User.IsMuted = true;
+            User.HasOthersMuted = true;
+        }
+        else
+        {
+            User.IsMuted = false;
+            User.HasOthersMuted = false;
+        }
+    }
 
     [RelayCommand]
     private void DisconnectFromServer() => DynamicManagerModule.DisconnectFromServer();
@@ -194,6 +208,8 @@ public partial class MainViewModel : ObservableObject
 
         AudioPlaybackSource.Init(AudioPlaybackBuffer);
         AudioPlaybackSource.Play();
+
+        AudioInformationText = $"{AudioFormat.AverageBytesPerSecond} Bps as {AudioFormat.Encoding}";
     }
 
     private void AttachToClientEvents()
