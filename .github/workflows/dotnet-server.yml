@@ -1,0 +1,24 @@
+name: .NET Server
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: [ '9.0.x','10.0.x' ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install dependencies
+        run: dotnet restore ZimCom.ServerConsole
+      - name: Test with dotnet
+        run: dotnet test ZimCom.ServerConsole --no-restore
+      - name: build with dotnet
+        run: dotnet build ZimCom.ServerConsole --no-restore
