@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Static.Net;
-using ZimCom.Desktop.Assets;
 using ZimCom.Desktop.ViewModels;
 
 namespace ZimCom.Desktop.Windows;
@@ -17,7 +16,7 @@ public partial class MainWindow
     public MainWindow()
     {
         InitializeComponent();
-        Title = ResourceEN.ApplicationName;
+        Title = "ZimCom";
         DataContext = _viewModel;
     }
 

@@ -66,28 +66,4 @@
         <ProjectReference Include="..\ZimCom.Core\ZimCom.Core.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Update="Assets\ResourceDE.Designer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>ResourceDE.resx</DependentUpon>
-        </Compile>
-        <Compile Update="Assets\ResourceEN.Designer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>ResourceEN.resx</DependentUpon>
-        </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Update="Assets\ResourceDE.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>ResourceDE.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
-        <EmbeddedResource Update="Assets\ResourceEN.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>ResourceEN.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
-    </ItemGroup>
-
 </Project>
