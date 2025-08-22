@@ -7,11 +7,13 @@ namespace ZimCom.Desktop.Windows;
 /// </summary>
 public partial class SettingsWindow
 {
-    private readonly SettingsViewModel _viewModel = new SettingsViewModel();
+    private readonly SettingsViewModel _viewModel = new();
+
+    public SettingsViewModel ViewModel => _viewModel;
 
     public SettingsWindow()
     {
         InitializeComponent();
-        DataContext = _viewModel;
+        DataContext = ViewModel;
     }
 }

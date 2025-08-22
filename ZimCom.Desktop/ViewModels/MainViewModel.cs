@@ -66,6 +66,8 @@ public partial class MainViewModel : ObservableObject
     {
         AudioEncoder = OpusCodecFactory.CreateEncoder(48000, 1, OpusApplication.OPUS_APPLICATION_VOIP);
         AudioEncoder.Bitrate = 12000; // You can tweak this
+        AudioEncoder.Complexity = 6;
+        AudioEncoder.UseVBR = true;
         AudioDecoder = OpusCodecFactory.CreateDecoder(48000, 1);
     }
 
@@ -159,7 +161,13 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private static void OpenSettings()
     {
-        var settingsWindow = new SettingsWindow();
+        var settingsWindow = new SettingsWindow
+        {
+            ViewModel =
+            {
+                User = User.Load() ?? new User("Unknown")
+            }
+        };
         settingsWindow.ShowDialog();
     }
 
@@ -192,19 +200,21 @@ public partial class MainViewModel : ObservableObject
 
     private void SetupAudioDevices()
     {
-        AudioFormat = new WaveFormat(48000, 16, 1); // 48kHz, 16-bit, mono
+        AudioFormat = new(48000, 16, 1); // 48kHz, 16-bit, mono
         AudiCaptureDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
-        AudioCaptureSource = new WasapiCapture(AudiCaptureDevice)
+        AudioCaptureSource = new(AudiCaptureDevice)
         {
             WaveFormat = AudioFormat,
             ShareMode = AudioClientShareMode.Shared
         };
         AudiPlaybackDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-        AudioPlaybackSource = new WasapiOut(AudiPlaybackDevice, AudioClientShareMode.Shared, false, 32);
+        AudioPlaybackSource = new(AudiPlaybackDevice, AudioClientShareMode.Shared, false, 32);
 
-        AudioPlaybackBuffer = new BufferedWaveProvider(AudioFormat);
-        AudioPlaybackBuffer.BufferDuration = TimeSpan.FromSeconds(5);
-        AudioPlaybackBuffer.DiscardOnBufferOverflow = true;
+        AudioPlaybackBuffer = new(AudioFormat)
+        {
+            BufferDuration = TimeSpan.FromSeconds(2),
+            DiscardOnBufferOverflow = true
+        };
 
         AudioPlaybackSource.Init(AudioPlaybackBuffer);
         AudioPlaybackSource.Play();
@@ -250,7 +260,7 @@ public partial class MainViewModel : ObservableObject
             var serverTemp =
                 Server!.Channels.First(x => x.Label.Equals(e.Item2.Label, StringComparison.Ordinal));
             serverTemp.Participants.Add(e.Item1);
-            CurrentChannel?.Chat.Add(new ChatMessage(ServerUser, $"{e.Item1.Label} joined Channel",
+            CurrentChannel?.Chat.Add(new(ServerUser, $"{e.Item1.Label} joined Channel",
                 CurrentChannel.Label));
         };
         StaticNetClientEvents.ReceivedAudio += (_, e) =>
@@ -262,50 +272,50 @@ public partial class MainViewModel : ObservableObject
         AudioCaptureSource?.DataAvailable += (s, e) =>
         {
             if (AudioEncoder is null) return;
-            // Normalize audio
-            int sampleCount = e.BytesRecorded / 4; // 4 bytes per float
-            float[] samples = new float[sampleCount];
-            for (int i = 0; i < sampleCount; i++)
-            {
-                samples[i] = BitConverter.ToSingle(e.Buffer, i * 4);
-            }
-
-            // Find peak
-            float max = samples.Max(s => Math.Abs(s));
-            if (max > 0 && max < 1.0f)
-            {
-                float gain = 1.0f / max;
-                for (int i = 0; i < samples.Length; i++)
-                {
-                    samples[i] *= gain;
-                }
-            }
-
-            // Convert back to byte[] if needed
-            byte[] normalizedBuffer = new byte[sampleCount * 4]; // Not used yet
-            for (int i = 0; i < sampleCount; i++)
-            {
-                Array.Copy(BitConverter.GetBytes(samples[i]), 0, normalizedBuffer, i * 4, 4);
-            }
+            // // Normalize audio
+            // int sampleCount = e.BytesRecorded / 4; // 4 bytes per float
+            // float[] samples = new float[sampleCount];
+            // for (int i = 0; i < sampleCount; i++)
+            // {
+            //     samples[i] = BitConverter.ToSingle(e.Buffer, i * 4);
+            // }
+            //
+            // // Find peak
+            // float max = samples.Max(s => Math.Abs(s));
+            // if (max > 0 && max < 1.0f)
+            // {
+            //     float gain = 1.0f / max;
+            //     for (int i = 0; i < samples.Length; i++)
+            //     {
+            //         samples[i] *= gain;
+            //     }
+            // }
+            //
+            // // Convert back to byte[] if needed
+            // byte[] normalizedBuffer = new byte[sampleCount * 4]; // Not used yet
+            // for (int i = 0; i < sampleCount; i++)
+            // {
+            //     Array.Copy(BitConverter.GetBytes(samples[i]), 0, normalizedBuffer, i * 4, 4);
+            // }
 
             // Process audio buffer
             var pcm = new short[e.BytesRecorded / 2];
             Buffer.BlockCopy(e.Buffer, 0, pcm, 0, e.BytesRecorded);
-            var opusBuffer = new byte[262144];
-            var encodedLength = AudioEncoder.Encode(pcm, 480, opusBuffer, opusBuffer.Length);
+            var opusBuffer = new byte[(int)Math.Abs(e.BytesRecorded * 1.2)];
+            var encodedLength = AudioEncoder.Encode(pcm, 960, opusBuffer, opusBuffer.Length);
             var voicePacket = opusBuffer.Take(encodedLength).ToArray();
-
+            AudioLevel = CalculateAudioLevel(e.Buffer, e.BytesRecorded);
             // Playback audio
+            if (AudioLevel < 0.015) return;
             if (User.HasOthersMuted is false) AudioPlaybackBuffer?.AddSamples(e.Buffer, 0, e.BytesRecorded);
-
             // build and send UDP package
             var packetBuilder = new DynamicPacketBuilderModule();
             packetBuilder.WriteOperationCode((byte)StaticNetCodes.VoiceCode);
             packetBuilder.WriteCusomBytes(voicePacket);
             if (DynamicManagerModule.Registered)
                 DynamicManagerModule.SendPacketToServer(packetBuilder.GetPacketBytes()).ConfigureAwait(false);
-            AudioLevel = CalculateAudioLevel(e.Buffer, e.BytesRecorded);
         };
+        SettingsViewModel.SettingsSaveButtonPressed += (_, _) => { User.Load(); };
     }
 
     private static float CalculateAudioLevel(byte[] buffer, int bytesRecorded)

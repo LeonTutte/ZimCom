@@ -60,7 +60,7 @@
                              ToolTip="{Binding AudioInformationText}" />
             </StackPanel>
             <TextBlock Grid.Column="1" Margin="10,0,10,0" d:Text="Username"
-                       Text="{Binding User.Label}"
+                       Text="{Binding User.Label, Mode=TwoWay}"
                        VerticalAlignment="Center" HorizontalAlignment="Right"
                        Style="{DynamicResource BodyStrongTextBlockStyle}"
                        ToolTip="Its your public username" />
