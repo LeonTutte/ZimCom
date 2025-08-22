@@ -17,8 +17,9 @@ All logs are store directly in the executable folder under the subfolder "logs".
 - [x] Basic Server
 - [x] Channels
 - [x] Accessmanagement
-- [ ] Chat
-- [ ] Voice
+- [x] Chat
+- [x] Voice
+- [ ] Rich Text Chat
 - [ ] Screen sharing
 
 ## License
