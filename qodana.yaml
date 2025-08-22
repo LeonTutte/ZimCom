@@ -8,11 +8,8 @@ ide: QDNET
 #Specify inspection profile for code analysis
 profile:
   name: qodana.starter
-exclude:
-  - name: All
-    paths:
-      - ZimCom.ClientRecorder
-      - ZimCom.ClientConsole
+dotnet:
+  solution: ./ZimCom.slnx
 include:
   - name: ConvertIfStatementToReturnStatement
   - name: AutoPropertyCanBeMadeGetOnly.Global
