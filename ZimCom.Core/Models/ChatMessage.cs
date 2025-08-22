@@ -13,7 +13,7 @@ namespace ZimCom.Core.Models;
 /// </remarks>
 /// <param name="user">The user from wich the message originates from.</param>
 /// <param name="message">The message content.</param>
-public class ChatMessage(User user, string message)
+public class ChatMessage(User user, string message, string channelLabel)
 {
     /// <summary>
     /// Represents a user in the system.
@@ -24,6 +24,8 @@ public class ChatMessage(User user, string message)
     /// Gets the message content sent by the user.
     /// </summary>
     public string Message { get; init; } = message;
+
+    public string ChannelLabel { get; init; } = channelLabel;
 
     /// <summary>
     /// Gets the date and time when this chat message was created.

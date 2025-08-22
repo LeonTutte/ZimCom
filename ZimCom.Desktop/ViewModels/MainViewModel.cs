@@ -235,7 +235,10 @@ public partial class MainViewModel : ObservableObject
             DisconnectEnabled = false;
         };
         StaticNetClientEvents.SendMessageToServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
-        StaticNetClientEvents.ReceivedMessageFromServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
+        StaticNetClientEvents.ReceivedMessageFromServer += (_, e) =>
+        {
+            Server?.Channels.First(x => x.Label.Equals(e.ChannelLabel, StringComparison.Ordinal)).Chat.Add(e);
+        };
         StaticNetClientEvents.OtherUserChangeChannel += (_, e) =>
         {
             if (e.Item1 is null || e.Item2 is null) return;
@@ -247,7 +250,8 @@ public partial class MainViewModel : ObservableObject
             var serverTemp =
                 Server!.Channels.First(x => x.Label.Equals(e.Item2.Label, StringComparison.Ordinal));
             serverTemp.Participants.Add(e.Item1);
-            CurrentChannel?.Chat.Add(new ChatMessage(ServerUser, $"{e.Item1.Label} joined Channel"));
+            CurrentChannel?.Chat.Add(new ChatMessage(ServerUser, $"{e.Item1.Label} joined Channel",
+                CurrentChannel.Label));
         };
         StaticNetClientEvents.ReceivedAudio += (_, e) =>
         {
@@ -298,7 +302,8 @@ public partial class MainViewModel : ObservableObject
             var packetBuilder = new DynamicPacketBuilderModule();
             packetBuilder.WriteOperationCode((byte)StaticNetCodes.VoiceCode);
             packetBuilder.WriteCusomBytes(voicePacket);
-            DynamicManagerModule.SendPacketToServer(packetBuilder.GetPacketBytes()).ConfigureAwait(false);
+            if (DynamicManagerModule.Registered)
+                DynamicManagerModule.SendPacketToServer(packetBuilder.GetPacketBytes()).ConfigureAwait(false);
             AudioLevel = CalculateAudioLevel(e.Buffer, e.BytesRecorded);
         };
     }

@@ -151,7 +151,11 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
                         DynamicPacketReaderModule.ReadDirect32Custom(result.Buffer));
                     break;
                 case (byte)StaticNetCodes.VoiceCode:
-
+                    break;
+                case (byte)StaticNetCodes.ChatMessageCode:
+                    StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this,
+                        ChatMessage.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(result.Buffer)) ??
+                        throw new Exception("Failed to read data"));
                     break;
                 default:
                     StaticLogModule.LogDebug("Received unknown packet");

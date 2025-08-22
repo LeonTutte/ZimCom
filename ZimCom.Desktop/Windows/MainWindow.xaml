@@ -13,6 +13,12 @@
         Height="1024"
         Width="768"
         WindowStartupLocation="CenterOwner" Closed="MainWindow_OnClosed">
+    <Window.Resources>
+        <Style TargetType="ToolTip">
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <!-- <Setter Property="Style" Value="{DynamicResource BodyTextBlockStyle}"/> -->
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -25,31 +31,39 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Column="0">
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                        Content="&#xE71B;" Command="{Binding OpenConnectCommand}" IsEnabled="{Binding ConnectEnabled}" />
+                        Content="&#xE71B;" Command="{Binding OpenConnectCommand}"
+                        IsEnabled="{Binding ConnectEnabled}"
+                        ToolTip="Connect to a server" />
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
                         Content="&#xE711;" Command="{Binding DisconnectFromServerCommand}"
-                        IsEnabled="{Binding DisconnectEnabled}" />
+                        IsEnabled="{Binding DisconnectEnabled}"
+                        ToolTip="Disconnect from server" />
                 <Separator Visibility="Hidden" Width="50" />
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                        Content="&#xE713;" Command="{Binding OpenSettingsCommand}" />
+                        Content="&#xE713;" Command="{Binding OpenSettingsCommand}"
+                        ToolTip="Open the application settings" />
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                        Content="&#xE946;" Command="{Binding OpenHelpCommand}" />
+                        Content="&#xE946;" Command="{Binding OpenHelpCommand}"
+                        ToolTip="Show application information" />
                 <Separator Visibility="Hidden" Width="50" />
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                        Content="&#xEC54;" Command="{Binding MuteInputCommand}" />
+                        Content="&#xEC54;" Command="{Binding MuteInputCommand}"
+                        ToolTip="Mute your input" />
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                        Content="&#xE74F;" Command="{Binding MuteOutputCommand}" />
+                        Content="&#xE74F;" Command="{Binding MuteOutputCommand}"
+                        ToolTip="Mute your output" />
                 <Button Margin="4" FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                        Content="&#xE769;" Command="{Binding AwayUserCommand}" />
+                        Content="&#xE769;" Command="{Binding AwayUserCommand}"
+                        ToolTip="Set your self AFK, this also disables your input and output" />
                 <Separator Visibility="Hidden" Width="10" />
-                <ProgressBar Width="50" Minimum="0" Maximum="1" Value="{Binding AudioLevel}" />
-                <TextBlock Margin="4" Text="{Binding AudioInformationText}"
-                           Style="{DynamicResource BodyTextBlockStyle}" VerticalAlignment="Center" />
+                <ProgressBar Width="75" MinHeight="6" Minimum="0" Maximum="1" Value="{Binding AudioLevel}"
+                             ToolTip="{Binding AudioInformationText}" />
             </StackPanel>
             <TextBlock Grid.Column="1" Margin="10,0,10,0" d:Text="Username"
                        Text="{Binding User.Label}"
                        VerticalAlignment="Center" HorizontalAlignment="Right"
-                       Style="{DynamicResource BodyStrongTextBlockStyle}" />
+                       Style="{DynamicResource BodyStrongTextBlockStyle}"
+                       ToolTip="Its your public username" />
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

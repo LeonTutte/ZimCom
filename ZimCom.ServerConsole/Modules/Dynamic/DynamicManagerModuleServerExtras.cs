@@ -101,6 +101,9 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
                     $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} identified as a {user.Label} with identifier {user.Id}");
                 _networkClients!.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint)).UserLabel = user.Label;
                 break;
+            case (byte)StaticNetCodes.ChatMessageCode:
+                // Server doesn't care for the message, just forward it to everyone
+                break;
             default:
                 AnsiConsole.MarkupLine(
                     $"Error during packet check for {receiveResult.RemoteEndPoint.Address.MapToIPv6()}");

@@ -40,7 +40,8 @@ public partial class MainWindow
     {
         if (_viewModel.Server is null || _viewModel.CurrentChannel is null ||
             string.IsNullOrWhiteSpace(_viewModel.CurrentChatMessage)) return;
-        var tempMessage = new ChatMessage(_viewModel.User, _viewModel.CurrentChatMessage);
+        var tempMessage =
+            new ChatMessage(_viewModel.User, _viewModel.CurrentChatMessage, _viewModel.CurrentChannel.Label);
         _viewModel.DynamicManagerModule.SendChannelMessage(tempMessage, _viewModel.CurrentChannel);
         StaticNetClientEvents.SendMessageToServer?.Invoke(this, tempMessage);
         _viewModel.CurrentChatMessage = string.Empty;
