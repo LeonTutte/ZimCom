@@ -96,7 +96,7 @@ public partial class MainViewModel : ObservableObject
             SelectedChannel.Participants.Add(User);
             CurrentChannel = SelectedChannel;
             ChannelExtrasEnabled = !CurrentChannel.LocalChannel;
-            StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel));
+            StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel.Label));
         }
         else
         {

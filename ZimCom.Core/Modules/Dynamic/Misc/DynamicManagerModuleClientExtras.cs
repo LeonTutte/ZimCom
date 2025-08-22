@@ -134,11 +134,10 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
             }
 
             var opCode = result.Buffer[0];
-            int offset = 1;
             switch (opCode)
             {
                 case (byte)StaticNetCodes.ServerCode:
-                    var server = Server.SetFromPacket(Read32Message(result.Buffer, offset, out _));
+                    var server = Server.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(result.Buffer));
                     if (server is null)
                     {
                         DisconnectFromServer();
@@ -148,7 +147,8 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
                     StaticNetClientEvents.ReceivedServerData?.Invoke(this, server);
                     break;
                 case (byte)StaticNetCodes.ChangeChannel:
-                    StaticNetClientEvents.ReceivedAudio?.Invoke(this, Read32Custom(result.Buffer, offset, out _));
+                    StaticNetClientEvents.ReceivedAudio?.Invoke(this,
+                        DynamicPacketReaderModule.ReadDirect32Custom(result.Buffer));
                     break;
                 case (byte)StaticNetCodes.VoiceCode:
 

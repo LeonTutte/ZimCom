@@ -1,10 +1,11 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using Spectre.Console;
 using ZimCom.Core.Models;
+using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
+using ZimCom.ServerConsole.Models;
 
 namespace ZimCom.ServerConsole.Modules.Dynamic;
 
@@ -14,12 +15,15 @@ namespace ZimCom.ServerConsole.Modules.Dynamic;
 /// </summary>
 public class DynamicManagerModuleServerExtras : DynamicManagerModule
 {
+    // User IP, User Name, Current Channel Name
+    private List<NetworkClient>? _networkClients = null;
+
     // ReSharper disable FunctionNeverReturns
     /// <summary>
     /// Starts listening for network communications on the server port using a UDP client.
     /// </summary>
     /// <remarks>
-    /// This method continuously listens for incoming UDP packets, maintains a list of connected clients, and forwards messages to all connected clients except the sender.
+    /// This method continuously listens for incoming UDP packets, maintains a list of connected _networkClients, and forwards messages to all connected _networkClients except the sender.
     /// </remarks>
     /// <returns>
     /// A task that represents the asynchronous operation of the network listener.
@@ -28,11 +32,10 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     public async Task StartNetworkListener()
     {
         UdpClient? listener = null;
-        List<IPEndPoint>? clients = null;
         try
         {
             listener = new UdpClient(ServerPort);
-            clients = new List<IPEndPoint>
+            _networkClients = new List<NetworkClient>
             {
                 Capacity = 64
             };
@@ -47,24 +50,29 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         while (true)
         {
             var result = await listener.ReceiveAsync().ConfigureAwait(true);
-            if (!clients.Contains(result.RemoteEndPoint))
-                clients.Add(result.RemoteEndPoint);
+            if (!_networkClients.Any(x => x.EndPoint.Equals(result.RemoteEndPoint)))
+                _networkClients.Add(new NetworkClient(result.RemoteEndPoint));
 
-            if (!CheckClientPacket(result, ref listener, ref clients)) continue;
-            // Forward to all other clients
-            for (var index = clients.Count - 1; index >= 0; index--)
+            if (!CheckClientPacket(result, ref listener)) continue;
+            // Forward to all other _networkClients
+            await ForwardPackageToClients(_networkClients, result, listener).ConfigureAwait(false);
+        }
+    }
+
+    private static async Task ForwardPackageToClients(List<NetworkClient> clients, UdpReceiveResult result,
+        UdpClient listener)
+    {
+        for (var index = clients.Count - 1; index >= 0; index--)
+        {
+            var client = clients[index];
+            if (!client.EndPoint.Equals(result.RemoteEndPoint))
             {
-                var client = clients[index];
-                if (!client.Equals(result.RemoteEndPoint))
-                {
-                    await listener.SendAsync(result.Buffer, result.Buffer.Length, client).ConfigureAwait(false);
-                }
+                await listener.SendAsync(result.Buffer, result.Buffer.Length, client.EndPoint).ConfigureAwait(false);
             }
         }
     }
 
-    private bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client,
-        ref List<IPEndPoint> clients)
+    private bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client)
     {
         var opCode = receiveResult.Buffer[0];
         switch (opCode)
@@ -76,19 +84,22 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
                 break;
             case (byte)StaticNetCodes.UnregisterCode:
                 AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} unregistered on server");
-                clients.RemoveAll(x => x.Equals(receiveResult.RemoteEndPoint));
+                _networkClients?.RemoveAll(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint));
                 break;
             case (byte)StaticNetCodes.ChangeChannel:
-                AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} joined a new channel");
+                UpdateClientChannelInfo(receiveResult);
                 break;
             case (byte)StaticNetCodes.VoiceCode:
                 AnsiConsole.MarkupLine(
                     $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} send voice packet with {receiveResult.Buffer.Length} bytes");
-                break;
+                ForwardPackageToChannelMemberOfSender(receiveResult, client, _networkClients!);
+                return false;
             case (byte)StaticNetCodes.UserCode:
-                var user = User.SetFromPacket(Read32Message(receiveResult.Buffer, 1, out _)) ?? new User("Unknown");
+                var user = User.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(receiveResult.Buffer)) ??
+                           new User("Unknown");
                 AnsiConsole.MarkupLine(
                     $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} identified as a {user.Label} with identifier {user.Id}");
+                _networkClients!.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint)).UserLabel = user.Label;
                 break;
             default:
                 AnsiConsole.MarkupLine(
@@ -97,6 +108,34 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         }
 
         return true;
+    }
+
+    private void UpdateClientChannelInfo(UdpReceiveResult receiveResult)
+    {
+        DynamicPacketReaderModule packetReader = new(receiveResult.Buffer);
+        var user = User.SetFromPacket(packetReader.Read32Message()) ?? new User("Unknown");
+        var channel = packetReader.Read32Message();
+        AnsiConsole.MarkupLine($"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} joined a {channel}");
+        _networkClients!.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint)).ChannelLabel = channel;
+        try
+        {
+            _networkClients!
+                .First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint) && string.IsNullOrEmpty(x.UserLabel))
+                .UserLabel = user.Label;
+        }
+        catch
+        {
+            // ignored
+        }
+    }
+
+    private static void ForwardPackageToChannelMemberOfSender(UdpReceiveResult receiveResult, UdpClient client,
+        List<NetworkClient> clients)
+    {
+        var sender = clients.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint));
+        if (string.IsNullOrEmpty(sender.ChannelLabel)) return;
+        clients.RemoveAll(x => x.ChannelLabel != sender.ChannelLabel);
+        ForwardPackageToClients(clients, receiveResult, client).ConfigureAwait(false);
     }
     // ReSharper restore FunctionNeverReturns
 
