@@ -7,7 +7,7 @@ on:
       - main
 jobs:
   qodana:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
@@ -22,7 +22,7 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --image,jetbrains/qodana-cdnet:2025.2-eap,--linter,qodana-cdnet,--apply-fixes
+          args: --image,jetbrains/qodana-cdnet:2025.2-eap,--linter,qodana-cdnet,--apply-fixes,--no-build
           # In pr-mode: 'true' Qodana checks only changed files
           pr-mode: false
           use-caches: true
