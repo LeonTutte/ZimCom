@@ -1,5 +1,6 @@
-![Qodana main](https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/qodana_code_quality.yml/badge.svg?branch=main&event=push)
-![build main](https://git.cloud2.ltutte.de/leonzimmermann/ZimCom/actions/workflows/build.yml/badge.svg?branch=main&event=push)
+[![Qodana](https://github.com/LeonTutte/ZimCom/actions/workflows/qodana_code_quality.yml/badge.svg?branch=main)](https://github.com/LeonTutte/ZimCom/actions/workflows/qodana_code_quality.yml)
+[![.NET Server](https://github.com/LeonTutte/ZimCom/actions/workflows/dotnet-server.yml/badge.svg)](https://github.com/LeonTutte/ZimCom/actions/workflows/dotnet-server.yml)
+[![.NET Core Desktop](https://github.com/LeonTutte/ZimCom/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/LeonTutte/ZimCom/actions/workflows/dotnet-desktop.yml)
 
 # ZimCom
 
