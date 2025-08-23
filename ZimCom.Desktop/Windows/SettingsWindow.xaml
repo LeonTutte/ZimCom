@@ -16,7 +16,7 @@
         <VirtualizingStackPanel Orientation="Vertical">
             <Grid d:Background="AliceBlue">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Text="User Settings" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Text="User Settings" Style="{DynamicResource TitleTextBlockStyle}" />
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -37,10 +37,10 @@
                 </StackPanel>
             </Grid>
             <Grid d:Background="Aqua">
-                <TextBlock Text="Input Settings" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock Text="Input Settings" Style="{DynamicResource TitleTextBlockStyle}" />
             </Grid>
             <Grid d:Background="Aquamarine">
-                <TextBlock Text="Output Settings" Style="{StaticResource TitleTextBlockStyle}" />
+                <TextBlock Text="Output Settings" Style="{DynamicResource TitleTextBlockStyle}" />
             </Grid>
             <Grid d:Background="Beige" VerticalAlignment="Bottom" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">

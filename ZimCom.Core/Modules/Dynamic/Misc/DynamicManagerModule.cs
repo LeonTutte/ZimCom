@@ -58,9 +58,9 @@ public class DynamicManagerModule
             channelStrength = 0;
         }
 
-        if (InternalServer.UserToGroup.Any(x => x.Key.Equals(user.Id)))
+        if (InternalServer.UserToGroup.Any(x => x.Key.Equals(user.Id.ToString())))
         {
-            var groupName = InternalServer.UserToGroup.First(x => x.Key.Equals(user.Id)).Key;
+            var groupName = InternalServer.UserToGroup.First(x => x.Key.Equals(user.Id.ToString())).Key;
             StaticLogModule.LogDebug($"Found group {groupName} for {user.Label}");
             if (InternalServer.Groups.Any(x => x.Label.Equals(groupName)))
             {

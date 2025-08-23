@@ -82,9 +82,6 @@ public partial class MainViewModel : ObservableObject
     /// updates the current and previous channel states and manages the participants' lists. If access is denied,
     /// a message window is displayed indicating the denial.
     /// </remarks>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if no channel has been selected (i.e., SelectedChannel is null) when the method is invoked.
-    /// </exception>
     [RelayCommand]
     public void JoinChannel()
     {

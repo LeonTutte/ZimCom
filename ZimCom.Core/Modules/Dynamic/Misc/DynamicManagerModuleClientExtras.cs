@@ -48,7 +48,6 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
         {
             StaticLogModule.LogError("Error during server registration", ex);
             ResetServerNetwork();
-            StaticNetClientEvents.ConnectedToServerFail?.Invoke(this, ex);
         }
         finally
         {

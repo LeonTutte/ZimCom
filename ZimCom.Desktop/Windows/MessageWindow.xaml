@@ -13,7 +13,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" d:Background="AliceBlue">
-            <TextBlock x:Name="AddressBox" Margin="4" TextWrapping="Wrap" Style="{StaticResource BodyTextBlockStyle}" />
+            <TextBlock x:Name="AddressBox" Margin="4" TextWrapping="Wrap" Style="{DynamicResource BodyTextBlockStyle}" />
         </Grid>
         <Grid Grid.Row="1" d:Background="Aqua">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
