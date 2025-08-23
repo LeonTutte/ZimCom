@@ -17,6 +17,7 @@
         <NeutralLanguage>de</NeutralLanguage>
         <IsPackable>false</IsPackable>
         <Company>Leon Zimmermann</Company>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
