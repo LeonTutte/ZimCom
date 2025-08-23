@@ -46,7 +46,7 @@ public class DynamicManagerModule
         StaticLogModule.LogDebug($"Checking {user.Label} against {channel.Label} for {strength}");
         if (channel.TitleChannel || channel.SpacerChannel)
             return false;
-        long channelStrength, userStrength = 0;
+        long channelStrength, userStrength;
         if (channel.Strengths.Any(x => x.Key.Equals(strength)))
         {
             channelStrength = channel.Strengths.First(x => x.Key.Equals(strength)).Value;

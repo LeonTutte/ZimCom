@@ -2,6 +2,9 @@
 
 namespace ZimCom.Core.Modules.Static.Net;
 
+/// <summary>
+/// Provides static events for managing communication between a client and a server in a networked environment.
+/// </summary>
 public static class StaticNetClientEvents
 {
     public static EventHandler? ConnectedToServer { get; set; }

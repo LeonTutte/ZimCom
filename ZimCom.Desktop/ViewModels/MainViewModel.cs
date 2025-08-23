@@ -266,7 +266,7 @@ public partial class MainViewModel : ObservableObject
             Buffer.BlockCopy(e, 0, pcmBytes, 0, pcmBytes.Length);
             if (User.HasOthersMuted is false) AudioPlaybackBuffer?.AddSamples(pcmBytes, 0, pcmBytes.Length);
         };
-        AudioCaptureSource?.DataAvailable += (s, e) =>
+        AudioCaptureSource?.DataAvailable += (_, e) =>
         {
             if (AudioEncoder is null) return;
             // // Normalize audio

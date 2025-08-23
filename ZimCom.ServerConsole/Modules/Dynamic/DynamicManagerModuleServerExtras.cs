@@ -16,7 +16,7 @@ namespace ZimCom.ServerConsole.Modules.Dynamic;
 public class DynamicManagerModuleServerExtras : DynamicManagerModule
 {
     // User IP, User Name, Current Channel Name
-    private List<NetworkClient>? _networkClients = null;
+    private List<NetworkClient>? _networkClients;
 
     // ReSharper disable FunctionNeverReturns
     /// <summary>

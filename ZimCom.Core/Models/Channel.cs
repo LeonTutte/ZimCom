@@ -73,10 +73,10 @@ public class Channel
     /// The chat messages associated with the channel.
     /// </summary>
     [JsonIgnore]
-    public ObservableCollection<ChatMessage> Chat { get; set; } = [];
+    public ObservableCollection<ChatMessage> Chat { get; init; } = [];
 
     /// <inheritdoc />
-    public override string ToString() => JsonSerializer.Serialize<Channel>(this);
+    public override string ToString() => JsonSerializer.Serialize(this);
 
     internal static Channel? SetFromPacket(string data)
     {

@@ -37,3 +37,7 @@ include:
   - name: UseCollectionExpression
   - name: ArrangeTypeMemberModifiers
   - name: ArrangeObjectCreationWhenTypeEvident
+exclude:
+  - name: All
+    paths:
+      - ZimCom.Tests

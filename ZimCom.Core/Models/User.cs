@@ -96,7 +96,7 @@ public partial class User : ObservableObject
     private static string GetFilePath() => Path.Combine(StaticLocalPathModule.GetLocalApplicationFolder(), "user.json");
 
     /// <inheritdoc />
-    public override string ToString() => JsonSerializer.Serialize<User>(this);
+    public override string ToString() => JsonSerializer.Serialize(this);
 
     /// <summary>
     /// Converts the current User object into a byte array representing a network packet.
@@ -106,7 +106,7 @@ public partial class User : ObservableObject
     {
         var packet = new DynamicPacketBuilderModule();
         packet.WriteOperationCode((byte)StaticNetCodes.UserCode);
-        packet.WriteMessage(JsonSerializer.Serialize<User>(this));
+        packet.WriteMessage(JsonSerializer.Serialize(this));
         return packet.GetPacketBytes();
     }
 

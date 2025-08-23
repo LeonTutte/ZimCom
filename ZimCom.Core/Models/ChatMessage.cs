@@ -34,7 +34,7 @@ public class ChatMessage(User user, string message, string channelLabel)
     public DateTime DateTime { get; init; } = DateTime.UtcNow;
 
     /// <inheritdoc />
-    public override string ToString() => JsonSerializer.Serialize<ChatMessage>(this);
+    public override string ToString() => JsonSerializer.Serialize(this);
 
     /// <summary>
     /// Converts the chat message to a byte array packet for network transmission.
@@ -44,7 +44,7 @@ public class ChatMessage(User user, string message, string channelLabel)
     {
         var packet = new DynamicPacketBuilderModule();
         packet.WriteOperationCode((byte)StaticNetCodes.ChatMessageCode);
-        packet.WriteMessage(JsonSerializer.Serialize<ChatMessage>(this));
+        packet.WriteMessage(JsonSerializer.Serialize(this));
         return packet.GetPacketBytes();
     }
 

@@ -25,7 +25,7 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
     /// The value is updated during the execution of the <see cref="ConnectToServer"/> method, and is used to determine
     /// whether the client can send or receive packets from the server.
     /// </remarks>
-    public bool Registered = false;
+    public bool Registered;
 
     /// <summary>
     /// Attempts to connect the client to a server using the specified address. It's the main function where the communication starts.
