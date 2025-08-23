@@ -28,7 +28,7 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
-          args: --image,jetbrains/qodana-cdnet:2025.2-eap,--linter,qodana-cdnet,--apply-fixes,--no-build
+          args: --image,jetbrains/qodana-cdnet:2025.2-eap,--linter,qodana-cdnet,--apply-fixes
           # In pr-mode: 'true' Qodana checks only changed files
           pr-mode: false
           use-caches: true
