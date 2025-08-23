@@ -1,7 +1,6 @@
 <Solution>
-    <Configurations/>
+  <Configurations />
   <Project Path="ZimCom.Core/ZimCom.Core.csproj" />
   <Project Path="ZimCom.Desktop/ZimCom.Desktop.csproj" />
   <Project Path="ZimCom.ServerConsole/ZimCom.ServerConsole.csproj" />
-    <Project Path="ZimCom.Tests\ZimCom.Tests.csproj" Type="Classic C#"/>
 </Solution>
