@@ -7,9 +7,7 @@ namespace ZimCom.Desktop.Windows;
 /// </summary>
 public partial class SettingsWindow
 {
-    private readonly SettingsViewModel _viewModel = new();
-
-    public SettingsViewModel ViewModel => _viewModel;
+    public SettingsViewModel ViewModel { get; } = new();
 
     public SettingsWindow()
     {

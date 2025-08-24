@@ -55,13 +55,13 @@ public class Channel
     /// <summary>
     /// The number of slots is used to determine the amount of pre-reserved ram for the channel.
     /// </summary>
-    public static byte Slots { get; set; } = 64;
+    public byte Slots { get; init; } = 64;
 
     /// <summary>
     /// Indicates whether the number of slots in a channel is custom (not the default value).
     /// </summary>
     [JsonIgnore]
-    public static bool CustomSlotAmount => Slots != 64;
+    public bool CustomSlotAmount => Slots != 64;
 
     /// <summary>
     /// Gets or sets the collection of users who are participants in this channel.

@@ -13,9 +13,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial User? User { get; set; }
     [ObservableProperty] public partial int SelectedAudioInputIndex { get; set; }
-    [ObservableProperty] public partial List<MMDevice> AvailableAudioInputDevices { get; set; }
+    [ObservableProperty] public partial List<MMDevice> AvailableAudioInputDevices { get; private set; }
     [ObservableProperty] public partial int SelectedAudioOutputIndex { get; set; }
-    [ObservableProperty] public partial List<MMDevice> AvailableAudioOutputDevices { get; set; }
+    [ObservableProperty] public partial List<MMDevice> AvailableAudioOutputDevices { get; private set; }
 
     [RelayCommand]
     private void SavedSettings()
@@ -33,6 +33,9 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     public static EventHandler? SettingsSaveButtonPressed { get; set; }
 
+    /// <summary>
+    /// Represents the view model for application settings, including management of audio input and output devices.
+    /// </summary>
     public SettingsViewModel()
     {
         AvailableAudioOutputDevices =

@@ -40,26 +40,26 @@ public partial class MainViewModel : ObservableObject
     /// </summary>
     public DynamicManagerModuleClientExtras DynamicManagerModule { get; } = new();
 
-    [ObservableProperty] public partial Server? Server { get; set; }
-    [ObservableProperty] public partial User User { get; set; }
+    [ObservableProperty] public partial Server? Server { get; private set; }
+    [ObservableProperty] public partial User User { get; private set; }
     [ObservableProperty] public partial Channel? SelectedChannel { get; set; }
-    [ObservableProperty] public partial Channel? CurrentChannel { get; set; }
+    [ObservableProperty] public partial Channel? CurrentChannel { get; private set; }
     [ObservableProperty] private partial Channel? PreviousChannel { get; set; }
     [ObservableProperty] public partial string? CurrentChatMessage { get; set; }
-    [ObservableProperty] public partial string? AudioInformationText { get; set; }
+    [ObservableProperty] public partial string? AudioInformationText { get; private set; }
     [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ConnectEnabled { get; set; } = true;
     [ObservableProperty] public partial bool DisconnectEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ChannelExtrasEnabled { get; set; } = false;
     private User ServerUser { get; } = new("Server");
-    [ObservableProperty] public partial MMDevice? AudioCaptureDevice { get; set; }
-    [ObservableProperty] public partial WasapiCapture? AudioCaptureSource { get; set; }
-    [ObservableProperty] public partial MMDevice? AudiPlaybackDevice { get; set; }
-    [ObservableProperty] public partial WasapiOut? AudioPlaybackSource { get; set; }
-    [ObservableProperty] public partial IOpusEncoder? AudioEncoder { get; set; }
+    [ObservableProperty] private partial MMDevice? AudioCaptureDevice { get; set; }
+    [ObservableProperty] private partial WasapiCapture? AudioCaptureSource { get; set; }
+    [ObservableProperty] private partial MMDevice? AudiPlaybackDevice { get; set; }
+    [ObservableProperty] private partial WasapiOut? AudioPlaybackSource { get; set; }
+    [ObservableProperty] private partial IOpusEncoder? AudioEncoder { get; set; }
     [ObservableProperty] public partial IOpusDecoder? AudioDecoder { get; set; }
-    [ObservableProperty] public partial BufferedWaveProvider? AudioPlaybackBuffer { get; set; }
-    [ObservableProperty] public partial WaveFormat? AudioFormat { get; set; }
+    [ObservableProperty] private partial BufferedWaveProvider? AudioPlaybackBuffer { get; set; }
+    [ObservableProperty] private partial WaveFormat? AudioFormat { get; set; }
     [ObservableProperty] public partial float AudioLevel { get; set; } = 0;
 
     private void SetupEncoderAndDecoder()

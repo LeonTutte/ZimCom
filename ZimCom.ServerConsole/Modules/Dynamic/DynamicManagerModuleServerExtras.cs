@@ -75,7 +75,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     private static void ForwardPackageToChannelMemberOfSender(UdpReceiveResult receiveResult, UdpClient client,
         List<NetworkClient> clients)
     {
-        AnsiConsole.MarkupLine($"Forwarding to channel members");
+        AnsiConsole.MarkupLine("Forwarding to channel members");
         var sender = clients.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint));
         if (string.IsNullOrEmpty(sender.ChannelLabel)) return;
         clients.RemoveAll(x => x.ChannelLabel != sender.ChannelLabel);

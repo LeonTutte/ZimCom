@@ -32,11 +32,11 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Margin="0,4" Grid.Column="0" Grid.Row="0" Text="User ID"
                                    Style="{DynamicResource SubTitleTextBlockStyle}" />
-                        <TextBlock Margin="0,4" Grid.Column="1" Grid.Row="0" Text="{Binding User.Id}"
+                        <TextBlock Margin="0,4" Grid.Column="1" Grid.Row="0" Text="{Binding User.Id, FallbackValue=Not available}"
                                    Style="{DynamicResource BodyTextBlockStyle}" />
                         <TextBlock Margin="0,4" Grid.Column="0" Grid.Row="1" Text="Username"
                                    Style="{DynamicResource SubTitleTextBlockStyle}" />
-                        <TextBox Margin="0,4" Grid.Column="1" Grid.Row="1" Text="{Binding User.Label}" />
+                        <TextBox Margin="0,4" Grid.Column="1" Grid.Row="1" Text="{Binding User.Label, FallbackValue=Not available}" />
                     </Grid>
                 </StackPanel>
             </Grid>

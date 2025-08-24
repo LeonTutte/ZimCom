@@ -8,10 +8,6 @@ namespace ZimCom.Core.Modules.Dynamic.Misc;
 /// </summary>
 public class DynamicManagerModule
 {
-    /// <summary>
-    /// Indicates whether the instance is operating as a client.
-    /// </summary>
-    internal bool AsClient;
 
     /// <summary>
     /// Represents the port number used for server communications within the dynamic manager module.
@@ -24,9 +20,8 @@ public class DynamicManagerModule
     /// </summary>
     protected DynamicManagerModule(bool asClient = false)
     {
-        InternalServer = GetNewServer();
+        InternalServer = GetNewLocalServer();
         if (asClient is false) InternalServer = Server.Load() ?? GetNewServer();
-        AsClient = asClient;
     }
 
     /// <summary>
@@ -138,7 +133,7 @@ public class DynamicManagerModule
         };
     }
 
-    private Server GetNewServer() => new()
+    private Server GetNewLocalServer() => new()
     {
         Id = Guid.NewGuid(),
         Label = "Default Server",
@@ -158,6 +153,34 @@ public class DynamicManagerModule
             new Group
             {
                 Label = "Default Group",
+                IsDefault = true,
+                Strengths = GetDefaultStrengthSet()
+            }
+        ],
+        UserToGroup = [],
+        BannedUsers = [],
+        KnownUsers = []
+    };
+    private Server GetNewServer() => new()
+    {
+        Id = Guid.NewGuid(),
+        Label = "Default Server",
+        Channels =
+        [
+            new Channel
+            {
+                Label = "Entry hall",
+                Description = "Welcome to the Server!",
+                DefaultChannel = true,
+                Slots = 64,
+                Strengths = GetDefaultStrengthSet()
+            }
+        ],
+        Groups =
+        [
+            new Group
+            {
+                Label = "Visitor",
                 IsDefault = true,
                 Strengths = GetDefaultStrengthSet()
             }

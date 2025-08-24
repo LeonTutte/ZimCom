@@ -10,7 +10,7 @@ public class NetworkClient(IPEndPoint endPoint)
     /// <summary>
     /// The address and port of the client
     /// </summary>
-    public IPEndPoint EndPoint = endPoint;
+    public readonly IPEndPoint EndPoint = endPoint;
     /// <summary>
     /// String value of the user, used for logging
     /// </summary>
