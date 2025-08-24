@@ -62,14 +62,24 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     private static async Task ForwardPackageToClients(List<NetworkClient> clients, UdpReceiveResult result,
         UdpClient listener)
     {
+        AnsiConsole.MarkupLine($"Forwarding from {result.RemoteEndPoint}");
+        var clientCount = clients.Count;
         for (var index = clients.Count - 1; index >= 0; index--)
         {
             var client = clients[index];
-            if (!client.EndPoint.Equals(result.RemoteEndPoint))
-            {
-                await listener.SendAsync(result.Buffer, result.Buffer.Length, client.EndPoint).ConfigureAwait(false);
-            }
+            if (client.EndPoint.Equals(result.RemoteEndPoint)) continue;
+            AnsiConsole.Markup($" >{index}-{clientCount}<");
+            await listener.SendAsync(result.Buffer, result.Buffer.Length, client.EndPoint).ConfigureAwait(false);
         }
+    }
+    private static void ForwardPackageToChannelMemberOfSender(UdpReceiveResult receiveResult, UdpClient client,
+        List<NetworkClient> clients)
+    {
+        AnsiConsole.MarkupLine($"Forwarding to channel members");
+        var sender = clients.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint));
+        if (string.IsNullOrEmpty(sender.ChannelLabel)) return;
+        clients.RemoveAll(x => x.ChannelLabel != sender.ChannelLabel);
+        ForwardPackageToClients(clients, receiveResult, client).ConfigureAwait(false);
     }
 
     private bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client)
@@ -102,7 +112,8 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
                 _networkClients!.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint)).UserLabel = user.Label;
                 break;
             case (byte)StaticNetCodes.ChatMessageCode:
-                // Server doesn't care for the message, just forward it to everyone
+                AnsiConsole.MarkupLine(
+                    $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} send a message");
                 break;
             default:
                 AnsiConsole.MarkupLine(
@@ -130,15 +141,6 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         {
             // ignored
         }
-    }
-
-    private static void ForwardPackageToChannelMemberOfSender(UdpReceiveResult receiveResult, UdpClient client,
-        List<NetworkClient> clients)
-    {
-        var sender = clients.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint));
-        if (string.IsNullOrEmpty(sender.ChannelLabel)) return;
-        clients.RemoveAll(x => x.ChannelLabel != sender.ChannelLabel);
-        ForwardPackageToClients(clients, receiveResult, client).ConfigureAwait(false);
     }
     // ReSharper restore FunctionNeverReturns
 

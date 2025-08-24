@@ -1,0 +1,7 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Server and Client " type="CompoundRunConfigurationType">
+    <toRun name="ZimCom.Desktop" type="DotNetProject" />
+    <toRun name="ZimCom.ServerConsole" type="DotNetProject" />
+    <method v="2" />
+  </configuration>
+</component>
