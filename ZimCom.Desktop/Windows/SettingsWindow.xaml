@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:ZimCom.Desktop.ViewModels"
+        xmlns:coreAudioApi="clr-namespace:NAudio.CoreAudioApi;assembly=NAudio.Wasapi"
         d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
         mc:Ignorable="d"
         Title="ZimCom Settings"
@@ -12,6 +13,9 @@
         Height="1024"
         Width="768"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow">
+    <Window.Resources>
+        <CompositeCollection x:Key="EmptyCollection" />
+    </Window.Resources>
     <Grid Margin="10">
         <VirtualizingStackPanel Orientation="Vertical">
             <Grid d:Background="AliceBlue">
@@ -37,10 +41,38 @@
                 </StackPanel>
             </Grid>
             <Grid d:Background="Aqua">
-                <TextBlock Text="Input Settings" Style="{DynamicResource TitleTextBlockStyle}" />
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Input Settings" Style="{DynamicResource TitleTextBlockStyle}" />
+                    <ListBox Margin="10" Height="100" ItemsSource="{Binding AvailableAudioInputDevices,
+                    FallbackValue={StaticResource EmptyCollection}}"
+                             SelectedIndex="{Binding SelectedAudioInputIndex}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type coreAudioApi:MMDevice}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding DeviceFriendlyName}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
             </Grid>
             <Grid d:Background="Aquamarine">
-                <TextBlock Text="Output Settings" Style="{DynamicResource TitleTextBlockStyle}" />
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Output Settings" Style="{DynamicResource TitleTextBlockStyle}" />
+                    <ListBox Margin="10" Height="100" ItemsSource="{Binding AvailableAudioOutputDevices,
+                    FallbackValue={StaticResource EmptyCollection}}"
+                             SelectedIndex="{Binding SelectedAudioOutputIndex}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type coreAudioApi:MMDevice}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding DeviceFriendlyName}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
             </Grid>
             <Grid d:Background="Beige" VerticalAlignment="Bottom" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">

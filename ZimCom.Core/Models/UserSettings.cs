@@ -1,4 +1,6 @@
-﻿namespace ZimCom.Core.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace ZimCom.Core.Models;
 
 /// <summary>
 /// Unknown use yet ...
@@ -6,6 +8,8 @@
 /// <remarks>
 /// Planned usage for saving the input/output device and audio settings
 /// </remarks>
-public class UserSettings
+public partial class UserSettings : ObservableObject
 {
+    [ObservableProperty] public partial string? OutputDeviceFriendlyName { get; set; }
+    [ObservableProperty] public partial string? InputDeviceFriendlyName { get; set; }
 }
