@@ -52,7 +52,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial bool DisconnectEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ChannelExtrasEnabled { get; set; } = false;
     private User ServerUser { get; } = new("Server");
-    [ObservableProperty] public partial MMDevice? AudiCaptureDevice { get; set; }
+    [ObservableProperty] public partial MMDevice? AudioCaptureDevice { get; set; }
     [ObservableProperty] public partial WasapiCapture? AudioCaptureSource { get; set; }
     [ObservableProperty] public partial MMDevice? AudiPlaybackDevice { get; set; }
     [ObservableProperty] public partial WasapiOut? AudioPlaybackSource { get; set; }
@@ -111,16 +111,16 @@ public partial class MainViewModel : ObservableObject
         User.IsMuted = !User.IsMuted;
         if (User.IsMuted)
         {
-            if (AudiCaptureDevice is null || AudioCaptureSource is null) return;
+            if (AudioCaptureDevice is null || AudioCaptureSource is null) return;
             AudioCaptureSource?.StopRecording();
             StaticLogModule.LogInformation(
-                $"Disabled audio input on {AudiCaptureDevice.FriendlyName} with {AudioCaptureSource!.WaveFormat.SampleRate} on {AudioCaptureSource.WaveFormat.Channels} channels.");
+                $"Disabled audio input on {AudioCaptureDevice.FriendlyName} with {AudioCaptureSource!.WaveFormat.SampleRate} on {AudioCaptureSource.WaveFormat.Channels} channels.");
         }
         else
         {
-            if (AudiCaptureDevice is null || AudioCaptureSource is null) return;
+            if (AudioCaptureDevice is null || AudioCaptureSource is null) return;
             AudioCaptureSource?.StartRecording();
-            StaticLogModule.LogInformation($"Enabled audio input on {AudiCaptureDevice.FriendlyName}");
+            StaticLogModule.LogInformation($"Enabled audio input on {AudioCaptureDevice.FriendlyName}");
         }
     }
 
@@ -169,6 +169,25 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void SendMessage()
+    {
+        if (Server is null || CurrentChannel is null || string.IsNullOrWhiteSpace(CurrentChatMessage)) return;
+        var tempMessage = new ChatMessage(User, CurrentChatMessage, CurrentChannel.Label);
+        if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelChat, User, CurrentChannel) is false)
+        {
+            var messageWindow = new MessageWindow("Denied",
+                $"You are not permitted to send messages to {CurrentChannel.Label}");
+            messageWindow.ShowDialog();
+        }
+        else
+        {
+            CurrentChannel.Chat.Add(tempMessage);
+            StaticNetClientEvents.SendMessageToServer?.Invoke(this, tempMessage);
+        }
+        CurrentChatMessage = string.Empty;
+    }
+
+    [RelayCommand]
     private void OpenConnect()
     {
         var connectWindow = new ConnectWindow();
@@ -198,8 +217,8 @@ public partial class MainViewModel : ObservableObject
     private void SetupAudioDevices()
     {
         AudioFormat = new(48000, 16, 1); // 48kHz, 16-bit, mono
-        AudiCaptureDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
-        AudioCaptureSource = new(AudiCaptureDevice)
+        AudioCaptureDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
+        AudioCaptureSource = new(AudioCaptureDevice)
         {
             WaveFormat = AudioFormat,
             ShareMode = AudioClientShareMode.Shared
@@ -216,7 +235,7 @@ public partial class MainViewModel : ObservableObject
         AudioPlaybackSource.Init(AudioPlaybackBuffer);
         AudioPlaybackSource.Play();
 
-        AudioInformationText = $"{AudioFormat.AverageBytesPerSecond} Bps as {AudioFormat.Encoding}";
+        AudioInformationText = $"{AudioFormat.AverageBytesPerSecond} Bps as {AudioFormat.Encoding} from {AudioCaptureDevice.FriendlyName}";
     }
 
     private void AttachToClientEvents()
@@ -241,7 +260,6 @@ public partial class MainViewModel : ObservableObject
             ConnectEnabled = true;
             DisconnectEnabled = false;
         };
-        StaticNetClientEvents.SendMessageToServer += (_, e) => { CurrentChannel!.Chat.Add(e); };
         StaticNetClientEvents.ReceivedMessageFromServer += (_, e) =>
         {
             Server?.Channels.First(x => x.Label.Equals(e.ChannelLabel, StringComparison.Ordinal)).Chat.Add(e);
@@ -269,31 +287,6 @@ public partial class MainViewModel : ObservableObject
         AudioCaptureSource?.DataAvailable += (_, e) =>
         {
             if (AudioEncoder is null) return;
-            // // Normalize audio
-            // int sampleCount = e.BytesRecorded / 4; // 4 bytes per float
-            // float[] samples = new float[sampleCount];
-            // for (int i = 0; i < sampleCount; i++)
-            // {
-            //     samples[i] = BitConverter.ToSingle(e.Buffer, i * 4);
-            // }
-            //
-            // // Find peak
-            // float max = samples.Max(s => Math.Abs(s));
-            // if (max > 0 && max < 1.0f)
-            // {
-            //     float gain = 1.0f / max;
-            //     for (int i = 0; i < samples.Length; i++)
-            //     {
-            //         samples[i] *= gain;
-            //     }
-            // }
-            //
-            // // Convert back to byte[] if needed
-            // byte[] normalizedBuffer = new byte[sampleCount * 4]; // Not used yet
-            // for (int i = 0; i < sampleCount; i++)
-            // {
-            //     Array.Copy(BitConverter.GetBytes(samples[i]), 0, normalizedBuffer, i * 4, 4);
-            // }
 
             // Process audio buffer
             var pcm = new short[e.BytesRecorded / 2];
@@ -305,12 +298,21 @@ public partial class MainViewModel : ObservableObject
             // Playback audio
             if (AudioLevel < 0.015) return;
             if (User.HasOthersMuted is false) AudioPlaybackBuffer?.AddSamples(e.Buffer, 0, e.BytesRecorded);
-            // build and send UDP package
-            var packetBuilder = new DynamicPacketBuilderModule();
-            packetBuilder.WriteOperationCode((byte)StaticNetCodes.VoiceCode);
-            packetBuilder.WriteCusomBytes(voicePacket);
-            if (DynamicManagerModule.Registered)
-                DynamicManagerModule.SendPacketToServer(packetBuilder.GetPacketBytes()).ConfigureAwait(false);
+            if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelSpeech, User, CurrentChannel!) is false)
+            {
+                var messageWindow = new MessageWindow("Denied",
+                    $"You are not permitted to talk in {CurrentChannel!.Label}");
+                messageWindow.ShowDialog();
+            }
+            else
+            {
+                // build and send UDP package
+                var packetBuilder = new DynamicPacketBuilderModule();
+                packetBuilder.WriteOperationCode((byte)StaticNetCodes.VoiceCode);
+                packetBuilder.WriteCusomBytes(voicePacket);
+                if (DynamicManagerModule.Registered)
+                    DynamicManagerModule.SendPacketToServer(packetBuilder.GetPacketBytes()).ConfigureAwait(false);
+            }
         };
         SettingsViewModel.SettingsSaveButtonPressed += (_, _) => { User.Load(); };
     }

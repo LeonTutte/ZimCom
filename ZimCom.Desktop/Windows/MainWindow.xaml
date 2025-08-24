@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:ZimCom.Desktop.ViewModels"
         xmlns:core="clr-namespace:ZimCom.Core.Models;assembly=ZimComCore"
+        xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
         mc:Ignorable="d"
         Title="Main Window"
@@ -158,7 +159,8 @@
                         <ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type core:ChatMessage}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding DateTime}" />
+                                    <TextBlock
+                                        Text="{Binding DateTime, StringFormat={}{0:G}, ConverterCulture={x:Static globalization:CultureInfo.CurrentCulture}}" />
                                     <TextBlock Text=" | " />
                                     <TextBlock Text="{Binding User.Label}" />
                                     <TextBlock Text=":" />
@@ -172,11 +174,9 @@
                         <TextBox MinWidth="400" TextWrapping="Wrap" Text="{Binding CurrentChatMessage}"
                                  IsEnabled="{Binding ChatEnabled}">
                         </TextBox>
-                        <Button Margin="4,0,0,0" Click="ChatSubmitButton_Click"
-                                IsEnabled="{Binding ChatEnabled}">
-                            <Button.Content>
-                                <TextBlock FontFamily="{DynamicResource SymbolThemeFontFamily}" Text="&#xE8BD;" />
-                            </Button.Content>
+                        <Button Margin="4,0,0,0" FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                                Content="&#xE8BD;" Command="{Binding SendMessageCommand}"
+                                IsEnabled="{Binding ChatEnabled}" ToolTip="Send a message to channel">
                         </Button>
                     </StackPanel>
                 </Grid>

@@ -99,21 +99,6 @@ public class DynamicManagerModule
     }
 
     /// <summary>
-    /// Sends a chat message to a specified channel.
-    /// </summary>
-    /// <param name="chatMessage">The chat message to be sent.</param>
-    /// <param name="channel">The channel to which the message is being sent.</param>
-    public void SendChannelMessage(ChatMessage chatMessage, Channel channel)
-    {
-        var matchedChannel = InternalServer.Channels
-            .FirstOrDefault(c => c.Label == channel.Label);
-
-        if (matchedChannel is null) return;
-        if (CheckUserAgainstChannelStrength(Strength.ChannelChat, chatMessage.User, channel))
-            matchedChannel.Chat.Add(chatMessage);
-    }
-
-    /// <summary>
     /// Searches for a user within the channels and returns the channel if found.
     /// </summary>
     /// <param name="user">The user to search for within the channels.</param>

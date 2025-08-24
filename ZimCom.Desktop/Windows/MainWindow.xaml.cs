@@ -13,6 +13,14 @@ public partial class MainWindow
 {
     private readonly MainViewModel _viewModel = new();
 
+    /// <summary>
+    /// Represents the main window of the application.
+    /// </summary>
+    /// <remarks>
+    /// This class defines the main user interface window of the application. It is initialized with a title and a
+    /// data context linked to the <see cref="MainViewModel"/>. The <c>DataContext</c> is used to bind UI elements
+    /// to the properties and commands present in the associated ViewModel.
+    /// </remarks>
     public MainWindow()
     {
         InitializeComponent();
@@ -33,17 +41,6 @@ public partial class MainWindow
     private void ChannelTree_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         _viewModel.JoinChannel();
-    }
-
-    private void ChatSubmitButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (_viewModel.Server is null || _viewModel.CurrentChannel is null ||
-            string.IsNullOrWhiteSpace(_viewModel.CurrentChatMessage)) return;
-        var tempMessage =
-            new ChatMessage(_viewModel.User, _viewModel.CurrentChatMessage, _viewModel.CurrentChannel.Label);
-        _viewModel.DynamicManagerModule.SendChannelMessage(tempMessage, _viewModel.CurrentChannel);
-        StaticNetClientEvents.SendMessageToServer?.Invoke(this, tempMessage);
-        _viewModel.CurrentChatMessage = string.Empty;
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)
