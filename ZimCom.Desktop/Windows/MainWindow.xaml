@@ -19,6 +19,7 @@
             <Setter Property="FontFamily" Value="Segoe UI" />
             <!-- <Setter Property="Style" Value="{DynamicResource BodyTextBlockStyle}"/> -->
         </Style>
+        <CompositeCollection x:Key="EmptyCollection" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -73,7 +74,7 @@
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0" d:Background="PowderBlue" Margin="10" MinWidth="250">
                 <d:TextBlock Text="Channel View" Style="{DynamicResource TitleTextBlockStyle}" />
-                <TreeView Margin="10" ItemsSource="{Binding Server.Channels}" AlternationCount="1"
+                <TreeView Margin="10" ItemsSource="{Binding Server.Channels, FallbackValue={StaticResource EmptyCollection}}" AlternationCount="1"
                           SelectedItemChanged="ChannelTree_SelectedItemChanged"
                           MouseDoubleClick="ChannelTree_MouseDoubleClick">
                     <TreeView.ItemTemplate>
@@ -134,11 +135,11 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock d:Text="Channel Header" Text="{Binding CurrentChannel.Label}"
+                        <TextBlock d:Text="Channel Header" Text="{Binding CurrentChannel.Label, FallbackValue=No label available}"
                                    Style="{DynamicResource TitleTextBlockStyle}" />
-                        <TextBlock d:Text="Channel Description" Text="{Binding CurrentChannel.Description}"
+                        <TextBlock d:Text="Channel Description" Text="{Binding CurrentChannel.Description, FallbackValue=No descirption set}"
                                    Style="{DynamicResource SubtitleTextBlockStyle}" />
-                        <ListView ItemsSource="{Binding CurrentChannel.Participants}"
+                        <ListView ItemsSource="{Binding CurrentChannel.Participants, FallbackValue={StaticResource EmptyCollection}}"
                                   IsEnabled="{Binding ChannelExtrasEnabled}">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -154,15 +155,16 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <ListView Grid.Row="0" ItemsSource="{Binding CurrentChannel.Chat}"
+                    <ListView Grid.Row="0" ItemsSource="{Binding CurrentChannel.Chat, FallbackValue={StaticResource EmptyCollection}}"
                               d:Background="CornflowerBlue">
                         <ListView.ItemTemplate>
                             <DataTemplate DataType="{x:Type core:ChatMessage}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock
-                                        Text="{Binding DateTime, StringFormat={}{0:G}, ConverterCulture={x:Static globalization:CultureInfo.CurrentCulture}}" />
-                                    <TextBlock Text=" | " />
+                                        Text="{Binding DateTime, StringFormat={}{0:G},
+                                        ConverterCulture={x:Static globalization:CultureInfo.CurrentCulture}}" />
                                     <TextBlock Text="{Binding User.Label}" />
+                                    <TextBlock Text=" " />
                                     <TextBlock Text=":" />
                                     <TextBlock Text=" " />
                                     <TextBlock Text="{Binding Message}" />
