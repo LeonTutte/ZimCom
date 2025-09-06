@@ -53,6 +53,12 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
         {
             if (_client is not null) _serverEndPoint = new(_address, ServerPort);
         }
+        try
+        {
+            var localEp = (System.Net.IPEndPoint?)_client?.Client.LocalEndPoint;
+            StaticLogModule.LogInformation($"UDP client bound at {localEp}");
+        }
+        catch { /* ignore */ }
 
         HandleIncomingServerPackets().ConfigureAwait(false);
         HandleClientEvents();
@@ -125,7 +131,7 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
             UdpReceiveResult result;
             try
             {
-                result = await _client.ReceiveAsync().ConfigureAwait(true);
+                result = await _client.ReceiveAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -133,33 +139,45 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
                 continue;
             }
 
-            var opCode = result.Buffer[0];
-            switch (opCode)
+            try
             {
-                case (byte)StaticNetCodes.ServerCode:
-                    var server = Server.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(result.Buffer));
-                    if (server is null)
-                    {
-                        DisconnectFromServer();
-                        continue;
-                    }
-
-                    StaticNetClientEvents.ReceivedServerData?.Invoke(this, server);
-                    break;
-                case (byte)StaticNetCodes.ChangeChannel:
-                    StaticNetClientEvents.ReceivedAudio?.Invoke(this,
-                        DynamicPacketReaderModule.ReadDirect32Custom(result.Buffer));
-                    break;
-                case (byte)StaticNetCodes.VoiceCode:
-                    break;
-                case (byte)StaticNetCodes.ChatMessageCode:
-                    StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this,
-                        ChatMessage.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(result.Buffer)) ??
-                        throw new Exception("Failed to read data"));
-                    break;
-                default:
-                    StaticLogModule.LogDebug("Received unknown packet");
-                    break;
+                var opCode = result.Buffer.Length > 0 ? result.Buffer[0] : (byte)255;
+                StaticLogModule.LogDebug($"Received packet: len={result.Buffer.Length}, from={result.RemoteEndPoint}, opCode={opCode}");
+                switch (opCode)
+                {
+                    case (byte)StaticNetCodes.ServerCode:
+                        var server = Server.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(result.Buffer));
+                        if (server is null)
+                        {
+                            DisconnectFromServer();
+                            continue;
+                        }
+                        StaticNetClientEvents.ReceivedServerData?.Invoke(this, server);
+                        break;
+                    case (byte)StaticNetCodes.ChangeChannel:
+                        DynamicPacketReaderModule packetReaderModule = new(result.Buffer);
+                        StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this, (
+                            User.SetFromPacket(packetReaderModule.Read32Message()),
+                            Channel.SetFromPacket(packetReaderModule.Read32Message())));
+                        break;
+                    case (byte)StaticNetCodes.VoiceCode:
+                        var audioPayload = DynamicPacketReaderModule.ReadDirect32Custom(result.Buffer);
+                        StaticNetClientEvents.ReceivedAudio?.Invoke(this, audioPayload);
+                        break;
+                    case (byte)StaticNetCodes.ChatMessageCode:
+                        var chatPayload = ChatMessage.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(result.Buffer)) ??
+                                   throw new Exception("Failed to read chat data");
+                        StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this, chatPayload);
+                        break;
+                    default:
+                        var preview = BitConverter.ToString([.. result.Buffer.Take(Math.Min(8, result.Buffer.Length))]);
+                        StaticLogModule.LogDebug($"Received unknown packet. First bytes: {preview}");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                StaticLogModule.LogError("Error processing received packet", ex);
             }
         }
 

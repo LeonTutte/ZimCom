@@ -60,17 +60,18 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
     }
 
     private static async Task ForwardPackageToClients(List<NetworkClient> clients, UdpReceiveResult result,
-        UdpClient listener)
+        UdpClient listener, bool includeSender = false)
     {
         AnsiConsole.MarkupLine($"Forwarding from {result.RemoteEndPoint}");
         var clientCount = clients.Count;
         for (var index = clients.Count - 1; index >= 0; index--)
         {
             var client = clients[index];
-            if (client.EndPoint.Equals(result.RemoteEndPoint)) continue;
+            if (client.EndPoint.Equals(result.RemoteEndPoint) && !includeSender) continue;
             AnsiConsole.Markup($" >{index}-{clientCount}<");
             await listener.SendAsync(result.Buffer, result.Buffer.Length, client.EndPoint).ConfigureAwait(false);
         }
+        AnsiConsole.MarkupLine("");
     }
     private static void ForwardPackageToChannelMemberOfSender(UdpReceiveResult receiveResult, UdpClient client,
         List<NetworkClient> clients)
@@ -79,7 +80,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         var sender = clients.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint));
         if (string.IsNullOrEmpty(sender.ChannelLabel)) return;
         clients.RemoveAll(x => x.ChannelLabel != sender.ChannelLabel);
-        ForwardPackageToClients(clients, receiveResult, client).ConfigureAwait(false);
+        ForwardPackageToClients(clients, receiveResult, client, true).ConfigureAwait(false);
     }
 
     private bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client)
@@ -109,7 +110,10 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
                            new User("Unknown");
                 AnsiConsole.MarkupLine(
                     $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} identified as a {user.Label} with identifier {user.Id}");
+                var defaultChannel = InternalServer.Channels.FindAll(x => x.DefaultChannel.Equals(true)).First();
                 _networkClients!.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint)).UserLabel = user.Label;
+                _networkClients!.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint)).ChannelLabel =
+                    defaultChannel.Label;
                 break;
             case (byte)StaticNetCodes.ChatMessageCode:
                 AnsiConsole.MarkupLine(

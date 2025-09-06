@@ -17,7 +17,7 @@ public class DynamicPacketReaderModule()
     /// </summary>
     /// <remarks>
     /// This variable is required and is initialized with a byte array in the constructor.
-    /// Utilized to read and process data in memory without interacting directly with a physical file.
+    /// Used to read and process data in memory without interacting directly with a physical file.
     /// </remarks>
     public required MemoryStream MemoryStream;
 
@@ -65,23 +65,24 @@ public class DynamicPacketReaderModule()
     /// The method extracts the length of the message, calculates the offset, and decodes the message using UTF-8 encoding.
     /// </summary>
     /// <param name="buffer">The byte array containing the message data.</param>
-    /// <param name="position">The starting position in the buffer from where the message should be read.</param>
     /// <returns>A string representation of the decoded message.</returns>
-    public static string ReadDirect32Message(byte[] buffer, int position = 1)
+    public static string ReadDirect32Message(byte[] buffer)
     {
-        var length = BitConverter.ToInt32(buffer, position);
-        return Encoding.UTF8.GetString(buffer, position + 4, length);
+        var packetReaderModule = new DynamicPacketReaderModule(buffer);
+        return packetReaderModule.Read32Message();
     }
 
     /// <summary>
     /// Reads a segment of data from the provided buffer, starting at the specified position, and returns it as a byte array.
     /// </summary>
     /// <param name="buffer">The byte array containing the data to read from.</param>
-    /// <param name="position">The starting position in the buffer from which to begin reading. Defaults to 1.</param>
     /// <returns>A byte array representing the data segment read from the buffer.</returns>
-    public static byte[] ReadDirect32Custom(byte[] buffer, int position = 1)
+    public static byte[] ReadDirect32Custom(byte[] buffer)
     {
-        var length = BitConverter.ToInt32(buffer, position);
-        return buffer.Take(new Range(position + 4, length)).ToArray();
+        var packetReaderModule = new DynamicPacketReaderModule(buffer);
+        var length = packetReaderModule.BinaryReader.ReadInt32();
+        var result = new byte[length];
+        packetReaderModule.MemoryStream.ReadExactly(result, 0, length);
+        return result;
     }
 }

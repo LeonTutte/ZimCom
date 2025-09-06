@@ -58,7 +58,7 @@
                         Content="&#xE769;" Command="{Binding AwayUserCommand}"
                         ToolTip="Set your self AFK, this also disables your input and output" />
                 <Separator Visibility="Hidden" Width="10" />
-                <ProgressBar Width="75" MinHeight="6" Minimum="0" Maximum="1" Value="{Binding AudioLevel}"
+                <ProgressBar Width="75" MinHeight="6" Minimum="0" Maximum="1" Value="{Binding  AudioLevel}"
                              ToolTip="{Binding AudioInformationText}" />
             </StackPanel>
             <TextBlock Grid.Column="1" Margin="10,0,10,0" d:Text="Username"
@@ -163,6 +163,7 @@
                                     <TextBlock
                                         Text="{Binding DateTime, StringFormat={}{0:G},
                                         ConverterCulture={x:Static globalization:CultureInfo.CurrentCulture}}" />
+                                    <TextBlock Text=" " />
                                     <TextBlock Text="{Binding User.Label}" />
                                     <TextBlock Text=" " />
                                     <TextBlock Text=":" />

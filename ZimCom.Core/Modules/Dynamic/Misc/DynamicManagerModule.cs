@@ -35,61 +35,62 @@ public class DynamicManagerModule
     /// <param name="strength">The type of strength being checked.</param>
     /// <param name="user">The user whose strength is being evaluated.</param>
     /// <param name="channel">The channel on which the action is to be performed.</param>
+    /// <param name="muteLog"></param>
     /// <returns>True if the user's strength is enough for the specified action on the channel; otherwise, false.</returns>
-    public bool CheckUserAgainstChannelStrength(Strength strength, User user, Channel channel)
+    public bool CheckUserAgainstChannelStrength(Strength strength, User user, Channel channel, bool muteLog = false)
     {
-        StaticLogModule.LogDebug($"Checking {user.Label} against {channel.Label} for {strength}");
+        if (!muteLog) StaticLogModule.LogDebug($"Checking {user.Label} against {channel.Label} for {strength}");
         if (channel.TitleChannel || channel.SpacerChannel)
             return false;
         long channelStrength, userStrength;
         if (channel.Strengths.Any(x => x.Key.Equals(strength)))
         {
             channelStrength = channel.Strengths.First(x => x.Key.Equals(strength)).Value;
-            StaticLogModule.LogDebug($"{channel.Label} has strength {channelStrength} for {strength}");
+            if (!muteLog) StaticLogModule.LogDebug($"{channel.Label} has strength {channelStrength} for {strength}");
         }
         else
         {
-            StaticLogModule.LogDebug($"{channel.Label} has no strength for {strength} defined!");
+            if (!muteLog) StaticLogModule.LogDebug($"{channel.Label} has no strength for {strength} defined!");
             channelStrength = 0;
         }
 
         if (InternalServer.UserToGroup.Any(x => x.Key.Equals(user.Id.ToString())))
         {
             var groupName = InternalServer.UserToGroup.First(x => x.Key.Equals(user.Id.ToString())).Key;
-            StaticLogModule.LogDebug($"Found group {groupName} for {user.Label}");
+            if (!muteLog) StaticLogModule.LogDebug($"Found group {groupName} for {user.Label}");
             if (InternalServer.Groups.Any(x => x.Label.Equals(groupName)))
             {
                 var group = InternalServer.Groups.First(x => x.Label.Equals(groupName));
                 if (group.Strengths.Any(x => x.Key.Equals(strength)))
                 {
                     userStrength = group.Strengths.First(x => x.Key.Equals(strength)).Value;
-                    StaticLogModule.LogDebug($"{group.Label} has strength {userStrength} for {strength}");
+                    if (!muteLog) StaticLogModule.LogDebug($"{group.Label} has strength {userStrength} for {strength}");
                 }
                 else
                 {
-                    StaticLogModule.LogDebug($"{group.Label} has no strength for {strength} defined!");
+                    if (!muteLog) StaticLogModule.LogDebug($"{group.Label} has no strength for {strength} defined!");
                     userStrength = 0;
                 }
             }
             else
             {
                 userStrength = 0;
-                StaticLogModule.LogDebug($"Could not find {groupName} in group list of Server");
+                if (!muteLog) StaticLogModule.LogDebug($"Could not find {groupName} in group list of Server");
             }
         }
         else
         {
             userStrength = 0;
-            StaticLogModule.LogDebug($"{user.Label} has no group defined!");
+            if (!muteLog) StaticLogModule.LogDebug($"{user.Label} has no group defined!");
         }
 
         if (userStrength >= channelStrength)
         {
-            StaticLogModule.LogDebug($"{user.Label} is allowed to {strength} for {channel.Label}");
+            if (!muteLog) StaticLogModule.LogDebug($"{user.Label} is allowed to {strength} for {channel.Label}");
             return true;
         }
 
-        StaticLogModule.LogDebug($"{user.Label} was denied to {strength} for {channel.Label}");
+        if (!muteLog) StaticLogModule.LogDebug($"{user.Label} was denied to {strength} for {channel.Label}");
         return false;
     }
 
