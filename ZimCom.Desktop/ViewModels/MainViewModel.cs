@@ -21,6 +21,23 @@ namespace ZimCom.Desktop.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+    /// <summary>
+    /// Represents the primary view model for the application.
+    /// </summary>
+    /// <remarks>
+    /// The constructor initializes test data by retrieving an internal server instance from
+    /// the dynamic manager module and loading a persisted user or creating a default one.
+    /// It then sets up a default channel, assigns the current channel,
+    /// configures audio capture information, mutes the user initially,
+    /// and subscribes to client events.
+    /// The view model exposes several observable properties that can be bound
+    /// directly from the UI: <c>Server</c>, <c>User</c>, <c>AudioInformationText</c>,
+    /// and an internal <c>DynamicAudioModule</c>.  These properties are marked with
+    /// <see cref="ObservablePropertyAttribute"/> so changes propagate automatically.
+    /// </remarks>
+    /// <seealso cref="ZimCom.Core.Models.Server"/>
+    /// <seealso cref="ZimCom.Core.Models.User"/>
+    /// <seealso cref="ZimCom.Desktop.Modules.Dynamic.DynamicAudioModule"/>
     public MainViewModel()
     {
         // Testdata
