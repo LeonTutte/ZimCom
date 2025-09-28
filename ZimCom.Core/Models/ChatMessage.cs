@@ -25,6 +25,13 @@ public class ChatMessage(User user, string message, string channelLabel)
     /// </summary>
     public string Message { get; init; } = message;
 
+    /// <summary>
+    /// Gets the label of the channel to which this chat message belongs.
+    /// </summary>
+    /// <remarks>
+    /// The value is set during construction and cannot be changed afterwards.
+    /// It corresponds to the <see cref="Channel.Label"/> property of the target channel.
+    /// </remarks>
     public string ChannelLabel { get; init; } = channelLabel;
 
     /// <summary>

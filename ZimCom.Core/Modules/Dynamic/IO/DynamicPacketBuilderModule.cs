@@ -31,12 +31,21 @@ public class DynamicPacketBuilderModule
         _memoryStream.Write(Encoding.UTF8.GetBytes(data));
     }
 
+    /// <summary>
+    /// Writes an arbitrary array of bytes to the packet, prefixed with its length.
+    /// </summary>
+    /// <param name="data">The byte array containing the data to be written.</param>
     public void WriteCusomBytes(byte[] data)
     {
         _memoryStream.Write(BitConverter.GetBytes(data.Length));
         _memoryStream.Write(data);
     }
 
+    /// <summary>
+    /// Writes audio data to the internal memory stream.
+    /// </summary>
+    /// <param name="data">The byte array containing the audio samples.</param>
+    /// <param name="bytesRecorded">The number of bytes that were actually recorded from the source device.</param>
     public void WriteAudioBytes(byte[] data, int bytesRecorded)
     {
         _memoryStream.Write(BitConverter.GetBytes(bytesRecorded));

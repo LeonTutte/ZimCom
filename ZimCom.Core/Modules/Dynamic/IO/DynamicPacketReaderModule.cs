@@ -85,6 +85,19 @@ public class DynamicPacketReaderModule()
         packetReaderModule.MemoryStream.ReadExactly(result, 0, length);
         return result;
     }
+
+    /// <summary>
+    /// Reads an audio packet from a byte array and returns the decoded data along with the number of bytes recorded.
+    /// </summary>
+    /// <param name="buffer">
+    /// The raw packet buffer that contains the audio data.
+    /// The first 4 bytes represent the total length in bytes recorded, followed by another 4-byte integer specifying the payload length, and then the payload itself.
+    /// </param>
+    /// <returns>
+    /// A tuple containing:
+    /// <para>- <c>Item1</c>: a byte array with the payload extracted from the packet.</para>
+    /// <para>- <c>Item2</c>: an integer representing the number of bytes that were recorded (the first 4‑byte value in the buffer).</para>
+    /// </returns>
     public static (byte[], int) ReadAudioBytes(byte[] buffer)
     {
         var packetReaderModule = new DynamicPacketReaderModule(buffer);
