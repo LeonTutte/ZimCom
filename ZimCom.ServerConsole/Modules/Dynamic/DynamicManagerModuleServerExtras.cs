@@ -122,7 +122,6 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
                     $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} send a message");
                 ForwardPackageToChannelMemberOfSender(receiveResult, client, _networkClients!);
                 return false;
-                break;
             default:
                 AnsiConsole.MarkupLine(
                     $"Error during packet check for {receiveResult.RemoteEndPoint.Address.MapToIPv6()}");

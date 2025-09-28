@@ -1,6 +1,10 @@
 ﻿<component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Desktop Win64" type="DotNetFolderPublish" factoryName="Publish to folder">
-    <riderPublish configuration="Release" delete_existing_files="true" platform="Any CPU" target_folder="$PROJECT_DIR$/publish/desktop-win-x64" target_framework="net9.0" uuid_high="6823942238742714917" uuid_low="109987636349644593" />
+    <riderPublish configuration="Release" delete_existing_files="true" platform="Any CPU" self_contained="true" target_folder="$PROJECT_DIR$/publish/desktop-win-x64" target_framework="net9.0-windows10.0.26100.0" uuid_high="-4570275443233544545" uuid_low="-7918264364960060784">
+      <runtimes>
+        <item value="win-x64" />
+      </runtimes>
+    </riderPublish>
     <method v="2" />
   </configuration>
 </component>

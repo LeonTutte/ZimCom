@@ -26,7 +26,7 @@ public class DynamicAudioModule : IDisposable
     /// Setting this property to <c>false</c> disables local playback, allowing the capture source to operate solely as an input for further processing or network transmission.
     /// </summary>
     public bool LocalPlayback { get; set; }
-
+#pragma warning disable CA1051
     /// <summary>
     /// Event triggered when a new audio packet is available after being processed and encoded.
     /// This event provides the encoded audio packet data in byte array format.
@@ -38,6 +38,7 @@ public class DynamicAudioModule : IDisposable
     /// This event is triggered during audio processing in the dynamic audio module.
     /// </summary>
     public EventHandler<float>? AudioLevelCalculated;
+#pragma warning restore CA1051
 
     /// <summary>
     /// Represents a dynamic audio module that captures, decodes and encodes audio using NAudio libraries. It also handles the playback of received audio data.
@@ -60,7 +61,7 @@ public class DynamicAudioModule : IDisposable
                 { ResamplerQuality = 60 });
         _audioPlaybackSource.Play();
 
-        AudioCaptureSource.DataAvailable += async (_, e) =>
+        AudioCaptureSource.DataAvailable += (_, e) =>
         {
             if (!IsVoiceActive(e.Buffer, e.BytesRecorded))
             {

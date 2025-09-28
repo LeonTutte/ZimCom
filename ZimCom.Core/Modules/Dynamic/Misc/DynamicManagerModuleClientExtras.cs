@@ -74,7 +74,7 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
             packet.WriteMessage(e.Item2!.ToString());
             SendPacketToServer(packet.GetPacketBytes()).ConfigureAwait(true);
         };
-        StaticNetClientEvents.SendMessageToServer += (_, e) => SendPacketToServer(e.GetPacket()).ConfigureAwait(true);
+        //StaticNetClientEvents.SendMessageToServer += (_, e) => SendPacketToServer(e.GetPacket()).ConfigureAwait(true);
     }
 
     /// <summary>

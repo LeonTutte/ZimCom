@@ -200,7 +200,6 @@ public partial class MainViewModel : ObservableObject
             {
                 case UriHostNameType.Unknown:
                     throw new ArgumentException("The hostname provided is not valid (no type available).");
-                    break;
                 case UriHostNameType.IPv4:
                 case UriHostNameType.IPv6:
                     address = e;
@@ -240,9 +239,8 @@ public partial class MainViewModel : ObservableObject
         {
             Server = e;
             PreviousChannel = null;
-            CurrentChannel = GetDefaultChannel();
-            CurrentChannel.Participants.Add(User);
-            ChatEnabled = true;
+            SelectedChannel = GetDefaultChannel();
+            JoinChannel();
         };
         StaticNetClientEvents.DisconnectedFromServer += (_, _) =>
         {

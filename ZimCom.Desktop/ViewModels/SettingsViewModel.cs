@@ -45,10 +45,10 @@ public partial class SettingsViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(User?.UserSettings.OutputDeviceFriendlyName)) return;
         SelectedAudioOutputIndex =
             AvailableAudioOutputDevices.FindIndex(x =>
-                x.DeviceFriendlyName.Equals(User.UserSettings.OutputDeviceFriendlyName, StringComparison.Ordinal));
+                x.DeviceFriendlyName.Equals(User?.UserSettings.OutputDeviceFriendlyName, StringComparison.Ordinal));
         if (string.IsNullOrWhiteSpace(User?.UserSettings.InputDeviceFriendlyName)) return;
         SelectedAudioInputIndex =
             AvailableAudioInputDevices.FindIndex(x =>
-                x.DeviceFriendlyName.Equals(User.UserSettings.InputDeviceFriendlyName, StringComparison.Ordinal));
+                x.DeviceFriendlyName.Equals(User?.UserSettings.InputDeviceFriendlyName, StringComparison.Ordinal));
     }
 }
