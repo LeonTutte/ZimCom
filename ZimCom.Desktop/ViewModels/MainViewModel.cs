@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
@@ -237,7 +238,8 @@ public partial class MainViewModel : ObservableObject
         StaticNetClientEvents.ReceivedMessageFromServer += (_, e) =>
         {
             if (e is null) return;
-            Server?.Channels.First(x => x.Label.Equals(e.ChannelLabel, StringComparison.Ordinal)).Chat.Add(e);
+            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
+                Server?.Channels.First(x => x.Label.Equals(e.ChannelLabel, StringComparison.Ordinal)).Chat.Add(e)));
         };
         StaticNetClientEvents.OtherUserChangeChannel += (_, e) =>
         {

@@ -71,8 +71,10 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             AnsiConsole.Markup($" >{index}-{clientCount}<");
             await listener.SendAsync(result.Buffer, result.Buffer.Length, client.EndPoint).ConfigureAwait(false);
         }
+
         AnsiConsole.MarkupLine("");
     }
+
     private static void ForwardPackageToChannelMemberOfSender(UdpReceiveResult receiveResult, UdpClient client,
         List<NetworkClient> clients)
     {
@@ -118,6 +120,8 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
             case (byte)StaticNetCodes.ChatMessageCode:
                 AnsiConsole.MarkupLine(
                     $"{receiveResult.RemoteEndPoint.Address.MapToIPv6()} send a message");
+                ForwardPackageToChannelMemberOfSender(receiveResult, client, _networkClients!);
+                return false;
                 break;
             default:
                 AnsiConsole.MarkupLine(
