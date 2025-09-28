@@ -82,7 +82,7 @@ public class DynamicManagerModuleServerExtras : DynamicManagerModule
         var sender = clients.First(x => x.EndPoint.Equals(receiveResult.RemoteEndPoint));
         if (string.IsNullOrEmpty(sender.ChannelLabel)) return;
         clients.RemoveAll(x => x.ChannelLabel != sender.ChannelLabel);
-        ForwardPackageToClients(clients, receiveResult, client, true).ConfigureAwait(false);
+        ForwardPackageToClients(clients, receiveResult, client, false).ConfigureAwait(false);
     }
 
     private bool CheckClientPacket(UdpReceiveResult receiveResult, ref UdpClient client)
