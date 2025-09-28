@@ -97,6 +97,7 @@ public partial class MainViewModel : ObservableObject
             SelectedChannel.Participants.Add(User);
             CurrentChannel = SelectedChannel;
             ChannelExtrasEnabled = !CurrentChannel.LocalChannel;
+            ChatEnabled = true;
             StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel.Label));
         }
         else
@@ -119,10 +120,11 @@ public partial class MainViewModel : ObservableObject
         }
         else
         {
+            AudioModule.VadThreshold = User?.UserSettings.VoiceActivityDetectionThreshold ?? 0.025;
             AudioModule.AudioCaptureSource.StartRecording();
             StaticLogModule.LogInformation($"Enabled audio input on {AudioModule.AudioCaptureDevice.FriendlyName}");
         }
-        AudioModule.LocalPlayback = User.UserSettings.LocalPlayback;
+        AudioModule.LocalPlayback = User?.UserSettings.LocalPlayback ?? false;
     }
 
     [RelayCommand]
@@ -166,6 +168,7 @@ public partial class MainViewModel : ObservableObject
                 User = User.Load() ?? new User("Unknown")
             }
         };
+        settingsWindow.ViewModel.LoadUserSettings();
         settingsWindow.ShowDialog();
     }
 

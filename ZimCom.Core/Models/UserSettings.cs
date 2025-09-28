@@ -10,7 +10,8 @@ namespace ZimCom.Core.Models;
 /// </remarks>
 public partial class UserSettings : ObservableObject
 {
-    [ObservableProperty] public partial string? OutputDeviceFriendlyName { get; set; }
-    [ObservableProperty] public partial string? InputDeviceFriendlyName { get; set; }
+    [ObservableProperty] public partial string? OutputDeviceId { get; set; }
+    [ObservableProperty] public partial string? InputDeviceId { get; set; }
     [ObservableProperty] public partial bool LocalPlayback { get; set; } = false;
+    [ObservableProperty] public partial double VoiceActivityDetectionThreshold { get; set; } = 0.025;
 }

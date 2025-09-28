@@ -179,25 +179,5 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
                 StaticLogModule.LogError("Error processing received packet", ex);
             }
         }
-
-        // var opCode = ClientPacketReader.ReadByte();
-        // switch (opCode)
-        // {
-        //     case (byte)StaticNetCodes.ServerCode:
-        //         StaticNetClientEvents.ReceivedServerData?.Invoke(this,
-        //             Server.SetFromPacket(ClientPacketReader!.Read32Message()) ??
-        //             throw new Exception("Failed to read data"));
-        //         break;
-        //     case (byte)StaticNetCodes.ChatMessageCode:
-        //         StaticNetClientEvents.ReceivedMessageFromServer?.Invoke(this,
-        //             ChatMessage.SetFromPacket(ClientPacketReader!.Read32Message()) ??
-        //             throw new Exception("Failed to read data"));
-        //         break;
-        //     case (byte)StaticNetCodes.ChangeChannel:
-        //         StaticNetClientEvents.OtherUserChangeChannel?.Invoke(this,
-        //             (User.SetFromPacket(ClientPacketReader!.Read32Message()),
-        //                 Channel.SetFromPacket(ClientPacketReader!.Read32Message())));
-        //         break;
-        // }
     }
 }

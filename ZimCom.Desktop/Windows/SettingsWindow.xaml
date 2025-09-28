@@ -31,13 +31,13 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Margin="0,4" Grid.Column="0" Grid.Row="0" Text="User ID"
-                                   Style="{DynamicResource SubTitleTextBlockStyle}" />
+                                   Style="{DynamicResource BodyTextBlockStyle}" />
                         <TextBlock Margin="0,4" Grid.Column="1" Grid.Row="0" Text="{Binding User.Id, FallbackValue=Not available}"
                                    Style="{DynamicResource BodyTextBlockStyle}" />
                         <TextBlock Margin="0,4" Grid.Column="0" Grid.Row="1" Text="Username"
-                                   Style="{DynamicResource SubTitleTextBlockStyle}" />
+                                   Style="{DynamicResource BodyTextBlockStyle}" />
                         <TextBox Margin="0,4" Grid.Column="1" Grid.Row="1" Text="{Binding User.Label, FallbackValue=Not available}" />
-                    </Grid>
+                        </Grid>
                 </StackPanel>
             </Grid>
             <Grid d:Background="Aqua">
@@ -50,11 +50,61 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type coreAudioApi:MMDevice}">
                                 <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding FriendlyName}" />
+                                    <TextBlock Text=" - "/>
                                     <TextBlock Text="{Binding DeviceFriendlyName}" />
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                </StackPanel>
+            </Grid>
+            <Grid d:Background="AliceBlue">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Sound Settings" Style="{DynamicResource SubtitleTextBlockStyle}" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Margin="0,4" Grid.Column="0" Grid.Row="0" Text="Voice Activity Detection"
+                                   Style="{DynamicResource BodyTextBlockStyle}" />
+                        <VirtualizingStackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                            <Slider Margin="0" MinWidth="300" HorizontalAlignment="Stretch" VerticalAlignment="Center" Maximum="1" Minimum="0" TickFrequency="20" TickPlacement="Both" Value="{Binding VadThreshold}"/>
+                            <TextBlock Text="{Binding VadThreshold, StringFormat={}{0:F3}}" Margin="4,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </VirtualizingStackPanel>
+                        <TextBlock Margin="0,4" Grid.Column="0" Grid.Row="1" Text="Side Tone"
+                                   Style="{DynamicResource BodyTextBlockStyle}" />
+                        <CheckBox Margin="0,4" Grid.Column="1" Grid.Row="1" IsThreeState="False" IsChecked="{Binding LocalPlayback}"/>
+                    </Grid>
+                    <Grid d:Background="AliceBlue">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Voice Test" Style="{DynamicResource SubtitleTextBlockStyle}" />
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Margin="0,4" Grid.Column="0" Grid.Row="0" Text="Voice Meter"
+                                           Style="{DynamicResource BodyTextBlockStyle}" />
+                                <VirtualizingStackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                    <ProgressBar Height="10" Margin="0" MinWidth="300" HorizontalAlignment="Stretch" VerticalAlignment="Center" Maximum="1" Minimum="0" Value="{Binding AudioLevel}"/>
+                                    <TextBlock Text="{Binding AudioLevel, StringFormat={}{0:F3}}" Margin="4,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </VirtualizingStackPanel>
+                                <Button Margin="0,4" Grid.Column="0" Grid.Row="1" Content="Start Test" Command="{Binding StartAudioInputTestCommand}"/>
+                                <TextBlock Margin="0,4" Grid.Column="1" Grid.Row="1" Text="{Binding AverageSoundText}"
+                                           Style="{DynamicResource BodyTextBlockStyle}" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </Grid>
             <Grid d:Background="Aquamarine">
@@ -67,6 +117,8 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type coreAudioApi:MMDevice}">
                                 <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding FriendlyName}" />
+                                    <TextBlock Text=" - "/>
                                     <TextBlock Text="{Binding DeviceFriendlyName}" />
                                 </StackPanel>
                             </DataTemplate>

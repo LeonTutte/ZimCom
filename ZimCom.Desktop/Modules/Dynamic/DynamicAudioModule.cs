@@ -17,7 +17,7 @@ public class DynamicAudioModule : IDisposable
     private readonly WasapiOut _audioPlaybackSource;
     internal readonly WaveFormat AudioFormat;
     private double _audioLevel;
-    private readonly double _vadThreshold = 0.025; // TODO: Should be dynamic
+    internal double VadThreshold = 0.025;
 
     /// <summary>
     /// Gets or sets a value that determines whether the audio captured by the module should be played back locally.
@@ -44,7 +44,7 @@ public class DynamicAudioModule : IDisposable
     /// </summary>
     public DynamicAudioModule()
     {
-        AudioFormat = new WaveFormat(16000, 16, 1); // 16kHz, 16-bit, mono
+        AudioFormat = new WaveFormat(48000, 16, 1); // 48kHz, 16-bit, mono
         AudioCaptureDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
         AudioCaptureSource = new WasapiCapture(AudioCaptureDevice);
         AudioCaptureSource.WaveFormat = AudioFormat;
@@ -122,7 +122,7 @@ public class DynamicAudioModule : IDisposable
         // Wenn RMS über dem Schwellenwert liegt → Sprache
         _audioLevel = rms;
         AudioLevelCalculated?.Invoke(this, (float)_audioLevel);
-        return rms > _vadThreshold;
+        return rms > VadThreshold;
     }
 
     /// <inheritdoc />
