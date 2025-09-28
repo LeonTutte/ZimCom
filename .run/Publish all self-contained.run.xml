@@ -1,0 +1,8 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish all self-contained" type="CompoundRunConfigurationType">
+    <toRun name="Desktop Win64" type="DotNetFolderPublish" />
+    <toRun name="Server Linux64" type="DotNetFolderPublish" />
+    <toRun name="Server Win64" type="DotNetFolderPublish" />
+    <method v="2" />
+  </configuration>
+</component>
