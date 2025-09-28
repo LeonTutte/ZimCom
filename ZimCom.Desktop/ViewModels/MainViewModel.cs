@@ -195,30 +195,37 @@ public partial class MainViewModel : ObservableObject
         var connectWindow = new ConnectWindow();
         connectWindow.ViewModel.ConnectToAddress += async void (_, e) =>
         {
-            var address = string.Empty;
-            switch (Uri.CheckHostName(e))
-            {
-                case UriHostNameType.Unknown:
-                    throw new ArgumentException("The hostname provided is not valid (no type available).");
-                case UriHostNameType.IPv4:
-                case UriHostNameType.IPv6:
-                    address = e;
-                    break;
-                case UriHostNameType.Dns:
-                    address = (await Dns.GetHostAddressesAsync(e, AddressFamily.InterNetwork)).ToString();
-                    break;
-            }
             try
             {
-                DynamicManagerModule.ConnectToServer(address);
+                var address = string.Empty;
+                switch (Uri.CheckHostName(e))
+                {
+                    case UriHostNameType.Unknown:
+                        throw new ArgumentException("The hostname provided is not valid (no type available).");
+                    case UriHostNameType.IPv4:
+                    case UriHostNameType.IPv6:
+                        address = e;
+                        break;
+                    case UriHostNameType.Dns:
+                        address = (await Dns.GetHostAddressesAsync(e, AddressFamily.InterNetwork)).ToString();
+                        break;
+                }
+                try
+                {
+                    DynamicManagerModule.ConnectToServer(address);
+                }
+                catch (Exception ex)
+                {
+                    var messageWindow = new MessageWindow("Connect", ex.Message);
+                    messageWindow.ShowDialog();
+                }
+
+                await DynamicManagerModule.SendPacketToServer(User.GetPacket());
             }
             catch (Exception ex)
             {
-                var messageWindow = new MessageWindow("Connect", ex.Message);
-                messageWindow.ShowDialog();
+                StaticLogModule.LogError("Error during connect", ex);
             }
-
-            await DynamicManagerModule.SendPacketToServer(User.GetPacket()).ConfigureAwait(true);
         };
         connectWindow.ViewModel.CloseWindow += (_, _) => { connectWindow.Close(); };
         connectWindow.ShowDialog();

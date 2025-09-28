@@ -15,9 +15,8 @@ public class DynamicAudioModule : IDisposable
     internal readonly WasapiCapture AudioCaptureSource;
     private readonly MMDevice _audiPlaybackDevice;
     private readonly WasapiOut _audioPlaybackSource;
-    private readonly BufferedWaveProvider _audioPlaybackBuffer;
     internal readonly WaveFormat AudioFormat;
-    internal double _audioLevel;
+    private double _audioLevel;
     private readonly double _vadThreshold = 0.025; // TODO: Should be dynamic
 
     /// <summary>
@@ -53,11 +52,13 @@ public class DynamicAudioModule : IDisposable
         _audiPlaybackDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
         _audioPlaybackSource =
             new WasapiOut(_audiPlaybackDevice, AudioClientShareMode.Shared, false, 20); // 20 ms latency
-        _audioPlaybackBuffer = new BufferedWaveProvider(AudioFormat);
-        _audioPlaybackBuffer.BufferDuration = TimeSpan.FromSeconds(1);
-        _audioPlaybackBuffer.DiscardOnBufferOverflow = true;
+        var audioPlaybackBuffer = new BufferedWaveProvider(AudioFormat)
+        {
+            BufferDuration = TimeSpan.FromSeconds(1),
+            DiscardOnBufferOverflow = true
+        };
         _audioPlaybackSource.Init(
-            new MediaFoundationResampler(_audioPlaybackBuffer, _audiPlaybackDevice.AudioClient.MixFormat)
+            new MediaFoundationResampler(audioPlaybackBuffer, _audiPlaybackDevice.AudioClient.MixFormat)
                 { ResamplerQuality = 60 });
         _audioPlaybackSource.Play();
 
@@ -71,7 +72,7 @@ public class DynamicAudioModule : IDisposable
             {
                 if (LocalPlayback)
                 {
-                    _audioPlaybackBuffer.AddSamples(e.Buffer, 0, e.BytesRecorded);
+                    audioPlaybackBuffer.AddSamples(e.Buffer, 0, e.BytesRecorded);
                 }
                 var compressedBuffer = StaticNetCompressor.BrotliCompress(e.Buffer);
                 var voicePacket = new DynamicPacketBuilderModule();
@@ -91,7 +92,7 @@ public class DynamicAudioModule : IDisposable
             // Later decode and Play
             var packetData = DynamicPacketReaderModule.ReadAudioBytes(e);
             var decompressedBuffer = StaticNetCompressor.BrotliDecompress(packetData.Item1);
-            _audioPlaybackBuffer.AddSamples(decompressedBuffer, 0, packetData.Item2);
+            audioPlaybackBuffer.AddSamples(decompressedBuffer, 0, packetData.Item2);
         };
     }
 
