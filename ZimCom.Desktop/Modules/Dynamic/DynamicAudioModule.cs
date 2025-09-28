@@ -1,5 +1,6 @@
 ﻿using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
 
@@ -16,7 +17,6 @@ public class DynamicAudioModule : IDisposable
     private readonly WasapiOut _audioPlaybackSource;
     private readonly BufferedWaveProvider _audioPlaybackBuffer;
     internal readonly WaveFormat AudioFormat;
-    private readonly int _opusFrameSize;
 
     /// <summary>
     /// Event triggered when a new audio packet is available after being processed and encoded.
@@ -35,20 +35,22 @@ public class DynamicAudioModule : IDisposable
     /// </summary>
     public DynamicAudioModule()
     {
-        _opusFrameSize = 960;
-        AudioFormat = new WaveFormat(48000, 16, 1); // 48kHz, 16-bit, mono
+        AudioFormat = new WaveFormat(16000, 16, 1); // 16kHz, 16-bit, mono
         AudioCaptureDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
         AudioCaptureSource = new WasapiCapture(AudioCaptureDevice);
         AudioCaptureSource.WaveFormat = AudioFormat;
         AudioCaptureSource.ShareMode = AudioClientShareMode.Shared;
         _audiPlaybackDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-        _audioPlaybackSource = new WasapiOut(_audiPlaybackDevice, AudioClientShareMode.Shared, false, 32);
+        _audioPlaybackSource =
+            new WasapiOut(_audiPlaybackDevice, AudioClientShareMode.Shared, false, 20); // 20 ms latency
         _audioPlaybackBuffer = new BufferedWaveProvider(AudioFormat);
-        _audioPlaybackBuffer.BufferDuration = TimeSpan.FromSeconds(2);
+        _audioPlaybackBuffer.BufferDuration = TimeSpan.FromSeconds(1);
         _audioPlaybackBuffer.DiscardOnBufferOverflow = true;
-        _audioPlaybackSource.Init(new MediaFoundationResampler(_audioPlaybackBuffer, _audiPlaybackDevice.AudioClient.MixFormat) { ResamplerQuality = 60});
+        _audioPlaybackSource.Init(
+            new MediaFoundationResampler(_audioPlaybackBuffer, _audiPlaybackDevice.AudioClient.MixFormat)
+                { ResamplerQuality = 60 });
         _audioPlaybackSource.Play();
-        
+
         AudioCaptureSource.DataAvailable += async (_, e) =>
         {
             //var pcm16 = ConvertBytesToPcm16(e.Buffer.AsSpan(0, e.BytesRecorded), AudioFormat);
@@ -57,7 +59,14 @@ public class DynamicAudioModule : IDisposable
                 //var voicePacket = Encode16BitWithOpus(pcm16);
                 //PacketAvailable?.Invoke(this, voicePacket);
                 // Direct Playback for check
-                _audioPlaybackBuffer.AddSamples(e.Buffer, 0, e.BytesRecorded);
+                var compressedBuffer = StaticNetCompressor.BrotliCompress(e.Buffer);
+                var voicePacket = new DynamicPacketBuilderModule();
+                voicePacket.WriteOperationCode((byte)StaticNetCodes.VoiceCode);
+                voicePacket.WriteAudioBytes(compressedBuffer, e.BytesRecorded);
+                PacketAvailable?.Invoke(this, voicePacket.GetPacketBytes());
+                StaticLogModule.LogDebug("Compressd audio from " + e.Buffer.Length + "(" + e.BytesRecorded + ")" + " bytes to " + compressedBuffer.Length + " bytes");
+                //var decompressedBuffer = StaticNetCompressor.BrotliDecompress(compressedBuffer);
+                //_audioPlaybackBuffer.AddSamples(decompressedBuffer, 0, e.BytesRecorded);
             }
             catch (Exception ex)
             {
@@ -68,6 +77,9 @@ public class DynamicAudioModule : IDisposable
         {
             if (e.Length == 0) return;
             // Later decode and Play
+            var packetData = DynamicPacketReaderModule.ReadAudioBytes(e);
+            var decompressedBuffer = StaticNetCompressor.BrotliDecompress(packetData.Item1);
+            _audioPlaybackBuffer.AddSamples(decompressedBuffer, 0, packetData.Item2);
         };
     }
 

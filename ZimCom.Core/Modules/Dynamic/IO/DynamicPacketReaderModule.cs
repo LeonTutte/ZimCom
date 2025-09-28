@@ -85,4 +85,13 @@ public class DynamicPacketReaderModule()
         packetReaderModule.MemoryStream.ReadExactly(result, 0, length);
         return result;
     }
+    public static (byte[], int) ReadAudioBytes(byte[] buffer)
+    {
+        var packetReaderModule = new DynamicPacketReaderModule(buffer);
+        var bytesRecorded = packetReaderModule.BinaryReader.ReadInt32();
+        var length = packetReaderModule.BinaryReader.ReadInt32();
+        var result = new byte[length];
+        packetReaderModule.MemoryStream.ReadExactly(result, 0, length);
+        return (result, bytesRecorded);
+    }
 }

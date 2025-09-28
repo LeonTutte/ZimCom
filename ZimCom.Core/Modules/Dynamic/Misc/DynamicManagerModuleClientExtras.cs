@@ -161,8 +161,7 @@ public class DynamicManagerModuleClientExtras() : DynamicManagerModule(true)
                             Channel.SetFromPacket(packetReaderModule.Read32Message())));
                         break;
                     case (byte)StaticNetCodes.VoiceCode:
-                        var audioPayload = DynamicPacketReaderModule.ReadDirect32Custom(result.Buffer);
-                        StaticNetClientEvents.ReceivedAudio?.Invoke(this, audioPayload);
+                        StaticNetClientEvents.ReceivedAudio?.Invoke(this, result.Buffer);
                         break;
                     case (byte)StaticNetCodes.ChatMessageCode:
                         var chatPayload = ChatMessage.SetFromPacket(DynamicPacketReaderModule.ReadDirect32Message(result.Buffer)) ??

@@ -1,13 +1,5 @@
-﻿using System.Buffers;
-using System.Windows;
-using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Concentus;
-using Concentus.Enums;
-using NAudio.CoreAudioApi;
-using NAudio.Wave;
-using Spectre.Console;
 using ZimCom.Core.Models;
 using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Dynamic.Misc;
@@ -263,7 +255,7 @@ public partial class MainViewModel : ObservableObject
         SettingsViewModel.SettingsSaveButtonPressed += (_, _) => { User.Load(); };
         AudioModule.PacketAvailable += (_, e) =>
         {
-            if (AudioLevel < 0.015) return;
+            //if (AudioLevel < 0.015) return;
             if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelSpeech, User, CurrentChannel!) is false)
             {
                 var messageWindow = new MessageWindow("Denied",
@@ -272,12 +264,8 @@ public partial class MainViewModel : ObservableObject
             }
             else
             {
-                // build and send UDP package
-                var packetBuilder = new DynamicPacketBuilderModule();
-                packetBuilder.WriteOperationCode((byte)StaticNetCodes.VoiceCode);
-                packetBuilder.WriteCusomBytes(e);
                 if (DynamicManagerModule.Registered)
-                    DynamicManagerModule.SendPacketToServer(packetBuilder.GetPacketBytes()).ConfigureAwait(false);
+                    DynamicManagerModule.SendPacketToServer(e).ConfigureAwait(false);
             }
         };
     }

@@ -37,6 +37,13 @@ public class DynamicPacketBuilderModule
         _memoryStream.Write(data);
     }
 
+    public void WriteAudioBytes(byte[] data, int bytesRecorded)
+    {
+        _memoryStream.Write(BitConverter.GetBytes(bytesRecorded));
+        _memoryStream.Write(BitConverter.GetBytes(data.Length));
+        _memoryStream.Write(data);
+    }
+
     /// <summary>
     /// Retrieves the bytes from the memory stream.
     /// </summary>
