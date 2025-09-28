@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Net;
+using System.Net.Sockets;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
@@ -193,9 +195,23 @@ public partial class MainViewModel : ObservableObject
         var connectWindow = new ConnectWindow();
         connectWindow.ViewModel.ConnectToAddress += async void (_, e) =>
         {
+            var address = string.Empty;
+            switch (Uri.CheckHostName(e))
+            {
+                case UriHostNameType.Unknown:
+                    throw new ArgumentException("The hostname provided is not valid (no type available).");
+                    break;
+                case UriHostNameType.IPv4:
+                case UriHostNameType.IPv6:
+                    address = e;
+                    break;
+                case UriHostNameType.Dns:
+                    address = (await Dns.GetHostAddressesAsync(e, AddressFamily.InterNetwork)).ToString();
+                    break;
+            }
             try
             {
-                DynamicManagerModule.ConnectToServer(e);
+                DynamicManagerModule.ConnectToServer(address);
             }
             catch (Exception ex)
             {
