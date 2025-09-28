@@ -12,4 +12,5 @@ public partial class UserSettings : ObservableObject
 {
     [ObservableProperty] public partial string? OutputDeviceFriendlyName { get; set; }
     [ObservableProperty] public partial string? InputDeviceFriendlyName { get; set; }
+    [ObservableProperty] public partial bool LocalPlayback { get; set; } = false;
 }

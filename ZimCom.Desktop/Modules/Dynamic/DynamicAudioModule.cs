@@ -17,6 +17,15 @@ public class DynamicAudioModule : IDisposable
     private readonly WasapiOut _audioPlaybackSource;
     private readonly BufferedWaveProvider _audioPlaybackBuffer;
     internal readonly WaveFormat AudioFormat;
+    internal double _audioLevel;
+    private readonly double _vadThreshold = 0.025; // TODO: Should be dynamic
+
+    /// <summary>
+    /// Gets or sets a value that determines whether the audio captured by the module should be played back locally.
+    /// When set to <c>true</c>, the module will route the incoming audio stream to the local output device in addition to any remote transmission logic.
+    /// Setting this property to <c>false</c> disables local playback, allowing the capture source to operate solely as an input for further processing or network transmission.
+    /// </summary>
+    public bool LocalPlayback { get; set; }
 
     /// <summary>
     /// Event triggered when a new audio packet is available after being processed and encoded.
@@ -53,20 +62,22 @@ public class DynamicAudioModule : IDisposable
 
         AudioCaptureSource.DataAvailable += async (_, e) =>
         {
-            //var pcm16 = ConvertBytesToPcm16(e.Buffer.AsSpan(0, e.BytesRecorded), AudioFormat);
+            if (!IsVoiceActive(e.Buffer, e.BytesRecorded))
+            {
+                return;
+            }
             try
             {
-                //var voicePacket = Encode16BitWithOpus(pcm16);
-                //PacketAvailable?.Invoke(this, voicePacket);
-                // Direct Playback for check
+                if (LocalPlayback)
+                {
+                    _audioPlaybackBuffer.AddSamples(e.Buffer, 0, e.BytesRecorded);
+                }
                 var compressedBuffer = StaticNetCompressor.BrotliCompress(e.Buffer);
                 var voicePacket = new DynamicPacketBuilderModule();
                 voicePacket.WriteOperationCode((byte)StaticNetCodes.VoiceCode);
                 voicePacket.WriteAudioBytes(compressedBuffer, e.BytesRecorded);
                 PacketAvailable?.Invoke(this, voicePacket.GetPacketBytes());
                 StaticLogModule.LogDebug("Compressd audio from " + e.Buffer.Length + "(" + e.BytesRecorded + ")" + " bytes to " + compressedBuffer.Length + " bytes");
-                //var decompressedBuffer = StaticNetCompressor.BrotliDecompress(compressedBuffer);
-                //_audioPlaybackBuffer.AddSamples(decompressedBuffer, 0, e.BytesRecorded);
             }
             catch (Exception ex)
             {
@@ -81,6 +92,35 @@ public class DynamicAudioModule : IDisposable
             var decompressedBuffer = StaticNetCompressor.BrotliDecompress(packetData.Item1);
             _audioPlaybackBuffer.AddSamples(decompressedBuffer, 0, packetData.Item2);
         };
+    }
+
+    /// <summary>
+    /// Bestimmt, ob im angegebenen Audio‑Puffer Sprachaktivität vorhanden ist.
+    /// </summary>
+    /// <param name="buffer">Roh‑Audio‑Bytes (PCM 16‑Bit).</param>
+    /// <param name="bytesRecorded">Anzahl der tatsächlich aufgezeichneten Bytes.</param>
+    /// <returns>True, wenn Sprache erkannt wurde; sonst False.</returns>
+    private bool IsVoiceActive(byte[] buffer, int bytesRecorded)
+    {
+        // Nur volle Samples berücksichtigen (2 Byte pro Sample bei 16‑Bit PCM)
+        int samples = bytesRecorded / 2;
+        if (samples == 0) return false;
+
+        double sumSquares = 0.0;
+        for (int i = 0; i < bytesRecorded; i += 2)
+        {
+            // PCM‑Sample als signed Int16 interpretieren
+            short sample = BitConverter.ToInt16(buffer, i);
+            double normalized = sample / 32768.0; // in [-1, 1]
+            sumSquares += normalized * normalized;
+        }
+
+        double rms = Math.Sqrt(sumSquares / samples); // Root‑Mean‑Square
+
+        // Wenn RMS über dem Schwellenwert liegt → Sprache
+        _audioLevel = rms;
+        AudioLevelCalculated?.Invoke(this, (float)_audioLevel);
+        return rms > _vadThreshold;
     }
 
     /// <inheritdoc />

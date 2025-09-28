@@ -119,6 +119,7 @@ public partial class MainViewModel : ObservableObject
             AudioModule.AudioCaptureSource.StartRecording();
             StaticLogModule.LogInformation($"Enabled audio input on {AudioModule.AudioCaptureDevice.FriendlyName}");
         }
+        AudioModule.LocalPlayback = User.UserSettings.LocalPlayback;
     }
 
     [RelayCommand]
