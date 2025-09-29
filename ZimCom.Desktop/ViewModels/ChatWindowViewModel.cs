@@ -15,7 +15,8 @@ public partial class ChatWindowViewModel : ObservableObject
     /// The message is only client-side
     /// </remarks>
     /// <seealso cref="ZimCom.Core.Models.ChatMessage"/>
-    public static EventHandler<ChatMessage> SendMessageToCurrentChat {get; set;}
+    public static EventHandler<ChatMessage> SendMessageToCurrentChat {get; set;} = null!;
+
     /// <summary>
     /// Send a <c>string</c> to the current active channel, it will be transformed to a <c>ChatMessage</c> on the fly
     /// </summary>
@@ -23,7 +24,7 @@ public partial class ChatWindowViewModel : ObservableObject
     /// The message is only client-side
     /// </remarks>
     /// <seealso cref="ZimCom.Core.Models.ChatMessage"/>
-    public static EventHandler<string> SendTextToCurrentChat {get; set;}
+    public static EventHandler<string> SendTextToCurrentChat {get; set;} = null!;
     /// <summary>
     /// Send a <c>string</c> to the message-board, it will be transformed to a <c>ChatMessage</c> on the fly
     /// </summary>
@@ -31,7 +32,7 @@ public partial class ChatWindowViewModel : ObservableObject
     /// The message is only client-side and intended for program events, that should inform the user
     /// </remarks>
     /// <seealso cref="ZimCom.Core.Models.ChatMessage"/>
-    public static EventHandler<string> SendEventAsMessage {get; set;}
+    public static EventHandler<string> SendEventAsMessage {get; set;} = null!;
     /// <summary>
     /// Set the <c>Channel</c> on wich the client is active
     /// </summary>
@@ -39,7 +40,7 @@ public partial class ChatWindowViewModel : ObservableObject
     /// A message about the channel change will automatically be populated on the fly
     /// </remarks>
     /// <seealso cref="ZimCom.Core.Models.Channel"/>
-    public static EventHandler<Channel> SetCurrentChannel { get; set; }
+    public static EventHandler<Channel> SetCurrentChannel { get; set; } = null!;
     private User User { get; init; }
     [ObservableProperty] public partial Channel? CurrentChannel { get; private set; }
     [ObservableProperty] public partial ObservableCollection<ChatMessage> Messages { get; private set; } = [];

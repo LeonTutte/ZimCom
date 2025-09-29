@@ -40,7 +40,7 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async void StartAudioInputTest()
+    private async Task StartAudioInputTest()
     {
         try
         {

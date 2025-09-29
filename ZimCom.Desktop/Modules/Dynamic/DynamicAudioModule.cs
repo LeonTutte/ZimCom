@@ -13,11 +13,11 @@ public class DynamicAudioModule : IDisposable
 {
     internal MMDevice AudioCaptureDevice;
     internal readonly WasapiCapture AudioCaptureSource;
-    internal MMDevice AudioPlaybackDevice;
+    private MMDevice AudioPlaybackDevice;
     private readonly WasapiOut _audioPlaybackSource;
     internal readonly WaveFormat AudioFormat;
-    public List<MMDevice> AvailableAudioInputDevices;
-    public List<MMDevice> AvailableAudioOutputDevices;
+    private List<MMDevice> AvailableAudioInputDevices;
+    private List<MMDevice> AvailableAudioOutputDevices;
     private double _audioLevel;
     internal double VadThreshold = 0.025;
 
