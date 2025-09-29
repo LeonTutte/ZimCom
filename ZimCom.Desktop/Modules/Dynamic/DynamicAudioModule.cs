@@ -11,11 +11,13 @@ namespace ZimCom.Desktop.Modules.Dynamic;
 /// </summary>
 public class DynamicAudioModule : IDisposable
 {
-    internal readonly MMDevice AudioCaptureDevice;
+    internal MMDevice AudioCaptureDevice;
     internal readonly WasapiCapture AudioCaptureSource;
-    private readonly MMDevice _audiPlaybackDevice;
+    internal MMDevice AudioPlaybackDevice;
     private readonly WasapiOut _audioPlaybackSource;
     internal readonly WaveFormat AudioFormat;
+    public List<MMDevice> AvailableAudioInputDevices;
+    public List<MMDevice> AvailableAudioOutputDevices;
     private double _audioLevel;
     internal double VadThreshold = 0.025;
 
@@ -44,21 +46,24 @@ public class DynamicAudioModule : IDisposable
     /// </summary>
     public DynamicAudioModule()
     {
+        AvailableAudioOutputDevices =
+            [.. new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)];
+        AvailableAudioInputDevices = 
+            [.. new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active)];
         AudioFormat = new WaveFormat(48000, 16, 1); // 48kHz, 16-bit, mono
-        AudioCaptureDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
+        AudioCaptureDevice = GetDefaultAudioCaptureEndpoint();
         AudioCaptureSource = new WasapiCapture(AudioCaptureDevice);
         AudioCaptureSource.WaveFormat = AudioFormat;
         AudioCaptureSource.ShareMode = AudioClientShareMode.Shared;
-        _audiPlaybackDevice = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-        _audioPlaybackSource =
-            new WasapiOut(_audiPlaybackDevice, AudioClientShareMode.Shared, false, 20); // 20 ms latency
+        AudioPlaybackDevice = GetDefaultAudioPlaybackEndpoint();
+        _audioPlaybackSource = new WasapiOut(AudioPlaybackDevice, AudioClientShareMode.Shared, false, 20);
         var audioPlaybackBuffer = new BufferedWaveProvider(AudioFormat)
         {
             BufferDuration = TimeSpan.FromSeconds(1),
             DiscardOnBufferOverflow = true
         };
         _audioPlaybackSource.Init(
-            new MediaFoundationResampler(audioPlaybackBuffer, _audiPlaybackDevice.AudioClient.MixFormat)
+            new MediaFoundationResampler(audioPlaybackBuffer, AudioPlaybackDevice.AudioClient.MixFormat)
                 { ResamplerQuality = 60 });
         _audioPlaybackSource.Play();
 
@@ -96,6 +101,50 @@ public class DynamicAudioModule : IDisposable
         };
     }
 
+    internal WasapiOut InitializePlaybackSource(string? audioPlaybackDeviceId)
+    {
+        AudioPlaybackDevice.Dispose();
+        _audioPlaybackSource.Dispose();
+        if (string.IsNullOrEmpty(audioPlaybackDeviceId))
+        {
+            AudioCaptureDevice = GetDefaultAudioPlaybackEndpoint();
+        }
+        else
+        {
+            AudioCaptureDevice =
+                AvailableAudioInputDevices.Find(x => x.ID.Equals(audioPlaybackDeviceId, StringComparison.Ordinal)) ??
+                GetDefaultAudioCaptureEndpoint();
+        }
+        return new WasapiOut(AudioPlaybackDevice, AudioClientShareMode.Shared, false, 20);
+    }
+
+    internal WasapiCapture InitializeWasapiCapture(string? audioCaptureDeviceId)
+    {
+        AudioCaptureDevice.Dispose();
+        AudioCaptureSource.Dispose();
+        if (string.IsNullOrEmpty(audioCaptureDeviceId))
+        {
+            AudioCaptureDevice = GetDefaultAudioCaptureEndpoint();
+        }
+        else
+        {
+            AudioCaptureDevice =
+                AvailableAudioOutputDevices.Find(x => x.ID.Equals(audioCaptureDeviceId, StringComparison.Ordinal)) ??
+                GetDefaultAudioPlaybackEndpoint();
+        }
+        return new WasapiCapture(AudioCaptureDevice);
+    }
+
+    internal static MMDevice GetDefaultAudioPlaybackEndpoint()
+    {
+        return new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+    }
+
+    internal static MMDevice GetDefaultAudioCaptureEndpoint()
+    {
+        return new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
+    }
+
     /// <summary>
     /// Bestimmt, ob im angegebenen Audio‑Puffer Sprachaktivität vorhanden ist.
     /// </summary>
@@ -130,7 +179,7 @@ public class DynamicAudioModule : IDisposable
     {
         AudioCaptureDevice.Dispose();
         AudioCaptureSource.Dispose();
-        _audiPlaybackDevice.Dispose();
+        AudioPlaybackDevice.Dispose();
         _audioPlaybackSource.Dispose();
         GC.SuppressFinalize(this);
     }

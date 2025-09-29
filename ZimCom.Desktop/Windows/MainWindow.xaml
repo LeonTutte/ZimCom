@@ -150,39 +150,6 @@
                         </ListView>
                     </StackPanel>
                 </Grid>
-                <Grid Grid.Row="1" d:Background="AliceBlue">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <ListView Grid.Row="0" ItemsSource="{Binding CurrentChannel.Chat, FallbackValue={StaticResource EmptyCollection}}"
-                              d:Background="CornflowerBlue">
-                        <ListView.ItemTemplate>
-                            <DataTemplate DataType="{x:Type core:ChatMessage}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock
-                                        Text="{Binding DateTime, StringFormat={}{0:G},
-                                        ConverterCulture={x:Static globalization:CultureInfo.CurrentCulture}}" />
-                                    <TextBlock Text=" " />
-                                    <TextBlock Text="{Binding User.Label}" />
-                                    <TextBlock Text=" " />
-                                    <TextBlock Text=":" />
-                                    <TextBlock Text=" " />
-                                    <TextBlock Text="{Binding Message}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                    <StackPanel Margin="4" Orientation="Horizontal" Grid.Row="1" d:Background="Aquamarine">
-                        <TextBox MinWidth="400" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                 MaxWidth="400" MaxHeight="200"
-                                 TextWrapping="Wrap" Text="{Binding CurrentChatMessage}"
-                                 IsEnabled="{Binding ChatEnabled}"/>
-                        <Button Margin="4,0,0,0" FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                                Content="&#xE8BD;" Command="{Binding SendMessageCommand}" IsDefault="True"
-                                IsEnabled="{Binding ChatEnabled}" ToolTip="Send a message to channel"/>
-                    </StackPanel>
-                </Grid>
             </Grid>
         </Grid>
     </Grid>

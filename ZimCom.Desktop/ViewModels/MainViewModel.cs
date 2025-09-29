@@ -4,7 +4,6 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
-using ZimCom.Core.Modules.Dynamic.IO;
 using ZimCom.Core.Modules.Dynamic.Misc;
 using ZimCom.Core.Modules.Static.Misc;
 using ZimCom.Core.Modules.Static.Net;
@@ -49,6 +48,8 @@ public partial class MainViewModel : ObservableObject
         AudioInformationText =
             $"{AudioModule.AudioFormat.AverageBytesPerSecond} Bps as {AudioModule.AudioFormat.Encoding} from {AudioModule.AudioCaptureDevice.FriendlyName}";
         User.IsMuted = true;
+        ChatWindow = new ChatWindow(User);
+        ChatWindow.Show();
         AttachToClientEvents();
     }
 
@@ -63,15 +64,13 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] public partial Channel? SelectedChannel { get; set; }
     [ObservableProperty] public partial Channel? CurrentChannel { get; private set; }
     [ObservableProperty] private partial Channel? PreviousChannel { get; set; }
-    [ObservableProperty] public partial string? CurrentChatMessage { get; set; }
     [ObservableProperty] public partial string? AudioInformationText { get; private set; }
-    [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ConnectEnabled { get; set; } = true;
     [ObservableProperty] public partial bool DisconnectEnabled { get; set; } = false;
     [ObservableProperty] public partial bool ChannelExtrasEnabled { get; set; } = false;
     [ObservableProperty] private partial DynamicAudioModule AudioModule { get; set; }
     [ObservableProperty] public partial float AudioLevel { get; set; }
-    private User ServerUser { get; } = new("Server");
+    [ObservableProperty] private partial ChatWindow ChatWindow { get; set; }
 
     /// <summary>
     /// Attempts to switch the current user to the selected channel. Ensures the user has sufficient access rights to join
@@ -97,7 +96,8 @@ public partial class MainViewModel : ObservableObject
             SelectedChannel.Participants.Add(User);
             CurrentChannel = SelectedChannel;
             ChannelExtrasEnabled = !CurrentChannel.LocalChannel;
-            ChatEnabled = true;
+            ChatWindowViewModel.SetCurrentChannel(this, CurrentChannel);
+            ChatWindow.ViewModel.ChatEnabled = true;
             StaticNetClientEvents.UserChangeChannel?.Invoke(this, (User, CurrentChannel.Label));
         }
         else
@@ -120,11 +120,9 @@ public partial class MainViewModel : ObservableObject
         }
         else
         {
-            AudioModule.VadThreshold = User?.UserSettings.VoiceActivityDetectionThreshold ?? 0.025;
             AudioModule.AudioCaptureSource.StartRecording();
             StaticLogModule.LogInformation($"Enabled audio input on {AudioModule.AudioCaptureDevice.FriendlyName}");
         }
-        AudioModule.LocalPlayback = User?.UserSettings.LocalPlayback ?? false;
     }
 
     [RelayCommand]
@@ -170,26 +168,6 @@ public partial class MainViewModel : ObservableObject
         };
         settingsWindow.ViewModel.LoadUserSettings();
         settingsWindow.ShowDialog();
-    }
-
-    [RelayCommand]
-    private void SendMessage()
-    {
-        if (Server is null || CurrentChannel is null || string.IsNullOrWhiteSpace(CurrentChatMessage)) return;
-        var tempMessage = new ChatMessage(User, CurrentChatMessage, CurrentChannel.Label);
-        if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelChat, User, CurrentChannel) is false)
-        {
-            var messageWindow = new MessageWindow("Denied",
-                $"You are not permitted to send messages to {CurrentChannel.Label}");
-            messageWindow.ShowDialog();
-        }
-        else
-        {
-            CurrentChannel.Chat.Add(tempMessage);
-            StaticNetClientEvents.SendMessageToServer?.Invoke(this, tempMessage);
-        }
-
-        CurrentChatMessage = string.Empty;
     }
 
     [RelayCommand]
@@ -254,35 +232,32 @@ public partial class MainViewModel : ObservableObject
         };
         StaticNetClientEvents.DisconnectedFromServer += (_, _) =>
         {
-            var messageWindow = new MessageWindow("Disconnect", "Disconnected from Server!");
-            messageWindow.ShowDialog();
             ConnectEnabled = true;
             DisconnectEnabled = false;
-        };
-        StaticNetClientEvents.ReceivedMessageFromServer += (_, e) =>
-        {
-            if (e is null) return;
-            Application.Current.Dispatcher.BeginInvoke((Action)(() =>
-                Server?.Channels.First(x => x.Label.Equals(e.ChannelLabel, StringComparison.Ordinal)).Chat.Add(e)));
         };
         StaticNetClientEvents.OtherUserChangeChannel += (_, e) =>
         {
             if (e.Item1 is null || e.Item2 is null) return;
             var temp = DynamicManagerModule.FindUserInChannel(e!.Item1);
-            if (temp is null) return;
-            if (temp.Label != e!.Item2.Label)
+            if (temp is not null && temp.Label != e!.Item2.Label)
                 temp.Participants.Remove(temp.Participants.First(x => x.Id.Equals(e.Item1.Id)));
-
-            var serverTemp =
-                Server!.Channels.First(x => x.Label.Equals(e.Item2.Label, StringComparison.Ordinal));
-            serverTemp.Participants.Add(e.Item1);
-            CurrentChannel?.Chat.Add(new(ServerUser, $"{e.Item1.Label} joined Channel",
-                CurrentChannel.Label));
+            Server!.Channels.First(x => x.Label.Equals(e.Item2.Label, StringComparison.Ordinal)).Participants.Add(e.Item1);
         };
-        SettingsViewModel.SettingsSaveButtonPressed += (_, _) => { User.Load(); };
+        SettingsViewModel.SettingsSaveButtonPressed += (_, _) =>
+        {
+            User.IsMuted = true;
+            User = User.Load() ?? new User("Default User");
+            AudioModule.VadThreshold = User?.UserSettings.VoiceActivityDetectionThreshold ?? 0.025;
+            AudioModule.LocalPlayback = User?.UserSettings.LocalPlayback ?? false;
+            AudioModule.InitializeWasapiCapture(User?.UserSettings.InputDeviceId ?? null);
+            AudioModule.InitializePlaybackSource(User?.UserSettings.OutputDeviceId ?? null);
+            AudioInformationText =
+                $"{AudioModule.AudioFormat.AverageBytesPerSecond} Bps as {AudioModule.AudioFormat.Encoding} from " 
+                + $"{AudioModule.AudioCaptureDevice.FriendlyName}";
+
+        };
         AudioModule.PacketAvailable += (_, e) =>
         {
-            //if (AudioLevel < 0.015) return;
             if (DynamicManagerModule.CheckUserAgainstChannelStrength(Strength.ChannelSpeech, User, CurrentChannel!) is false)
             {
                 var messageWindow = new MessageWindow("Denied",
