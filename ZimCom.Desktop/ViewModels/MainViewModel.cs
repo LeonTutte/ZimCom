@@ -178,19 +178,16 @@ public partial class MainViewModel : ObservableObject
         {
             try
             {
-                var address = string.Empty;
-                switch (Uri.CheckHostName(e))
+                var address = Uri.CheckHostName(e) switch
                 {
-                    case UriHostNameType.Unknown:
-                        throw new ArgumentException("The hostname provided is not valid (no type available).");
-                    case UriHostNameType.IPv4:
-                    case UriHostNameType.IPv6:
-                        address = e;
-                        break;
-                    case UriHostNameType.Dns:
-                        address = (await Dns.GetHostAddressesAsync(e, AddressFamily.InterNetwork))[0].MapToIPv4().ToString();
-                        break;
-                }
+                    UriHostNameType.Unknown => throw new ArgumentException(
+                        "The hostname provided is not valid (no type available)."),
+                    UriHostNameType.IPv4 or UriHostNameType.IPv6 => e,
+                    UriHostNameType.Dns => (await Dns.GetHostAddressesAsync(e, AddressFamily.InterNetwork))[0]
+                        .MapToIPv4()
+                        .ToString(),
+                    _ => string.Empty
+                };
                 try
                 {
                     DynamicManagerModule.ConnectToServer(address);
