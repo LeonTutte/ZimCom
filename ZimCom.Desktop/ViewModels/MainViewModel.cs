@@ -188,7 +188,7 @@ public partial class MainViewModel : ObservableObject
                         address = e;
                         break;
                     case UriHostNameType.Dns:
-                        address = (await Dns.GetHostAddressesAsync(e, AddressFamily.InterNetwork)).ToString();
+                        address = (await Dns.GetHostAddressesAsync(e, AddressFamily.InterNetwork))[0].MapToIPv4().ToString();
                         break;
                 }
                 try
