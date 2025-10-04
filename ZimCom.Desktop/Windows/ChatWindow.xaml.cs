@@ -1,8 +1,6 @@
 ﻿using System.Windows;
-using System.Windows.Forms;
 using ZimCom.Core.Models;
 using ZimCom.Desktop.ViewModels;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace ZimCom.Desktop.Windows;
 
@@ -12,6 +10,7 @@ namespace ZimCom.Desktop.Windows;
 public partial class ChatWindow : Window
 {
     public ChatWindowViewModel ViewModel { get; }
+
     /// <inheritdoc />
     public ChatWindow(User user)
     {

@@ -9,7 +9,8 @@
         xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
         d:DataContext="{d:DesignInstance Type=viewmodels:ChatWindowViewModel}"
         mc:Ignorable="d"
-        Title="Chat and Messages" Height="450" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="Chat and Messages" Height="450" Width="800" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <CompositeCollection x:Key="EmptyCollection" />
     </Window.Resources>
@@ -24,7 +25,7 @@
         </Grid.ColumnDefinitions>
         <ListView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch" Margin="4" ItemsSource="{Binding Messages,
-                   FallbackValue={StaticResource EmptyCollection}}">
+                   FallbackValue={StaticResource EmptyCollection}, Mode=TwoWay}">
             <ListView.ItemTemplate>
                 <DataTemplate DataType="{x:Type core:ChatMessage}">
                     <StackPanel Orientation="Horizontal">

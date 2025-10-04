@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ZimCom.Core.Models;
@@ -43,7 +44,7 @@ public partial class ChatWindowViewModel : ObservableObject
     public static EventHandler<Channel> SetCurrentChannel { get; set; } = null!;
     private User User { get; init; }
     [ObservableProperty] public partial Channel? CurrentChannel { get; private set; }
-    [ObservableProperty] public partial ObservableCollection<ChatMessage> Messages { get; private set; } = [];
+    [ObservableProperty] public partial ObservableCollection<ChatMessage> Messages { get; set; } = [];
     [ObservableProperty] public partial string CurrentMessage {get; set; } = String.Empty;
     [ObservableProperty] public partial bool ChatEnabled { get; set; } = false;
     private User SystemUser { get; init; } = new User("System");
@@ -88,12 +89,18 @@ public partial class ChatWindowViewModel : ObservableObject
         StaticNetClientEvents.ReceivedMessageFromServer += (_, e) =>
         {
             if (e is null) return;
-            Messages.Add(e);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Messages.Add(e);
+            });
         };
         StaticNetClientEvents.OtherUserChangeChannel += (_, e) =>
         {
             if (e.Item1 is null || e.Item2 is null) return;
-            Messages.Add(new ChatMessage(SystemUser, e.Item1.Label + " joined your Channel", e.Item2.Label));
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Messages.Add(new ChatMessage(SystemUser, e.Item1.Label + " joined your Channel", e.Item2.Label));
+            });
         };
     }
 }
