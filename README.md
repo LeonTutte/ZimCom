@@ -22,7 +22,21 @@ All logs are stored directly in the executable folder under the subfolder "logs"
 - [x] Voice
 - [ ] Rich Text Chat
 - [ ] Screen sharing
+- [ ] QUIC Protocol
+- [ ] File Upload & Download
 
 ## License
 
 ZimCom is licensed under the EUPL-1.2
+
+## Additional Request Features
+
+- [ ] IP Ban combined with user ban
+- [ ] Channel description based on RTF
+- [ ] Channel banners & channel icon
+- [ ] Slots for channels
+- [ ] Persistent chat on client
+- [ ] Strength for seeing active channel user
+- [ ] Strength for modifying channel
+- [ ] Server favorites
+- [ ] Mark Users as friends via hash of id
